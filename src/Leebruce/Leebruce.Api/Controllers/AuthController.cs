@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
 
 namespace Leebruce.Api.Controllers;
@@ -24,12 +25,13 @@ public class AuthController : ExtendedControllerBase
 		}
 	}
 
+	[Authorize]
 	[HttpPost( "logout" )]
-	public async Task<IActionResult> Logout( [FromBody] string token, [FromServices] ILbLogoutService logoutService )
+	public async Task<IActionResult> Logout( [FromServices] ILbLogoutService logoutService )
 	{
 		try
 		{
-			await logoutService.LogoutAsync( token );
+			await logoutService.LogoutAsync( User );
 			return NoContent();
 		}
 		catch ( ArgumentException e )

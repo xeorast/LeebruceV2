@@ -1,40 +1,47 @@
-﻿using Leebruce.Api.Models;
-using System.Net;
+﻿using System.Net;
+using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 namespace Leebruce.Api.Services.LbAuth;
 
 public interface ILbHelperService
 {
-	HttpClientHandler CreateHandler( string token );
-	Task<string> GetUserNameAsync( string token );
+	HttpClientHandler CreateHandler( ClaimsPrincipal user );
+	Task<string> GetUserNameAsync( ClaimsPrincipal user );
 }
 
 public class LbHelperService : ILbHelperService
 {
-	private readonly JsonService _json;
+	//todo: automatically create one httpclient per call
 	//private readonly IHttpContextAccessor _httpContext;
 	//public HttpClient Http { get; }
 
-	public LbHelperService( JsonService json )
+	public HttpClientHandler CreateHandler( ClaimsPrincipal user )
 	{
-		_json = json;
+		string? dziennikSid = user.Claims.FirstOrDefault( x => x.Type == "DziennikSid" )?.Value
+			?? throw new ArgumentException( "Incomplete principal, no 'DziennikSid' claim found.", nameof( user ) );
+
+		string? sdziennikSid = user.Claims.FirstOrDefault( x => x.Type == "SdziennikSid" )?.Value
+			?? throw new ArgumentException( "Incomplete principal, no 'SdziennikSid' claim found.", nameof( user ) );
+
+		string? oAuthToken = user.Claims.FirstOrDefault( x => x.Type == "OAuthToken" )?.Value
+			?? throw new ArgumentException( "Incomplete principal, no 'OAuthToken' claim found.", nameof( user ) );
+
+		return CreateHandler( dziennikSid, sdziennikSid, oAuthToken );
 	}
-
-	public HttpClientHandler CreateHandler( string token )
+	public HttpClientHandler CreateHandler( string dziennikSid, string sdziennikSid, string oAuthToken )
 	{
-		var data = _json.FromBase64Json<LbAuthData>( token ) ?? throw new Exception();
-
 		CookieContainer cookies = new();
-		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.dsidName, data.DziennikSid ) );
-		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.sdsidName, data.SdziennikSid ) );
+		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.dsidName, dziennikSid ) );
+		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.sdsidName, sdziennikSid ) );
+		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.oatokenName, oAuthToken ) );
 
 		return new() { AllowAutoRedirect = false, CookieContainer = cookies };
 	}
 
-	public async Task<string> GetUserNameAsync( string token )
+	public async Task<string> GetUserNameAsync( ClaimsPrincipal user )
 	{
-		using HttpClientHandler handler = CreateHandler( token );
+		using HttpClientHandler handler = CreateHandler( user );
 		using HttpClient http = new( handler );
 
 		using var resp = await http.GetAsync( "https://synergia.librus.pl/uczen/index" );

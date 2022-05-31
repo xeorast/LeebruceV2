@@ -1,43 +1,24 @@
-﻿using Leebruce.Api.Models;
-using System.Net;
+﻿using System.Security.Claims;
 
 namespace Leebruce.Api.Services.LbAuth;
 
 public interface ILbLogoutService
 {
-	Task LogoutAsync( string token );
+	Task LogoutAsync( ClaimsPrincipal user );
 }
 
 public class LbLogoutService : ILbLogoutService
 {
-	private readonly JsonService _json;
+	private readonly ILbHelperService _lbHelper;
 
-	public LbLogoutService( JsonService json )
+	public LbLogoutService( ILbHelperService lbHelper )
 	{
-		_json = json;
+		_lbHelper = lbHelper;
 	}
 
-	public async Task LogoutAsync( string token )
+	public async Task LogoutAsync( ClaimsPrincipal user )
 	{
-		LbAuthData data;
-		try
-		{
-			data = _json.FromBase64Json<LbAuthData>( token ) ?? throw new ArgumentException( "Cannot process given token.", nameof( token ) );
-		}
-		catch ( FormatException )
-		{
-			throw new FormatException( "Token is invalid." );
-		}
-		if ( data is not { DziennikSid: not null, SdziennikSid: not null } )
-		{
-			throw new ArgumentException( "Token is incomplete." );
-		}
-
-		CookieContainer cookies = new();
-		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.dsidName, data.DziennikSid ) );
-		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.sdsidName, data.SdziennikSid ) );
-
-		using HttpClientHandler handler = new() { AllowAutoRedirect = false, CookieContainer = cookies };
+		using HttpClientHandler handler = _lbHelper.CreateHandler( user );
 		using HttpClient http = new( handler );
 
 		using var resp = await http.GetAsync( "https://synergia.librus.pl/wyloguj" );
