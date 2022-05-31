@@ -46,20 +46,8 @@ public class AuthController : ExtendedControllerBase
 		}
 	}
 
-	public class LoginDto
-	{
-		[Required]
-		public string Username { get; init; }
-		[Required]
-		public string Password { get; init; }
-
-		public LoginDto(
-			string Username,
-			string Password )
-		{
-			this.Username = Username;
-			this.Password = Password;
-		}
-	}
+	public record LoginDto(
+		[Required] string Username,
+		[Required] string Password );
 
 }

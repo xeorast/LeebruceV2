@@ -7,7 +7,7 @@ public static class Startup
 		_ = builder.Services.AddControllers();
 		// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 		_ = builder.Services.AddEndpointsApiExplorer();
-		_ = builder.Services.AddSwaggerGen();
+		_ = builder.Services.AddSwaggerGen( o => o.SchemaFilter<RecordValidationSchemaFilter>() );
 
 		_ = builder.Services.AddScoped<ILbLoginService, LbLoginService>();
 		_ = builder.Services.AddScoped<ILbLogoutService, LbLogoutService>();
