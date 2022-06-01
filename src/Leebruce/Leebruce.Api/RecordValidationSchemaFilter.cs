@@ -29,11 +29,13 @@ public class RecordValidationSchemaFilter : ISchemaFilter
 			return;
 		}
 
-		var ctor = context.MemberInfo.DeclaringType.GetConstructors( System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance ).SingleOrDefault();
-		if ( ctor is null )
+		var ctors = context.MemberInfo.DeclaringType.GetConstructors( System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance );
+		if ( ctors.Length != 1 )
 		{
 			return;
 		}
+
+		var ctor = ctors[0];
 
 		var param = ctor.GetParameters()
 			.Where( p => p.Name == context.MemberInfo.Name )
