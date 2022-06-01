@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using js = System.Text.Json;
 
@@ -6,22 +8,27 @@ namespace Leebruce.Api.Services;
 
 public class JsonService
 {
-	private static readonly js.JsonSerializerOptions options = new( js.JsonSerializerDefaults.Web );
+	private readonly js.JsonSerializerOptions _jsonOptions;
+
+	public JsonService( IOptions<JsonOptions> jsonOptions )
+	{
+		_jsonOptions = jsonOptions.Value.JsonSerializerOptions;
+	}
 
 	public string ToJson<T>( T obj )
 	{
-		return js.JsonSerializer.Serialize<T>( obj, options );
+		return js.JsonSerializer.Serialize<T>( obj, _jsonOptions );
 	}
 	public T? FromJson<T>( string json )
 	{
-		return js.JsonSerializer.Deserialize<T>( json, options );
+		return js.JsonSerializer.Deserialize<T>( json, _jsonOptions );
 	}
 	public bool TryFromJson<T>( string json, [NotNullWhen( true )] out T? value ) where T : class
 	{
 		value = null;
 		try
 		{
-			value = js.JsonSerializer.Deserialize<T>( json, options );
+			value = js.JsonSerializer.Deserialize<T>( json, _jsonOptions );
 		}
 		catch ( js.JsonException )
 		{
