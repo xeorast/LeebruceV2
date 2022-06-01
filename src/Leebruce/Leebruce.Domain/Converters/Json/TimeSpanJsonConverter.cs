@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using System.Xml;
 
-namespace Leebruce.Domain.Converters
+namespace Leebruce.Domain.Converters.Json
 {
 	public class TimeSpanJsonConverter : JsonConverter<TimeSpan>
 	{

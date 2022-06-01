@@ -1,5 +1,7 @@
 ﻿using Leebruce.Api.Auth;
 using Leebruce.Domain.Converters;
+using Microsoft.OpenApi.Any;
+using Microsoft.OpenApi.Models;
 
 namespace Leebruce.Api;
 
@@ -7,18 +9,21 @@ public static class Startup
 {
 	public static void ConfigureServices( WebApplicationBuilder builder )
 	{
+		TimeTypesConverters.Register();
+
 		_ = builder.Services.AddControllers()
 			.AddJsonOptions( o =>
 			{
-				o.JsonSerializerOptions.Converters.Add( new DateOnlyJsonConverter() );
-				o.JsonSerializerOptions.Converters.Add( new TimeOnlyJsonConverter() );
-				o.JsonSerializerOptions.Converters.Add( new TimeSpanJsonConverter() );
+				o.JsonSerializerOptions.Converters.RegisterTimeTypesConverters();
 			} );
 
 		// sagger
 		_ = builder.Services.AddEndpointsApiExplorer();
 		_ = builder.Services.AddSwaggerGen( o =>
 		{
+			o.MapType<DateOnly>( () => new OpenApiSchema() { Title = "Date", Type = "string", Example = new OpenApiString( "2020-03-11" ) } );
+			o.MapType<TimeOnly>( () => new OpenApiSchema() { Title = "Hour", Type = "string", Example = new OpenApiString( "16:20:00" ) } );
+
 			o.AddSecurityToken();
 			o.SchemaFilter<RecordValidationSchemaFilter>();
 		} );

@@ -1,7 +1,7 @@
 ﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace Leebruce.Domain.Converters
+namespace Leebruce.Domain.Converters.Json
 {
 	public class DateOnlyJsonConverter : JsonConverter<DateOnly>
 	{
