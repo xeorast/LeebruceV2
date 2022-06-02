@@ -43,6 +43,7 @@ public static class Startup
 		_ = builder.Services.AddScoped<ILbLogoutService, LbLogoutService>();
 		_ = builder.Services.AddScoped<ILbHelperService, LbHelperService>();
 		_ = builder.Services.AddScoped<ITimetableService, TimetableService>();
+		_ = builder.Services.AddScoped<IAnnouncementsService, AnnouncementsService>();
 		_ = builder.Services.AddScoped<JsonService>();
 
 	}
