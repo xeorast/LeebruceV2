@@ -55,7 +55,6 @@ public class TimetableService : ITimetableService
 		return ProcessResponse( document );
 	}
 
-
 	private static string GetWeek( DateOnly date )
 	{
 		var dayOfWeek = date.DayOfWeek;
@@ -133,21 +132,15 @@ public class TimetableService : ITimetableService
 
 		string numStr = match.GetGroup( "number" ) ?? throw new ProcessingException( "Failed to extract lesson number from table." );
 		if ( !int.TryParse( numStr, out var number ) )
-		{
 			throw new ProcessingException( "Lesson number extracted from table was invalid." );
-		}
 
 		string startStr = match.GetGroup( "start" ) ?? throw new ProcessingException( "Failed to extract lesson start time from table." );
 		if ( !TimeOnly.TryParse( startStr, out var start ) )
-		{
 			throw new ProcessingException( "Lesson start time extracted from table was invalid." );
-		}
 
 		string endStr = match.GetGroup( "end" ) ?? throw new ProcessingException( "Failed to extract lesson end time from table." );
 		if ( !TimeOnly.TryParse( endStr, out var end ) )
-		{
 			throw new ProcessingException( "Lesson end time extracted from table was invalid." );
-		}
 
 		return new( number, start, end );
 	}
@@ -175,22 +168,24 @@ public class TimetableService : ITimetableService
 	static LessonModel? ExtractLesson( string? cell, LessonTimeModel time )
 	{
 		if ( cell is null )
-		{
 			return null;
-		}
 
 		var match = timetableLesson.Match( cell );
 
 		if ( !match.Success )
-		{
 			throw new ProcessingException( "Failed to extract lesson data from table cell." );
-		}
 
 		var subject = match.GetGroup( "subject" ) ?? throw new ProcessingException( "Failed to extract subject from table cell." );
 		var surname = match.GetGroup( "surname" ) ?? throw new ProcessingException( "Failed to extract surname from table cell." );
 		var name = match.GetGroup( "name" ) ?? throw new ProcessingException( "Failed to extract name from table cell." );
 		var group = match.GetGroup( "group" );
 		var room = match.GetGroup( "room" );
+
+		subject = subject.DecodeHtml();
+		surname = surname.DecodeHtml();
+		name = name.DecodeHtml();
+		group = group.DecodeHtml();
+		room = room.DecodeHtml();
 
 		var substitution = ExtractSubstitution( cell );
 		var isClassAbsence = CheckClassAbsence( cell );
@@ -214,9 +209,7 @@ public class TimetableService : ITimetableService
 		var bodyMatch = timetableSubstitutionBody.Match( cell );
 
 		if ( !bodyMatch.Success )
-		{
 			return null;
-		}
 
 		var subMatch = timetableSubstitutionData.Match( bodyMatch.Groups[1].Value );
 

@@ -2,7 +2,6 @@
 using Leebruce.Domain;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
-using System.Web;
 
 namespace Leebruce.Api.Services
 {
@@ -55,30 +54,31 @@ namespace Leebruce.Api.Services
 
 		static AnnouncementModel ExtractModel( string item )
 		{
-			var title = annTitleRx.Match( item ).GetGroup( 1 )
-				?? throw new ProcessingException( "Failed to extract title from announcement" );
-
-			var author = annAuthorRx.Match( item ).GetGroup( 1 )
-				?? throw new ProcessingException( "Failed to extract author from announcement" );
-
-			var dateStr = annDateRx.Match( item ).GetGroup( 1 )
+			var dateStr = annDateRx.Match( item ).GetGroup( "date" )
 				?? throw new ProcessingException( "Failed to extract date from announcement" );
 
-			var content = annContentRx.Match( item ).GetGroup( 1 )
+			if ( !DateOnly.TryParse( dateStr, out var date ) )
+				throw new ProcessingException( "Date extracted from announcement was invalid." );
+
+			var title = annTitleRx.Match( item ).GetGroup( "title" )
+				?? throw new ProcessingException( "Failed to extract title from announcement" );
+
+			var author = annAuthorRx.Match( item ).GetGroup( "author" )
+				?? throw new ProcessingException( "Failed to extract author from announcement" );
+
+			var content = annContentRx.Match( item ).GetGroup( "content" )
 				?? throw new ProcessingException( "Failed to extract content from announcement" );
 
-			var date = DateOnly.Parse( dateStr );
-
-			content = HttpUtility.HtmlDecode( content );
-			title = HttpUtility.HtmlDecode( title );
-			author = HttpUtility.HtmlDecode( author );
+			content = content.DecodeHtml();
+			title = title.DecodeHtml();
+			author = author.DecodeHtml();
 
 			return new AnnouncementModel( title, date, author, content );
 		}
-		static readonly Regex annTitleRx = new( @"<thead>\s*<tr>\s*<td[^>]*>([^<]*)<\/td>\s*<\/tr>\s*<\/thead>", RegexOptions.None, regexTimeout );
-		static readonly Regex annAuthorRx = new( @"<tr[^>]*>\s*<th[^>]*>Dodał<\/th>\s*<td>\s*([^<]*)\s*<\/td>\s*<\/tr>", RegexOptions.None, regexTimeout );
-		static readonly Regex annDateRx = new( @"<tr[^>]*>\s*<th[^>]*>Data publikacji<\/th>\s*<td>\s*([^<]*)\s*<\/td>\s*<\/tr>", RegexOptions.None, regexTimeout );
-		static readonly Regex annContentRx = new( @"<tr[^>]*>\s*<th[^>]*>Treść<\/th>\s*<td>\s*([\s\S]*?)\s*<\/td>\s*<\/tr>", RegexOptions.None, regexTimeout );
+		static readonly Regex annTitleRx = new( @"<thead>\s*<tr>\s*<td[^>]*>(?<title>[^<]*)<\/td>\s*<\/tr>\s*<\/thead>", RegexOptions.None, regexTimeout );
+		static readonly Regex annAuthorRx = new( @"<tr[^>]*>\s*<th[^>]*>Dodał<\/th>\s*<td>\s*(?<author>[^<]*)\s*<\/td>\s*<\/tr>", RegexOptions.None, regexTimeout );
+		static readonly Regex annDateRx = new( @"<tr[^>]*>\s*<th[^>]*>Data publikacji<\/th>\s*<td>\s*(?<date>[^<]*)\s*<\/td>\s*<\/tr>", RegexOptions.None, regexTimeout );
+		static readonly Regex annContentRx = new( @"<tr[^>]*>\s*<th[^>]*>Treść<\/th>\s*<td>\s*(?<content>[\s\S]*?)\s*<\/td>\s*<\/tr>", RegexOptions.None, regexTimeout );
 
 	}
 }
