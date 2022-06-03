@@ -171,8 +171,7 @@ public class ScheduleServiceHelper
 
 	public static ScheduleEvent ErrorEvent( string error )
 	{
-		var data = new EventData( Error: error );
-		return new ScheduleEvent( null, null, data );
+		return new ScheduleEvent( null, null, Error: error );
 	}
 
 }

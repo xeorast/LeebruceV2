@@ -169,7 +169,7 @@ public class ScheduleService : IScheduleService
 			: DecodeEventTitle( title );
 
 		// extract data from string and merge with details from "title"
-		var eventData = EventData.From( DecodeEventData( what, additionalData ) );
+		var eventData = DecodeEventData( what, additionalData );
 
 		// details sometimes contain addition date
 		DateTimeOffset? dateOffset = null;
@@ -182,7 +182,7 @@ public class ScheduleService : IScheduleService
 			dateOffset = new( date, offset );
 		}
 
-		return new ScheduleEvent( id, dateOffset, eventData );
+		return ScheduleEvent.From( id, dateOffset, eventData );
 	}
 	public IEventData DecodeEventData( string data, Dictionary<string, string> additionalData )
 	{
