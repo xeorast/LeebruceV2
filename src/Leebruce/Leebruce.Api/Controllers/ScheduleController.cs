@@ -7,7 +7,7 @@ namespace Leebruce.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route( "api/[controller]" )]
-public class ScheduleController : ControllerBase
+public class ScheduleController : ExtendedControllerBase
 {
 	private readonly IScheduleService _ScheduleService;
 
@@ -19,13 +19,27 @@ public class ScheduleController : ControllerBase
 	[HttpGet]
 	public async Task<ActionResult<ScheduleDay[]>> GetSchedule()
 	{
-		return await _ScheduleService.GetScheduleAsync( User );
+		try
+		{
+			return await _ScheduleService.GetScheduleAsync( User );
+		}
+		catch ( NotAuthorizedException )
+		{
+			return Unauthorized( "Session has expired." );
+		}
 	}
 
 	[HttpGet( "{date}" )]
 	public async Task<ActionResult<ScheduleDay[]>> GetSchedule( DateOnly date )
 	{
-		return await _ScheduleService.GetScheduleAsync( User, date );
+		try
+		{
+			return await _ScheduleService.GetScheduleAsync( User, date );
+		}
+		catch ( NotAuthorizedException )
+		{
+			return Unauthorized( "Session has expired." );
+		}
 	}
 
 

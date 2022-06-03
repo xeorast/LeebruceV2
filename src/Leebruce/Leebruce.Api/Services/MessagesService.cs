@@ -34,6 +34,9 @@ public class MessagesService : IMessagesService
 		using var resp = await http.GetAsync( "https://synergia.librus.pl/wiadomosci" );
 		string document = await resp.Content.ReadAsStringAsync();
 
+		if ( _lbHelper.IsUnauthorized( document ) )
+			throw new NotAuthorizedException();
+
 		string table = ExtractListTable( document );
 
 		return ExtractMessages( table ).ToArray();
@@ -52,6 +55,9 @@ public class MessagesService : IMessagesService
 		};
 		using var resp = await http.PostAsync( "https://synergia.librus.pl/wiadomosci", form );
 		string document = await resp.Content.ReadAsStringAsync();
+
+		if ( _lbHelper.IsUnauthorized( document ) )
+			throw new NotAuthorizedException();
 
 		string table = ExtractListTable( document );
 
@@ -118,6 +124,9 @@ public class MessagesService : IMessagesService
 
 		using var resp = await http.GetAsync( $"https://synergia.librus.pl/wiadomosci/{link}" );
 		string document = await resp.Content.ReadAsStringAsync();
+
+		if ( _lbHelper.IsUnauthorized( document ) )
+			throw new NotAuthorizedException();
 
 		return ExtractMessage( document );
 	}
@@ -207,6 +216,10 @@ public class MessagesService : IMessagesService
 
 		// get actual location
 		using var preResp = await http.GetAsync( $"https://synergia.librus.pl/wiadomosci/pobierz_zalacznik/{link}" );
+		var preDoc = await preResp.Content.ReadAsStringAsync();
+		if ( _lbHelper.IsUnauthorized( preDoc ) )
+			throw new NotAuthorizedException();
+
 		var location = preResp.Headers.Location
 			?? throw new ProcessingException( "Failed to get attachment location." );
 

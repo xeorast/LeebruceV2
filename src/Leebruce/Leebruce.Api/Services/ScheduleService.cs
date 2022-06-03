@@ -32,6 +32,9 @@ public class ScheduleService : IScheduleService
 		using var resp = await http.GetAsync( "https://synergia.librus.pl/terminarz" );
 		string document = await resp.Content.ReadAsStringAsync();
 
+		if ( _lbHelper.IsUnauthorized( document ) )
+			throw new NotAuthorizedException();
+
 		return ExtractDays( document ).ToArray();
 	}
 	public async Task<ScheduleDay[]> GetScheduleAsync( ClaimsPrincipal principal, DateOnly date )
@@ -48,6 +51,9 @@ public class ScheduleService : IScheduleService
 
 		using var resp = await http.PostAsync( "https://synergia.librus.pl/terminarz", ctnt );
 		string document = await resp.Content.ReadAsStringAsync();
+
+		if ( _lbHelper.IsUnauthorized( document ) )
+			throw new NotAuthorizedException();
 
 		return ExtractDays( document ).ToArray();
 	}

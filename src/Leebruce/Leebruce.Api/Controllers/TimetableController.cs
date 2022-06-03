@@ -7,7 +7,7 @@ namespace Leebruce.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route( "api/[controller]" )]
-public class TimetableController : ControllerBase
+public class TimetableController : ExtendedControllerBase
 {
 	private readonly ITimetableService _timetableService;
 
@@ -19,13 +19,27 @@ public class TimetableController : ControllerBase
 	[HttpGet]
 	public async Task<ActionResult<TimetableDayModel[]>> GetCurrentWeek()
 	{
-		return await _timetableService.GetTimetableAsync( User );
+		try
+		{
+			return await _timetableService.GetTimetableAsync( User );
+		}
+		catch ( NotAuthorizedException )
+		{
+			return Unauthorized( "Session has expired." );
+		}
 	}
 
 	[HttpGet( "{date}" )]
 	public async Task<ActionResult<TimetableDayModel[]>> GetWeek( DateOnly date )
 	{
-		return await _timetableService.GetTimetableAsync( User, date );
+		try
+		{
+			return await _timetableService.GetTimetableAsync( User, date );
+		}
+		catch ( NotAuthorizedException )
+		{
+			return Unauthorized( "Session has expired." );
+		}
 	}
 
 }

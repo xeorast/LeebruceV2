@@ -27,8 +27,12 @@ public class TimetableService : ITimetableService
 		using HttpClient http = new( handler );
 
 		using var resp = await http.GetAsync( "https://synergia.librus.pl/przegladaj_plan_lekcji" );
+		string document = await resp.Content.ReadAsStringAsync();
 
-		return await ReadResponse( resp );
+		if ( _lbHelper.IsUnauthorized( document ) )
+			throw new NotAuthorizedException();
+
+		return ProcessResponse( document );
 	}
 	public async Task<TimetableDayModel[]> GetTimetableAsync( ClaimsPrincipal principal, DateOnly date )
 	{
@@ -39,18 +43,10 @@ public class TimetableService : ITimetableService
 		using FormUrlEncodedContent ctnt = new( data );
 
 		using var resp = await http.PostAsync( "https://synergia.librus.pl/przegladaj_plan_lekcji", ctnt );
-
-		return await ReadResponse( resp );
-	}
-
-	private static async Task<TimetableDayModel[]> ReadResponse( HttpResponseMessage resp )
-	{
 		string document = await resp.Content.ReadAsStringAsync();
 
-		//if ( _validationService.IsTechnicalBreak( document ) )
-		//{
-		//	throw new TechnicalBreakException();
-		//}
+		if ( _lbHelper.IsUnauthorized( document ) )
+			throw new NotAuthorizedException();
 
 		return ProcessResponse( document );
 	}

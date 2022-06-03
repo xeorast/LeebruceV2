@@ -7,7 +7,7 @@ namespace Leebruce.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route( "api/[controller]" )]
-public class AnnouncementsController : ControllerBase
+public class AnnouncementsController : ExtendedControllerBase
 {
 	private readonly IAnnouncementsService _annService;
 
@@ -19,6 +19,13 @@ public class AnnouncementsController : ControllerBase
 	[HttpGet]
 	public async Task<ActionResult<AnnouncementModel[]>> GetAnnouncements()
 	{
-		return await _annService.GetAnnouncementsAsync( User );
+		try
+		{
+			return await _annService.GetAnnouncementsAsync( User );
+		}
+		catch ( NotAuthorizedException )
+		{
+			return Unauthorized( "Session has expired." );
+		}
 	}
 }

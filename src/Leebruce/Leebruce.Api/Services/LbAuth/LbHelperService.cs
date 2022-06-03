@@ -8,6 +8,7 @@ public interface ILbHelperService
 {
 	HttpClientHandler CreateHandler( ClaimsPrincipal user );
 	Task<string> GetUserNameAsync( ClaimsPrincipal user );
+	public bool IsUnauthorized( string document );
 }
 
 public class LbHelperService : ILbHelperService
@@ -37,6 +38,12 @@ public class LbHelperService : ILbHelperService
 		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.oatokenName, oAuthToken ) );
 
 		return new() { AllowAutoRedirect = false, CookieContainer = cookies };
+	}
+
+	public bool IsUnauthorized( string document )
+	{
+		return document.Contains( "<h2 class=\"inside\">Brak dostępu</h2>" )
+			&& document.Contains( @"https:\/\/synergia.librus.pl\/loguj" );
 	}
 
 	public async Task<string> GetUserNameAsync( ClaimsPrincipal user )

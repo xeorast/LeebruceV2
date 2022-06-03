@@ -28,6 +28,9 @@ namespace Leebruce.Api.Services
 			using var resp = await http.GetAsync( "https://synergia.librus.pl/ogloszenia" );
 			string document = await resp.Content.ReadAsStringAsync();
 
+			if ( _lbHelper.IsUnauthorized( document ) )
+				throw new NotAuthorizedException();
+
 			var list = ExtractList( document );
 			return ExtractItems( list )
 				.Select( ExtractModel )

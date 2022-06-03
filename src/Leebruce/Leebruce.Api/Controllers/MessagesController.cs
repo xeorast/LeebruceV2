@@ -7,7 +7,7 @@ namespace Leebruce.Api.Controllers;
 [Authorize]
 [ApiController]
 [Route( "api/[controller]" )]
-public class MessagesController : ControllerBase
+public class MessagesController : ExtendedControllerBase
 {
 	private readonly IMessagesService _messagesService;
 
@@ -19,21 +19,42 @@ public class MessagesController : ControllerBase
 	[HttpGet]
 	public async Task<ActionResult<MessageMetadataModel[]>> GetMessages( [FromQuery] int page = 1 )
 	{
-		return await _messagesService.GetMessagesAsync( User, page - 1 /*page is 1-based for users, but 0-based internally*/ );
+		try
+		{
+			return await _messagesService.GetMessagesAsync( User, page - 1 /*page is 1-based for users, but 0-based internally*/ );
+		}
+		catch ( NotAuthorizedException )
+		{
+			return Unauthorized( "Session has expired." );
+		}
 	}
 
 	[HttpGet( "{id}" )]
 	public async Task<ActionResult<MessageModel>> GetMessages( string id )
 	{
-		return await _messagesService.GetMessageAsync( User, id );
+		try
+		{
+			return await _messagesService.GetMessageAsync( User, id );
+		}
+		catch ( NotAuthorizedException )
+		{
+			return Unauthorized( "Session has expired." );
+		}
 	}
 
 	[HttpGet( "attachments/{id}" )]
 	public async Task<IActionResult> GetAttachment( string id )
 	{
-		var file = await _messagesService.GetAttachmentAsync( User, id );
-
-		return File( file.Content, file.MediaType, file.FileName );
+		try
+		{
+			var file = await _messagesService.GetAttachmentAsync( User, id );
+			
+			return File( file.Content, file.MediaType, file.FileName );
+		}
+		catch ( NotAuthorizedException )
+		{
+			return Unauthorized( "Session has expired." );
+		}
 	}
 
 }
