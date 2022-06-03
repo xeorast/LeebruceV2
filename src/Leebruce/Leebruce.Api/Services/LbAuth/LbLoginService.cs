@@ -78,8 +78,6 @@ public class LbLoginService : ILbLoginService, IDisposable
 			["action"] = "login",
 		};
 		using FormUrlEncodedContent ctnt = new( data );
-		ctnt.Headers.ContentType = new( "application/x-www-form-urlencoded" );
-		ctnt.Headers.ContentLength = data.Sum( x => x.Key.Length + x.Value.Length + 2 ) - 1;
 
 		using var resp = await _http.PostAsync( "https://api.librus.pl/OAuth/Authorization?client_id=46", ctnt );
 		var respData = await resp.Content.ReadFromJsonAsync<CredentialsResponse>();
