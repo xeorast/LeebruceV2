@@ -5,4 +5,5 @@ public record MessageModel(
 	string Author,
 	string CharacterClass,
 	DateTimeOffset Date,
-	string Content );
+	string Content,
+	AttachmentModel[] Attachments );

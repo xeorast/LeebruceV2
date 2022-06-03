@@ -28,4 +28,12 @@ public class MessagesController : ControllerBase
 		return await _messagesService.GetMessageAsync( User, id );
 	}
 
+	[HttpGet( "attachments/{id}" )]
+	public async Task<IActionResult> GetAttachment( string id )
+	{
+		var file = await _messagesService.GetAttachmentAsync( User, id );
+
+		return File( file.Content, file.MediaType, file.FileName );
+	}
+
 }
