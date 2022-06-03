@@ -17,11 +17,13 @@ public interface IScheduleService
 public class ScheduleService : IScheduleService
 {
 	private readonly ILbHelperService _lbHelper;
+	private readonly IWebHostEnvironment _environment;
 	private static readonly TimeSpan regexTimeout = TimeSpan.FromSeconds( 2 );
 
-	public ScheduleService( ILbHelperService lbHelper )
+	public ScheduleService( ILbHelperService lbHelper, IWebHostEnvironment environment )
 	{
 		_lbHelper = lbHelper;
+		_environment = environment;
 	}
 
 	public async Task<ScheduleDay[]> GetScheduleAsync( ClaimsPrincipal principal )
@@ -58,7 +60,7 @@ public class ScheduleService : IScheduleService
 		return ExtractDays( document ).ToArray();
 	}
 
-	static IEnumerable<ScheduleDay> ExtractDays( string document )
+	IEnumerable<ScheduleDay> ExtractDays( string document )
 	{
 		// body
 		var bodyMatch = ScheduleBodyRx.Match( document );
@@ -93,19 +95,29 @@ public class ScheduleService : IScheduleService
 		var dayMatches = ScheduleDayRx.Matches( body );
 		foreach ( Match match in dayMatches )
 		{
-			var dayStr = match.GetGroup( "day" )
-				?? throw new ProcessingException( "Failed to extract day number from document." );
+			ScheduleDay? scheduleDay = null;
+			try
+			{
+				var dayStr = match.GetGroup( "day" )
+					?? throw new ProcessingException( "Failed to extract day number from document." );
 
-			if ( !int.TryParse( dayStr, out var day ) )
-				throw new ProcessingException( "Day number extracted from document was invalid." );
+				if ( !int.TryParse( dayStr, out var day ) )
+					throw new ProcessingException( "Day number extracted from document was invalid." );
 
-			var data = match.GetGroup( "data" )
-				?? throw new ProcessingException( "Failed to extract day data from document." );
+				var data = match.GetGroup( "data" )
+					?? throw new ProcessingException( "Failed to extract day data from document." );
 
-			var events = ExtractEvents( data ).ToArray();
-			DateOnly date = new( year, month, day );
+				var events = ExtractEvents( data ).ToArray();
+				DateOnly date = new( year, month, day );
 
-			yield return new ScheduleDay( date, events );
+				scheduleDay = new( date, events );
+			}
+			catch ( ProcessingException )
+			{
+				//todo: log error
+			}
+			if ( scheduleDay is not null )
+				yield return scheduleDay;
 		}
 	}
 	static readonly Regex ScheduleBodyRx = new( @"<body[^>]*>([\s\S]*?)<\/body>", RegexOptions.None, regexTimeout );
@@ -114,61 +126,75 @@ public class ScheduleService : IScheduleService
 	static readonly Regex ScheduleSelectedRx = new( @"<option value=""([^""]*)"" selected=""selected"" >", RegexOptions.None, regexTimeout );
 	static readonly Regex ScheduleDayRx = new( @"<td class=""center"" ><div class=""kalendarz-dzien""><div class=""kalendarz-numer-dnia"">\s*(?<day>\d*)\s*<\/div><table><tbody>(?<data>[\s\S]*?)<\/tbody>", RegexOptions.None, regexTimeout );
 
-	static IEnumerable<ScheduleEvent> ExtractEvents( string data )
+	IEnumerable<ScheduleEvent> ExtractEvents( string data )
 	{
 		var eventMatches = ScheduleEventRx.Matches( data );
 		foreach ( Match match in eventMatches )
 		{
-			// main payload
-			var what = match.GetGroup( "what" )
-				?? throw new ProcessingException( "Failed to extract event data from day data." );
-
-			// id to details
-			var link = match.GetGroup( "link" );
-			var id = link?.ToUrlBase64();
-
-			// "title" tag sometimes contains inline details
-			var title = match.GetGroup( "title" );
-
-			if ( title is not null )
-				title = HttpUtility.HtmlDecode( title );
-
-			var additionalData =
-				title is null
-				? new()
-				: DecodeEventTitle( title );
-
-			// extract data from string and merge with details from "title"
-			var eventData = EventData.From( DecodeEventData( what, additionalData ) );
-
-			// details sometimes contain addition date
-			DateTimeOffset? dateOffset = null;
-			if ( additionalData.TryGetValue( "Data dodania", out var dateStr ) )
+			ScheduleEvent ev;
+			try
 			{
-				if ( !DateTime.TryParse( dateStr, out var date ) )
-					throw new ProcessingException( "Date extracted from title was invalid." );
-
-				var offset = TimeZoneInfo.FindSystemTimeZoneById( "Central European Standard Time" ).GetUtcOffset( date );
-				dateOffset = new( date, offset );
+				ev = DecodeEventData( match );
 			}
-
-			yield return new ScheduleEvent( id, dateOffset, eventData );
+			catch ( ProcessingException )
+			{
+				//todo: log error
+				ev = ScheduleServiceHelper.ErrorEvent( "Error occured processing event data." );
+			}
+			yield return ev;
 		}
 	}
 	static readonly Regex ScheduleEventRx = new( @"<tr><td [^>]*?style=""background-color: .*?;.*?"" (?:title=""(?<title>.*?)"")?\s*(?:onclick=""location.href='/terminarz/(?<link>.*?)'"")?\s*>\s*(?<what>.*?)\s*(?:(?:</td></tr>)|$|(?=<tr><td [^>]*?style=""background-color:))", RegexOptions.None, regexTimeout );
 	//(?<link>szczegoly(?:_wolne)?/.*?)
 
-	public static IEventData DecodeEventData( string data, Dictionary<string, string> additionalData )
+	public ScheduleEvent DecodeEventData( Match match )
+	{
+		// main payload
+		var what = match.GetGroup( "what" )
+			?? throw new ProcessingException( "Failed to extract event data from day data." );
+
+		// id to details
+		var link = match.GetGroup( "link" );
+		var id = link?.ToUrlBase64();
+
+		// "title" tag sometimes contains inline details
+		var title = match.GetGroup( "title" );
+
+		if ( title is not null )
+			title = HttpUtility.HtmlDecode( title );
+
+		var additionalData =
+			title is null
+			? new()
+			: DecodeEventTitle( title );
+
+		// extract data from string and merge with details from "title"
+		var eventData = EventData.From( DecodeEventData( what, additionalData ) );
+
+		// details sometimes contain addition date
+		DateTimeOffset? dateOffset = null;
+		if ( additionalData.TryGetValue( "Data dodania", out var dateStr ) )
+		{
+			if ( !DateTime.TryParse( dateStr, out var date ) )
+				throw new ProcessingException( "Date extracted from title was invalid." );
+
+			var offset = TimeZoneInfo.FindSystemTimeZoneById( "Central European Standard Time" ).GetUtcOffset( date );
+			dateOffset = new( date, offset );
+		}
+
+		return new ScheduleEvent( id, dateOffset, eventData );
+	}
+	public IEventData DecodeEventData( string data, Dictionary<string, string> additionalData )
 	{
 		data = HttpUtility.HtmlDecode( data );
 		var segments = brRx.Split( data );
 
-		return AbsenceData.TryFrom( segments ) as IEventData
-			?? ClassAbsenceData.TryFrom( segments ) as IEventData
-			?? SubstitutionData.TryFrom( segments ) as IEventData
-			?? CancellationData.TryFrom( segments ) as IEventData
-			?? TestEtcData.TryFrom( segments, additionalData ) as IEventData
-			?? UnrecognizedData.From( segments );
+		return ScheduleServiceHelper.TryFromAbsenceData( segments ) as IEventData
+			?? ScheduleServiceHelper.TryFromClassAbsenceData( segments ) as IEventData
+			?? ScheduleServiceHelper.TryFromSubstitutionData( segments ) as IEventData
+			?? ScheduleServiceHelper.TryFromCancellationData( segments ) as IEventData
+			?? ScheduleServiceHelper.TryFromTestEtcData( segments, additionalData ) as IEventData
+			?? ScheduleServiceHelper.FromUnrecognizedData( segments, _environment.IsDevelopment() );
 
 	}
 	public static Dictionary<string, string> DecodeEventTitle( string data )
