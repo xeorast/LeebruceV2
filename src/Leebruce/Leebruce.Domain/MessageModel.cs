@@ -1,4 +1,4 @@
-﻿namespace Leebruce.Domain.Models;
+﻿namespace Leebruce.Domain;
 
 public record MessageModel(
 	string Subject,

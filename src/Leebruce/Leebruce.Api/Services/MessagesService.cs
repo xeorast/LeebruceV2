@@ -1,7 +1,6 @@
 ﻿using Leebruce.Api.Extensions;
 using Leebruce.Api.Models;
 using Leebruce.Domain;
-using Leebruce.Domain.Models;
 using Microsoft.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;

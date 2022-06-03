@@ -1,4 +1,4 @@
-﻿using Leebruce.Domain.Models;
+﻿using Leebruce.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 

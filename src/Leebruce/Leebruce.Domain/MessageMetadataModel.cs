@@ -1,4 +1,4 @@
-﻿namespace Leebruce.Domain.Models;
+﻿namespace Leebruce.Domain;
 
 public record MessageMetadataModel(
 	string Subject,
