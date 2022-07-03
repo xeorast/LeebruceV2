@@ -7,7 +7,7 @@ namespace Leebruce.Domain.Converters.Json
 	{
 		public override DateOnly Read( ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options )
 		{
-			if ( typeToConvert != typeof( TimeSpan ) )
+			if ( typeToConvert != typeof( DateOnly ) )
 				throw new ArgumentException( "Can only parse System.DateOnly.", nameof( typeToConvert ) );
 
 			var value = reader.GetString()
