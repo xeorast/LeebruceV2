@@ -1,27 +1,22 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 
-namespace Leebruce.Domain.Converters.Json
+namespace Leebruce.Domain.Converters.Json;
+
+public class TimeOnlyJsonConverter : ToStringJsonConverter<TimeOnly>
 {
-	public class TimeOnlyJsonConverter : JsonConverter<TimeOnly>
+	protected override TimeOnly FromString( string? str )
 	{
-		public override TimeOnly Read( ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options )
-		{
-			if ( typeToConvert != typeof( TimeOnly ) )
-				throw new ArgumentException( "Can only parse System.TimeOnly.", nameof( typeToConvert ) );
+		if ( str is null )
+			throw new JsonException( "Cannot convert null to time." );
 
-			var value = reader.GetString()
-				?? throw new JsonException( "Cannot convert null to time." );
+		if ( !TimeOnly.TryParse( str, out var time ) )
+			throw new JsonException( "Invalid time format." );
 
-			if ( !TimeOnly.TryParse( value, out var time ) )
-				throw new JsonException( "Invalid time format." );
-
-			return time;
-		}
-
-		public override void Write( Utf8JsonWriter writer, TimeOnly value, JsonSerializerOptions options )
-		{
-			writer.WriteStringValue( value.ToLongTimeString() );
-		}
+		return time;
 	}
+	protected override string ToString( TimeOnly value )
+	{
+		return value.ToLongTimeString();
+	}
+
 }

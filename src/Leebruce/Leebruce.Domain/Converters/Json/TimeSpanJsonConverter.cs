@@ -1,32 +1,27 @@
 ﻿using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Xml;
 
-namespace Leebruce.Domain.Converters.Json
+namespace Leebruce.Domain.Converters.Json;
+
+public class TimeSpanJsonConverter : ToStringJsonConverter<TimeSpan>
 {
-	public class TimeSpanJsonConverter : JsonConverter<TimeSpan>
+	protected override TimeSpan FromString( string? str )
 	{
-		public override TimeSpan Read( ref Utf8JsonReader reader, Type typeToConvert, JsonSerializerOptions options )
+		if ( str is null )
+			throw new JsonException( "Cannot convert null to timespan." );
+
+		try
 		{
-			if ( typeToConvert != typeof( TimeSpan ) )
-				throw new ArgumentException( "Can only parse System.TimeSpan.", nameof( typeToConvert ) );
-
-			var value = reader.GetString()
-				?? throw new JsonException( "Cannot convert null to timespan." );
-
-			try
-			{
-				return XmlConvert.ToTimeSpan( value );
-			}
-			catch ( FormatException )
-			{
-				throw new JsonException( "Invalid timespan format." );
-			}
+			return XmlConvert.ToTimeSpan( str );
 		}
-
-		public override void Write( Utf8JsonWriter writer, TimeSpan value, JsonSerializerOptions options )
+		catch ( FormatException )
 		{
-			writer.WriteStringValue( XmlConvert.ToString( value ) );
+			throw new JsonException( "Invalid timespan format." );
 		}
 	}
+	protected override string ToString( TimeSpan value )
+	{
+		return XmlConvert.ToString( value );
+	}
+
 }
