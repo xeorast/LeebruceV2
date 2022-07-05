@@ -46,6 +46,7 @@ public static class Startup
 		_ = builder.Services.AddScoped<IAnnouncementsService, AnnouncementsService>();
 		_ = builder.Services.AddScoped<IMessagesService, MessagesService>();
 		_ = builder.Services.AddScoped<IScheduleService, ScheduleService>();
+		_ = builder.Services.AddScoped<IGradesService, GradesService>();
 		_ = builder.Services.AddScoped<JsonService>();
 
 	}
