@@ -10,7 +10,6 @@ public enum SpecialGrade
 }
 
 public record GradeModel(
-	string? Id,//todo: remove id field (unused beyond grade retrieval)
 	int? Value,
 	SpecialGrade? SpecialValue,
 	bool CountToAverage,

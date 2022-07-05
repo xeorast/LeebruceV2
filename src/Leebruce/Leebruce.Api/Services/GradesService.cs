@@ -127,12 +127,12 @@ public class GradesService : IGradesService
 
 		foreach ( Match gradeMatch in matches )
 		{
-			var link = gradeMatch.GetGroup( "link" );
-			if ( link is null )
+			var id = gradeMatch.GetGroup( "link" );
+			if ( id is null )
 				continue;
 
 			var comment = gradeMatch.GetGroup( "comment" );
-			comments.Add( (link, comment) );
+			comments.Add( (id, comment) );
 		}
 		return comments.ToArray();
 	}
@@ -232,13 +232,12 @@ public class GradesService : IGradesService
 			?? throw ExceptionFor( "addedBy" );
 
 		// id
-		var link = gradeIdRx.Match( gradeMatch.Value ).GetGroup( "link" );
-		var id = link?.ToUrlBase64();
+		var id = gradeIdRx.Match( gradeMatch.Value ).GetGroup( "link" );
 
 		// comment
-		var comment = link is null ? null : comments[link];
+		var comment = id is null ? null : comments[id];
 
-		return new GradeModel( id, grade, specialGrade, count, weight, category, comment, date, teacher, addedBy );
+		return new GradeModel( grade, specialGrade, count, weight, category, comment, date, teacher, addedBy );
 	}
 
 
