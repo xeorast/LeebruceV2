@@ -10,15 +10,16 @@ public enum SpecialGrade
 }
 
 public record GradeModel(
-	string? Id,
+	string? Id,//todo: remove id field (unused beyond grade retrieval)
 	int? Value,
 	SpecialGrade? SpecialValue,
 	bool CountToAverage,
 	int? Weight,
 	string Category,
+	string? Comment,
 	DateOnly Date,
 	string Teacher,
-	string AddedBy )//todo: add comment field
+	string AddedBy )
 {
 	[JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
 	public int? Value { get; init; } = Value;
@@ -29,5 +30,8 @@ public record GradeModel(
 
 	[JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
 	public int? Weight { get; init; } = Weight;
+
+	[JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
+	public string? Comment { get; init; } = Comment;
 
 }

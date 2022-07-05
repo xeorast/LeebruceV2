@@ -68,6 +68,19 @@ public class GradesService : IGradesService
 
 		var summaryMatch = summaryRx.Match( summary );
 
+		// comments
+		var grades1 = summaryMatch.GetGroup( "grades1" )
+			?? throw new ProcessingException( "Failed to extract term 1 grades from subject summary." );
+
+		var grades2 = summaryMatch.GetGroup( "grades2" )
+			?? throw new ProcessingException( "Failed to extract term 2 grades from subject summary." );
+
+		Dictionary<string, string?> comments = new();
+		foreach ( var (id, comment) in ExtractGradesComments( grades1 ).Concat( ExtractGradesComments( grades2 ) ) )
+		{
+			comments[id] = comment;
+		}
+
 		// details
 		var detailsTable = subjectMatch.GetGroup( "table" )
 			?? throw new ProcessingException( "Failed to extract subject details from table." );
@@ -77,7 +90,7 @@ public class GradesService : IGradesService
 			?? throw new( "Failed to extract subject field from grades summary." );
 
 		// grades
-		var grades = ExtractGrades( detailsTable, out var isComplete );
+		var grades = ExtractGrades( detailsTable, comments, out var isComplete );
 
 		// validate
 		var averageTotalStr = summaryMatch.GetGroup( "averageTotal" )
@@ -107,7 +120,24 @@ public class GradesService : IGradesService
 		return Math.Round( averageTotalCalculated, 2 ) == averageTotal;
 	}
 
-	static GradeModel[] ExtractGrades( string subjectTable, out bool isComplete )
+	static (string id, string? comment)[] ExtractGradesComments( string grades )
+	{
+		var matches = summaryGradesRx.Matches( grades );
+		List<(string id, string? comment)> comments = new( matches.Count );
+
+		foreach ( Match gradeMatch in matches )
+		{
+			var link = gradeMatch.GetGroup( "link" );
+			if ( link is null )
+				continue;
+
+			var comment = gradeMatch.GetGroup( "comment" );
+			comments.Add( (link, comment) );
+		}
+		return comments.ToArray();
+	}
+
+	static GradeModel[] ExtractGrades( string subjectTable, Dictionary<string, string?> comments, out bool isComplete )
 	{
 		isComplete = true;
 		var matches = subjectGradesRx.Matches( subjectTable );
@@ -119,7 +149,7 @@ public class GradesService : IGradesService
 
 			try
 			{
-				grades.Add( ProcessGradeMatch( gradeMatch ) );
+				grades.Add( ProcessGradeMatch( gradeMatch, comments ) );
 			}
 			catch ( ProcessingException )
 			{
@@ -130,7 +160,7 @@ public class GradesService : IGradesService
 
 		return grades.ToArray();
 	}
-	static GradeModel ProcessGradeMatch( Match gradeMatch )
+	static GradeModel ProcessGradeMatch( Match gradeMatch, Dictionary<string, string?> comments )
 	{
 		static ProcessingException ExceptionFor( string field ) => new( $"Failed to extract {field} field from grade." );
 		static ProcessingException FormatExceptionFor( string field ) => new( $"{field} field extracted from grade was invalid." );
@@ -205,7 +235,10 @@ public class GradesService : IGradesService
 		var link = gradeIdRx.Match( gradeMatch.Value ).GetGroup( "link" );
 		var id = link?.ToUrlBase64();
 
-		return new GradeModel( id, grade, specialGrade, count, weight, category, date, teacher, addedBy );
+		// comment
+		var comment = link is null ? null : comments[link];
+
+		return new GradeModel( id, grade, specialGrade, count, weight, category, comment, date, teacher, addedBy );
 	}
 
 
@@ -215,6 +248,8 @@ public class GradesService : IGradesService
 	static readonly Regex subjectRx = new( @"<tr class=""(line\d)"">\s*(?<summary><td class='center micro screen-only'><img src=""/images/tree_colapsed\.png"" id=""przedmioty_(\d*)_node[\s\S]*?)<\/tr><tr class=""\1""[^>]*id=""przedmioty_\2""[^>]*>\s*<td[^>]*><table class=""stretch"">(?<table>[\s\S]*?)<\/table><\/td><\/tr>", RegexOptions.None, regexTimeout );
 	// $subject; $grades1; $average1; $suggestedTerm1; $term1; $grades2; $average2; $term2; $averageTotal; $suggestedTotal; $total
 	static readonly Regex summaryRx = new( @"<td class='center micro screen-only'>[\s\S]*?<\/td>\s*<td\s*>(?<subject>[\s\S]*?)<\/td><td\s*>(?<grades1>[\s\S]*?)<\/td><td class=""right"">(?<average1>[\s\S]*?)<\/td><td class=""center""\s*>(?<suggestedTerm1>[\s\S]*?)<\/td><td class=""center""\s*>(?<term1>[\s\S]*?)<\/td><td\s*>(?<grades2>[\s\S]*?)<\/td><td\s*class=""right"">(?<average2>[\s\S]*?)<\/td><td class=""center""\s*>(?<term2>[\s\S]*?)<\/td><td\s*class=""right""\s*>(?<averageTotal>[\s\S]*?)<\/td><td class=""center""\s*>(?<suggestedTotal>[\s\S]*?)<\/td><td class=""center""\s*>(?<total>[\s\S]*?)<\/td>", RegexOptions.None, regexTimeout );
+	// $comment; $link
+	static readonly Regex summaryGradesRx = new( @"<span[^>]*>\s*<a title=""[^""]*Komentarz: (?<comment>[^""]*)"" class=""ocena"" href=""\/przegladaj_oceny\/szczegoly\/(?<link>[^""]*)"" >[^<]*<\/a><\/span>", RegexOptions.None, regexTimeout );
 	// row
 	static readonly Regex subjectGradesRx = new( @"<tr class=""line1 detail-grades""[\s\S]*?<\/tr>", RegexOptions.None, regexTimeout );
 	// $color; $grade; $category; $date; $teacher; $count: "aktywne" - yes, "nieaktywne" - no; $weight; $resit; $addedBy
