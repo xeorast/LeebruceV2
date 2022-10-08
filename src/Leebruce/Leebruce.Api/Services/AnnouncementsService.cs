@@ -48,7 +48,7 @@ namespace Leebruce.Api.Services
 		static IEnumerable<string> ExtractItems( string list )
 		{
 			var tableMatches = annItemRx.Matches( list );
-			foreach ( Match match in tableMatches )
+			foreach ( var match in tableMatches.Cast<Match>() )
 			{
 				yield return match.GetGroup( 1 ) ?? throw new ProcessingException( "Failed to extract rows from table." );
 			}

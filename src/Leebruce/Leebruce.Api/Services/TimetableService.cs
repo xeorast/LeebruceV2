@@ -103,7 +103,7 @@ public class TimetableService : ITimetableService
 	static IEnumerable<DateOnly> ExtractDates( string header )
 	{
 		var cellMatches = timetableHeaderDays.Matches( header );
-		foreach ( Match cellMatch in cellMatches )
+		foreach ( var cellMatch in cellMatches.Cast<Match>() )
 		{
 			var dateStr = cellMatch.GetGroup( "date" ) ?? throw new ProcessingException( "Failed to extract date from header table header." );
 			yield return DateOnly.TryParse( dateStr, out var date ) ? date : throw new ProcessingException( "Date extracted from header table was invalid." );
@@ -115,7 +115,7 @@ public class TimetableService : ITimetableService
 	static IEnumerable<string> ExtractRows( string body )
 	{
 		var headerMatch = timetableBodyRows.Matches( body );
-		foreach ( Match match in headerMatch )
+		foreach ( var match in headerMatch.Cast<Match>() )
 		{
 			yield return match.GetGroup( "row" ) ?? throw new ProcessingException( "Failed to extract rows from table." );
 		}
@@ -151,7 +151,7 @@ public class TimetableService : ITimetableService
 		{
 			var matches = timetableLessonCell.Matches( row );
 
-			foreach ( Match match in matches )
+			foreach ( var match in matches.Cast<Match>() )
 			{
 				var cell = match.GetGroup( "cell" ) ?? throw new ProcessingException( "Failed to extract lesson cell from table." ); ;
 				yield return cell.NullIfHtmlWhiteSpace();

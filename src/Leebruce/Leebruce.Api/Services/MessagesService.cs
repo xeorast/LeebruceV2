@@ -80,7 +80,7 @@ public class MessagesService : IMessagesService
 	static IEnumerable<MessageMetadataModel> ExtractMessages( string tableBody )
 	{
 		var matches = messagesTableRowRx.Matches( tableBody );
-		foreach ( Match match in matches )
+		foreach ( var match in matches.Cast<Match>() )
 		{
 			var dateStr = match.GetGroup( "date" )
 				?? throw new ProcessingException( "Failed to extract date from table." );
@@ -185,7 +185,7 @@ public class MessagesService : IMessagesService
 			yield break;
 
 		var fileMatches = messageFileRx.Matches( filesTable );
-		foreach ( Match fileMatch in fileMatches )
+		foreach ( var fileMatch in fileMatches.Cast<Match>() )
 		{
 			var fileName = fileMatch.GetGroup( "fileName" )
 				?? throw new ProcessingException( "Failed to extract filename from attachment." );

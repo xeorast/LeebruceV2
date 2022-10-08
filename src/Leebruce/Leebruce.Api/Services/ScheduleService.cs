@@ -93,7 +93,7 @@ public class ScheduleService : IScheduleService
 
 		// day and data
 		var dayMatches = ScheduleDayRx.Matches( body );
-		foreach ( Match match in dayMatches )
+		foreach ( var match in dayMatches.Cast<Match>() )
 		{
 			ScheduleDay? scheduleDay = null;
 			try
@@ -129,7 +129,7 @@ public class ScheduleService : IScheduleService
 	IEnumerable<ScheduleEvent> ExtractEvents( string data )
 	{
 		var eventMatches = ScheduleEventRx.Matches( data );
-		foreach ( Match match in eventMatches )
+		foreach ( var match in eventMatches.Cast<Match>() )
 		{
 			ScheduleEvent ev;
 			try
