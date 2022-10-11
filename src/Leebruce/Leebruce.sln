@@ -5,7 +5,9 @@ VisualStudioVersion = 17.2.32519.379
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leebruce.Api", "Leebruce.Api\Leebruce.Api.csproj", "{025C41AC-E2AA-44BB-9422-3D7BDBDADB39}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Leebruce.Domain", "Leebruce.Domain\Leebruce.Domain.csproj", "{78569AE5-9EB4-4AA8-ACAB-A67BE99240CC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Leebruce.Domain", "Leebruce.Domain\Leebruce.Domain.csproj", "{78569AE5-9EB4-4AA8-ACAB-A67BE99240CC}"
+EndProject
+Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Leebruce.AngularClient", "Leebruce.AngularClient\Leebruce.AngularClient.esproj", "{8374F704-88C0-4913-91CC-A411A8C56ACD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,12 @@ Global
 		{78569AE5-9EB4-4AA8-ACAB-A67BE99240CC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{78569AE5-9EB4-4AA8-ACAB-A67BE99240CC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{78569AE5-9EB4-4AA8-ACAB-A67BE99240CC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8374F704-88C0-4913-91CC-A411A8C56ACD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8374F704-88C0-4913-91CC-A411A8C56ACD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8374F704-88C0-4913-91CC-A411A8C56ACD}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{8374F704-88C0-4913-91CC-A411A8C56ACD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8374F704-88C0-4913-91CC-A411A8C56ACD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8374F704-88C0-4913-91CC-A411A8C56ACD}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
