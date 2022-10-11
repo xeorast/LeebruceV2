@@ -18,7 +18,8 @@ public record GradeModel(
 	string? Comment,
 	DateOnly Date,
 	string Teacher,
-	string AddedBy )
+	string AddedBy,
+	string ColorHex )
 {
 	[JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
 	public int? Value { get; init; } = Value;

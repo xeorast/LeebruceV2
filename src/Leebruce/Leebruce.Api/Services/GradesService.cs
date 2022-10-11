@@ -45,7 +45,7 @@ public class GradesService : IGradesService
 		var matches = subjectRx.Matches( table );
 		List<SubjectGradesModel> subjects = new( matches.Count );
 
-		foreach ( Match subjectMatch in matches )
+		foreach ( var subjectMatch in matches.Cast<Match>() )
 		{
 			try
 			{
@@ -125,7 +125,7 @@ public class GradesService : IGradesService
 		var matches = summaryGradesRx.Matches( grades );
 		List<(string id, string? comment)> comments = new( matches.Count );
 
-		foreach ( Match gradeMatch in matches )
+		foreach ( var gradeMatch in matches.Cast<Match>() )
 		{
 			var id = gradeMatch.GetGroup( "link" );
 			if ( id is null )
@@ -143,7 +143,7 @@ public class GradesService : IGradesService
 		var matches = subjectGradesRx.Matches( subjectTable );
 		List<GradeModel> grades = new( matches.Count );
 
-		foreach ( Match gradeRowMatch in matches )
+		foreach ( var gradeRowMatch in matches.Cast<Match>() )
 		{
 			var gradeMatch = gradeInfoRx.Match( gradeRowMatch.Value );
 
@@ -219,9 +219,9 @@ public class GradesService : IGradesService
 		var category = gradeMatch.GetGroup( "category" )
 			?? throw ExceptionFor( "category" );
 
-		// resit
-		var resit = gradeMatch.GetGroup( "resit" )
-			?? throw ExceptionFor( "resit" );
+		//// resit
+		//var resit = gradeMatch.GetGroup( "resit" )
+		//	?? throw ExceptionFor( "resit" );
 
 		// teacher
 		var teacher = gradeMatch.GetGroup( "teacher" )
@@ -237,7 +237,7 @@ public class GradesService : IGradesService
 		// comment
 		var comment = id is null ? null : comments[id];
 
-		return new GradeModel( grade, specialGrade, count, weight, category, comment, date, teacher, addedBy );
+		return new GradeModel( grade, specialGrade, count, weight, category, comment, date, teacher, addedBy, color );
 	}
 
 
@@ -270,7 +270,7 @@ public class GradesService : IGradesService
 		var graphMatches = gradeGraphRx.Matches( document );
 		List<GradesGraphRecordModel> graph = new( graphMatches.Count );
 
-		foreach ( Match barMatch in graphMatches )
+		foreach ( var barMatch in graphMatches.Cast<Match>() )
 		{
 			var monthStr = barMatch.GetGroup( "month" )
 				?? throw new ProcessingException( "Failed to extract month from document." );
