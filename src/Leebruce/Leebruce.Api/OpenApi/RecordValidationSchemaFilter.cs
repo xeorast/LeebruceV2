@@ -2,7 +2,7 @@
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.ComponentModel.DataAnnotations;
 
-namespace Leebruce.Api;
+namespace Leebruce.Api.OpenApi;
 
 public class RecordValidationSchemaFilter : ISchemaFilter
 {

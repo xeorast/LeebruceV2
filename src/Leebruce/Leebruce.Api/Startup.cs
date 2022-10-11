@@ -1,4 +1,5 @@
 ﻿using Leebruce.Api.Auth;
+using Leebruce.Api.OpenApi;
 using Leebruce.Domain.Converters;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
@@ -21,11 +22,12 @@ public static class Startup
 		_ = builder.Services.AddEndpointsApiExplorer();
 		_ = builder.Services.AddSwaggerGen( o =>
 		{
-			o.MapType<DateOnly>( () => new OpenApiSchema() { Title = "Date", Type = "string", Example = new OpenApiString( "2020-03-11" ) } );
-			o.MapType<TimeOnly>( () => new OpenApiSchema() { Title = "Hour", Type = "string", Example = new OpenApiString( "16:20:00" ) } );
+			o.MapType<DateOnly>( () => new OpenApiSchema() { Type = "string", Format = "date", Example = new OpenApiString( "2020-03-11" ) } );
+			o.MapType<TimeOnly>( () => new OpenApiSchema() { Type = "string", Format = "partial-time", Example = new OpenApiString( "16:20:00" ) } );
 
 			o.AddSecurityToken();
 			o.SchemaFilter<RecordValidationSchemaFilter>();
+			o.SchemaFilter<NullableReferenceSchemaFilter>();
 		} );
 
 		// authentication

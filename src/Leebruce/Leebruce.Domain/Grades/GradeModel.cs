@@ -2,6 +2,7 @@
 
 namespace Leebruce.Domain.Grades;
 
+[JsonConverter( typeof( JsonStringEnumConverter ) )]
 public enum SpecialGrade
 {
 	Plus,
@@ -24,7 +25,6 @@ public record GradeModel(
 	[JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
 	public int? Value { get; init; } = Value;
 
-	[JsonConverter( typeof( JsonStringEnumConverter ) )]
 	[JsonIgnore( Condition = JsonIgnoreCondition.WhenWritingNull )]
 	public SpecialGrade? SpecialValue { get; init; } = SpecialValue;
 
