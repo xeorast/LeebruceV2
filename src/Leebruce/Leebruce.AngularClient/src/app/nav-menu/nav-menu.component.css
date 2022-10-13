@@ -1,0 +1,44 @@
+:host {
+    color: var(--light-color);
+}
+
+a {
+    text-decoration: none;
+    color: inherit;
+    font-weight: inherit;
+}
+
+.link-active {
+    font-weight: bold;
+}
+
+.navbar-toggler {
+    padding: .5rem;
+}
+
+ul.nav {
+    list-style: none;
+    padding-left: 0;
+    margin-bottom: 0;
+}
+
+.top-row {
+    background-color: hsl(219, 91%, 15%);
+    height: 3rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem;
+}
+
+@media(max-width: 600px) {
+    .navbar-collapse:not(.show) {
+        display: none;
+    }
+}
+
+@media(min-width: 600px) {
+    .navbar-toggler {
+        display: none;
+    }
+}

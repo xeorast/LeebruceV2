@@ -1,0 +1,31 @@
+<div class="top-row">
+    <a href="">
+        <span>Leebruce</span>
+    </a>
+
+    <button
+        class="navbar-toggler"
+        (click)="toggleNavMenu()">
+        <span>toggle</span>
+    </button>
+</div>
+
+<div
+    class="navbar-collapse"
+    [ngClass]="{show: !collapseNavMenu}"
+    (click)="toggleNavMenu()">
+
+    <ul class="nav">
+        <li
+            [routerLinkActive]="['link-active']"
+            [routerLinkActiveOptions]="{ exact: true }">
+            <a
+                [routerLink]="['/']">Home</a>
+        </li>
+        <li
+            [routerLinkActive]="['link-active']">
+            <a
+                [routerLink]="['/counter']">counter</a>
+        </li>
+    </ul>
+</div>
