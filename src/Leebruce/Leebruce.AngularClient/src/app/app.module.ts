@@ -8,6 +8,8 @@ import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
 import { CounterComponent } from './counter/counter.component';
 
+import { ErrorInterceptorProvider } from './api/error.interceptor'
+
 @NgModule( {
   declarations: [
     AppComponent,
@@ -23,7 +25,9 @@ import { CounterComponent } from './counter/counter.component';
       { path: 'counter', component: CounterComponent },
     ] )
   ],
-  providers: [],
+  providers: [
+    ErrorInterceptorProvider
+  ],
   bootstrap: [AppComponent]
 } )
 export class AppModule { }
