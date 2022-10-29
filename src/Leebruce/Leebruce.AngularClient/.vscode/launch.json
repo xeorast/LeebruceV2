@@ -14,6 +14,21 @@
       "name": "localhost (Edge)",
       "url": "https://localhost:4200",
       "webRoot": "${workspaceFolder}"
-    }
+    },
+    {
+      "name": "test (Chrome)",
+      "type": "chrome",
+      "request": "launch",
+      "url": "http://localhost:9876/debug.html",
+      "webRoot": "${workspaceFolder}",
+      "sourceMaps": true,
+      "sourceMapPathOverrides": {
+        "webpack:/*": "${webRoot}/*",
+        "/./*": "${webRoot}/*",
+        "/src/*": "${webRoot}/*",
+        "/*": "*",
+        "/./~/*": "${webRoot}/node_modules/*"
+      }
+    },
   ]
 }

@@ -8,6 +8,7 @@ import { NavMenuComponent } from './nav-menu/nav-menu.component';
 import { HomeComponent } from './home/home.component';
 import { CounterComponent } from './counter/counter.component';
 
+import { AuthenticationService } from './api/authentication.service'
 import { ErrorInterceptorProvider } from './api/error.interceptor'
 
 @NgModule( {
@@ -26,6 +27,7 @@ import { ErrorInterceptorProvider } from './api/error.interceptor'
     ] )
   ],
   providers: [
+    AuthenticationService,
     ErrorInterceptorProvider
   ],
   bootstrap: [AppComponent]
