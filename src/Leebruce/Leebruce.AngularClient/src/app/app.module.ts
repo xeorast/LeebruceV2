@@ -4,31 +4,25 @@ import { BrowserModule } from '@angular/platform-browser';
 import { RouterModule } from '@angular/router';
 
 import { AppComponent } from './app.component';
-import { NavMenuComponent } from './nav-menu/nav-menu.component';
-import { HomeComponent } from './home/home.component';
-import { CounterComponent } from './counter/counter.component';
 
-import { AuthenticationService } from './api/authentication.service'
-import { ErrorInterceptorProvider } from './api/error.interceptor'
+import { AuthenticationModule } from './api/authentication/authentication.module';
+import { HttpErrorMapperModule } from './api/http-error-mapper/http-error-mapper.module';
+import { NavMenuModule } from './nav-menu/nav-menu.module';
 
 @NgModule( {
   declarations: [
     AppComponent,
-    NavMenuComponent,
-    HomeComponent,
-    CounterComponent
   ],
   imports: [
     BrowserModule,
     HttpClientModule,
     RouterModule.forRoot( [
-      { path: '', component: HomeComponent },
-      { path: 'counter', component: CounterComponent },
-    ] )
-  ],
-  providers: [
-    AuthenticationService,
-    ErrorInterceptorProvider
+      { path: '', loadChildren: () => import( './home/home.module' ).then( m => m.HomeModule ) },
+      { path: 'counter', loadChildren: () => import( './counter/counter.module' ).then( m => m.CounterModule ) },
+    ] ),
+    NavMenuModule,
+    AuthenticationModule,
+    HttpErrorMapperModule,
   ],
   bootstrap: [AppComponent]
 } )

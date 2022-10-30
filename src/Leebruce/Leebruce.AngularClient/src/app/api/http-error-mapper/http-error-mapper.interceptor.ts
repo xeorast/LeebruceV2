@@ -9,7 +9,7 @@ import {
 import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
 
-import { ProblemDetails, ValidationProblemDetails } from "./problem-details";
+import { ProblemDetails, ValidationProblemDetails } from "../problem-details";
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
@@ -35,7 +35,7 @@ export class ErrorInterceptor implements HttpInterceptor {
 
     if ( ( error.error as ProblemDetails )?.status === undefined ) {
       // non-parsable error
-      return throwError( () => <ProblemDetails>{ status: error.status, detail: error.error } );
+      return throwError( () => new ProblemDetails( { status: error.status, detail: error.error } ) );
     }
 
     if ( ( error.error as ValidationProblemDetails )?.errors !== undefined ) {
