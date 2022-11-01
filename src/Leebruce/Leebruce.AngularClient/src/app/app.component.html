@@ -2,7 +2,10 @@
     <div class="sidebar">
         <app-nav-menu></app-nav-menu>
     </div>
-    <div ng class="main">
+    <div class="main">
         <router-outlet></router-outlet>
+    </div>
+    <div class="error-presenter" [hidden]="this.error === undefined">
+        {{error}}&ZeroWidthSpace;
     </div>
 </div>
