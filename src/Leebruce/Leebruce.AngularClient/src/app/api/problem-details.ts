@@ -1,3 +1,29 @@
+import { HttpErrorResponse } from "@angular/common/http"
+
+export class HttpError extends Error {
+    constructor( response: HttpErrorResponse )
+    constructor( response: HttpErrorResponse, message: string )
+    constructor( public response: HttpErrorResponse, message?: string ) {
+        super( message )
+    }
+}
+
+export class HttpProblem extends HttpError {
+    constructor(
+        response: HttpErrorResponse,
+        public details: ProblemDetails ) {
+        super( response, ( details.detail ?? undefined ) as string )
+    }
+}
+
+export class HttpValidationProblem extends HttpError {
+    constructor(
+        response: HttpErrorResponse,
+        public details: ValidationProblemDetails ) {
+        super( response, ( details.detail ?? undefined ) as string )
+    }
+}
+
 export class ProblemDetails {
     type?: string | null = null
     title?: string | null = null
