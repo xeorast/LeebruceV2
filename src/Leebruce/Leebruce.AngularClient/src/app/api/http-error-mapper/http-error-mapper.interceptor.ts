@@ -8,11 +8,15 @@ import {
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, throwError } from 'rxjs';
+import { ErrorNotifierService, ServerConnectionError, ServerError } from '../error-notifier/error-notifier.service';
 
 import { HttpError, HttpProblem, HttpValidationProblem, ProblemDetails, ValidationProblemDetails } from "../problem-details";
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
+
+  constructor( private errorService: ErrorNotifierService ) {
+  }
 
   intercept( request: HttpRequest<unknown>, next: HttpHandler ): Observable<HttpEvent<unknown>> {
     return next.handle( request )
@@ -20,9 +24,11 @@ export class ErrorInterceptor implements HttpInterceptor {
   }
 
   errorHandler( response: HttpErrorResponse ) {
+    let error: HttpError | undefined
+
     if ( response.status === 0 ) {
       // A client-side or network error occurred. Handle it accordingly.
-      return throwError( () => new HttpError( response, 'Something bad happened; server is unreachable; please try again later.' ) );
+      error = new ServerConnectionError( response, 'Server is unreachable; please try again later' )
     }
 
     // The backend returned an unsuccessful response code.
@@ -30,25 +36,29 @@ export class ErrorInterceptor implements HttpInterceptor {
 
     if ( response.error?.error ) {
       // illformed body
-      return throwError( () => new HttpError( response, 'Something bad happened; invalid server response; please try again later.' ) );
+      error = new ServerError( response, 'Something bad happened; server returned invalid response; please try again later.' )
     }
 
     if ( ( response.error as ProblemDetails )?.status === undefined ) {
       // non-parsable error
-      return throwError( () => new HttpError( response, response.error ) );
+      error = new HttpError( response, response.error )
     }
 
     if ( ( response.error as ValidationProblemDetails )?.errors !== undefined ) {
       // validation problem details
-      return throwError( () => new HttpValidationProblem( response, new ValidationProblemDetails( response.error ) ) );
+      error = new HttpValidationProblem( response, new ValidationProblemDetails( response.error ) )
     }
 
     if ( ( response.error as ProblemDetails )?.status !== undefined ) {
       // problem details
-      return throwError( () => new HttpProblem( response, new ProblemDetails( response.error ) ) );
+      error = new HttpProblem( response, new ProblemDetails( response.error ) )
     }
 
-    return throwError( () => new HttpError( response, 'Something bad happened; please try again later.' ) );
+    if ( error instanceof ServerError ) {
+      this.errorService.raiseError( error )
+    }
+
+    return throwError( () => error ?? new ServerError( response, 'Something bad happened; please try again later.' ) );
   }
 
 }

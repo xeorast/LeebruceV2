@@ -1,21 +1,37 @@
 .page {
-    display: flex;
-    flex-direction: row;
+    display: grid;
+    grid-template-areas:
+        "sidebar main"
+        "error error";
+    grid-template-columns: auto 1fr;
+    grid-template-rows: 1fr auto;
     height: 100%;
 }
 
 .sidebar {
+    grid-area: sidebar;
     background-image: linear-gradient(180deg, hsl(219, 91%, 21%) 0%, hsl(288, 84%, 15%) 70%);
 }
 
 .main {
-    flex: 1;
+    grid-area: main;
     padding: 1rem;
+}
+
+.error-presenter {
+    grid-area: error;
+    padding: .3rem 1rem;
+    background-color: #111;
 }
 
 @media (max-width: 600px) {
     .page {
-        flex-direction: column;
+        grid-template-areas:
+            "sidebar"
+            "main"
+            "error";
+        grid-template-columns: 1fr;
+        grid-template-rows: auto 1fr auto;
     }
 }
 
