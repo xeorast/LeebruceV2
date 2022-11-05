@@ -1,0 +1,56 @@
+form {
+    display: grid;
+    grid-template-columns: max-content auto;
+    grid-template-areas:
+        "user user-validation"
+        "password password-validation"
+        "submit ."
+        "error error";
+    width: max-content;
+    gap: .2rem;
+    margin: .2rem 0;
+}
+
+input {
+    margin-bottom: auto;
+}
+
+input[name="username"] {
+    grid-area: user;
+}
+
+input[name="username"] + .input-validation {
+    grid-area: user-validation;
+}
+
+input[name="password"] {
+    grid-area: password;
+}
+
+input[name="password"] + .input-validation {
+    grid-area: password-validation;
+}
+
+.validation {
+    color: hsl(0, 90%, 65%);
+}
+
+.submit {
+    grid-area: submit;
+}
+
+.error-box {
+    grid-area: error;
+}
+
+@media(max-width: 600px) {
+    form {
+        grid-template-columns: 1fr;
+        grid-template-areas: initial;
+        width: 100%;
+    }
+
+    form > * {
+        grid-area: initial;
+    }
+}

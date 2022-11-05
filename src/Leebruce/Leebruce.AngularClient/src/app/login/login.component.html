@@ -1,0 +1,36 @@
+<p>Log in</p>
+<form
+    name="form"
+    #f="ngForm"
+    (ngSubmit)="f.form.valid && onSubmit()">
+    <input
+        type="text"
+        name="username"
+        placeholder="username"
+        #username="ngModel"
+        [(ngModel)]="form.username"
+        required />
+
+    <div class="validation input-validation"
+        *ngIf="username.invalid && (username.dirty || username.touched || f.submitted)">
+        <div *ngIf="username.errors?.['required']">Username is required.</div>
+    </div>
+
+    <input
+        type="password"
+        name="password"
+        placeholder="password"
+        #password="ngModel"
+        [ngModel]="form.password"
+        required />
+
+    <div class="validation input-validation"
+        *ngIf="password.invalid && (password.dirty || password.touched || f.submitted)">
+        <div *ngIf="password.errors?.['required']">Password is required.</div>
+    </div>
+
+    <button class="submit" type="submit">Login</button>
+
+    <div class="validation error-box" *ngIf="isInvalidCredentials">Invalid username or password.</div>
+
+</form>

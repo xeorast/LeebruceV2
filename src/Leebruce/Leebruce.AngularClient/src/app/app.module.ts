@@ -23,11 +23,12 @@ import { NavMenuModule } from './nav-menu/nav-menu.module';
     RouterModule.forRoot( [
       { path: '', loadChildren: () => import( './home/home.module' ).then( m => m.HomeModule ) },
       { path: 'counter', loadChildren: () => import( './counter/counter.module' ).then( m => m.CounterModule ) },
+      { path: 'login', loadChildren: () => import( './login/login.module' ).then( m => m.LoginModule ) },
     ] ),
     NavMenuModule,
     AuthenticationModule,
-    HttpErrorMapperModule,
     ServerErrorHandlingModule,
+    HttpErrorMapperModule,
     ErrorNotifierModule
   ],
   bootstrap: [AppComponent]
