@@ -34,22 +34,22 @@ export class ErrorInterceptor implements HttpInterceptor {
     // The backend returned an unsuccessful response code.
     // The response body may contain clues as to what went wrong.
 
-    if ( response.error?.error ) {
+    else if ( response.error?.error ) {
       // illformed body
       error = new ServerError( response, 'Something bad happened; server returned invalid response; please try again later.' )
     }
 
-    if ( ( response.error as ProblemDetails )?.status === undefined ) {
+    else if ( ( response.error as ProblemDetails )?.status === undefined ) {
       // non-parsable error
       error = new HttpError( response, response.error )
     }
 
-    if ( ( response.error as ValidationProblemDetails )?.errors !== undefined ) {
+    else if ( ( response.error as ValidationProblemDetails )?.errors !== undefined ) {
       // validation problem details
       error = new HttpValidationProblem( response, new ValidationProblemDetails( response.error ) )
     }
 
-    if ( ( response.error as ProblemDetails )?.status !== undefined ) {
+    else if ( ( response.error as ProblemDetails )?.status !== undefined ) {
       // problem details
       error = new HttpProblem( response, new ProblemDetails( response.error ) )
     }
