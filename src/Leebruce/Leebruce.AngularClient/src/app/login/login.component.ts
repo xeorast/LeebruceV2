@@ -2,6 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthenticationService, InvalidCredentialsError, loginDto } from '../api/authentication/authentication.service';
+import { HttpValidationProblem } from '../api/problem-details';
 
 @Component( {
   selector: 'app-login',
@@ -47,6 +48,10 @@ export class LoginComponent implements OnInit, OnDestroy {
       complete: async () => await this.redirectBack(),
       error: error => {
         if ( error instanceof InvalidCredentialsError ) {
+          this.isInvalidCredentials = true
+        }
+        if ( error instanceof HttpValidationProblem ) {
+          //todo: temporary solution, show errors better
           this.isInvalidCredentials = true
         }
 
