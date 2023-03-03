@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using Leebruce.Api.Models;
+using System.Net;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 
@@ -19,23 +20,14 @@ public class LbHelperService : ILbHelperService
 
 	public HttpClientHandler CreateHandler( ClaimsPrincipal user )
 	{
-		string? dziennikSid = user.Claims.FirstOrDefault( x => x.Type == "DziennikSid" )?.Value
-			?? throw new ArgumentException( "Incomplete principal, no 'DziennikSid' claim found.", nameof( user ) );
-
-		string? sdziennikSid = user.Claims.FirstOrDefault( x => x.Type == "SdziennikSid" )?.Value
-			?? throw new ArgumentException( "Incomplete principal, no 'SdziennikSid' claim found.", nameof( user ) );
-
-		string? oAuthToken = user.Claims.FirstOrDefault( x => x.Type == "OAuthToken" )?.Value
-			?? throw new ArgumentException( "Incomplete principal, no 'OAuthToken' claim found.", nameof( user ) );
-
-		return CreateHandler( dziennikSid, sdziennikSid, oAuthToken );
+		return CreateHandler( LbAuthData.FromClaims( user.Claims ) );
 	}
-	public HttpClientHandler CreateHandler( string dziennikSid, string sdziennikSid, string oAuthToken )
+	public HttpClientHandler CreateHandler( LbAuthData parameters )
 	{
 		CookieContainer cookies = new();
-		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.dsidName, dziennikSid ) );
-		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.sdsidName, sdziennikSid ) );
-		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.oatokenName, oAuthToken ) );
+		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.dsidName, parameters.DziennikSid ) );
+		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.sdsidName, parameters.SdziennikSid ) );
+		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.oatokenName, parameters.OAuthToken ) );
 
 		return new() { AllowAutoRedirect = false, CookieContainer = cookies };
 	}

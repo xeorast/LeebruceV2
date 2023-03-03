@@ -23,9 +23,9 @@ public class JsonService
 	{
 		return js.JsonSerializer.Deserialize<T>( json, _jsonOptions );
 	}
-	public bool TryFromJson<T>( string json, [NotNullWhen( true )] out T? value ) where T : class
+	public bool TryFromJson<T>( string json, [NotNullWhen( true )] out T? value )
 	{
-		value = null;
+		value = default;
 		try
 		{
 			value = js.JsonSerializer.Deserialize<T>( json, _jsonOptions );
@@ -48,9 +48,9 @@ public class JsonService
 		var json = Encoding.UTF8.GetString( Convert.FromBase64String( base64 ) );
 		return FromJson<T>( json );
 	}
-	public bool TryFromBase64Json<T>( string base64, [NotNullWhen( true )] out T? value ) where T : class
+	public bool TryFromBase64Json<T>( string base64, [NotNullWhen( true )] out T? value )
 	{
-		value = null;
+		value = default;
 		try
 		{
 			var json = Encoding.UTF8.GetString( Convert.FromBase64String( base64 ) );

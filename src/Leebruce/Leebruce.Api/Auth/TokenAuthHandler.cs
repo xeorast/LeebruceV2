@@ -52,12 +52,7 @@ public class TokenAuthHandler : AuthenticationHandler<TokenOptions>
 		}
 
 		// generate claims
-		Claim[] claims = new Claim[]
-		{
-			new( nameof( data.DziennikSid ), data.DziennikSid ),
-			new( nameof( data.SdziennikSid ), data.SdziennikSid ),
-			new( nameof( data.OAuthToken ), data.OAuthToken ),
-		};
+		Claim[] claims = data.ToClaimsArray();
 
 		ClaimsPrincipal principal = new( new ClaimsIdentity( claims, Scheme.Name ) );
 		TokenValidatedContext ctx = new( Context, Scheme, Options ) { Principal = principal };
