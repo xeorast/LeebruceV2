@@ -11,6 +11,7 @@ import { ErrorNotifierModule } from './api/error-notifier/error-notifier.module'
 import { HttpErrorMapperModule } from './api/http-error-mapper/http-error-mapper.module';
 import { ServerErrorHandlingModule } from './api/server-error-handling/server-error-handling.module';
 import { NavMenuModule } from './nav-menu/nav-menu.module';
+import { AnnouncementsClientModule } from './api/announcements-client/announcements-client.module';
 
 @NgModule( {
   declarations: [
@@ -24,12 +25,14 @@ import { NavMenuModule } from './nav-menu/nav-menu.module';
       { path: '', loadChildren: () => import( './home/home.module' ).then( m => m.HomeModule ) },
       { path: 'counter', loadChildren: () => import( './counter/counter.module' ).then( m => m.CounterModule ) },
       { path: 'login', loadChildren: () => import( './login/login.module' ).then( m => m.LoginModule ) },
+      { path: 'announcements', loadChildren: () => import( './announcements/announcements.module' ).then( m => m.AnnouncementsModule ) },
     ] ),
     NavMenuModule,
     AuthenticationModule,
     ServerErrorHandlingModule,
     HttpErrorMapperModule,
-    ErrorNotifierModule
+    ErrorNotifierModule,
+    AnnouncementsClientModule,
   ],
   bootstrap: [AppComponent]
 } )
