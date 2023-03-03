@@ -19,7 +19,7 @@ export class AuthenticationService {
   }
 
   public logIn( credentials: loginDto ) {
-    return this.http.post<string>( 'api/auth/login', credentials )
+    return this.http.post( 'api/auth/login', credentials, { responseType: 'text' } )
       .pipe(
         tap( token => this.setToken( token ) ),
         map( _token => { } ),
@@ -52,4 +52,7 @@ export interface loginDto {
 }
 
 export class InvalidCredentialsError extends Error {
+}
+
+export class NotAuthenticatedError extends Error {
 }

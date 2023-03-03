@@ -20,11 +20,20 @@ export class ErrorInterceptor implements HttpInterceptor {
 
   intercept( request: HttpRequest<unknown>, next: HttpHandler ): Observable<HttpEvent<unknown>> {
     return next.handle( request )
-      .pipe( catchError( this.errorHandler ) );
+      .pipe( catchError( error => this.errorHandler( error, request.responseType ) ) );
   }
 
-  errorHandler( response: HttpErrorResponse ) {
+  errorHandler( response: HttpErrorResponse, responseType: 'arraybuffer' | 'blob' | 'json' | 'text' ) {
     let error: HttpError | undefined
+
+    let responseError = response.error
+    if ( responseType != 'json' ) {
+      try {
+        responseError = JSON.parse( response.error as string )
+      }
+      catch ( e ) {
+      }
+    }
 
     if ( response.status === 0 ) {
       // A client-side or network error occurred. Handle it accordingly.
@@ -34,24 +43,24 @@ export class ErrorInterceptor implements HttpInterceptor {
     // The backend returned an unsuccessful response code.
     // The response body may contain clues as to what went wrong.
 
-    else if ( response.error?.error ) {
+    else if ( responseError?.error ) {
       // illformed body
       error = new ServerError( response, 'Something bad happened; server returned invalid response; please try again later.' )
     }
 
-    else if ( ( response.error as ProblemDetails )?.status === undefined ) {
+    else if ( ( responseError as ProblemDetails )?.status === undefined ) {
       // non-parsable error
-      error = new HttpError( response, response.error )
+      error = new HttpError( response, responseError )
     }
 
-    else if ( ( response.error as ValidationProblemDetails )?.errors !== undefined ) {
+    else if ( ( responseError as ValidationProblemDetails )?.errors !== undefined ) {
       // validation problem details
-      error = new HttpValidationProblem( response, new ValidationProblemDetails( response.error ) )
+      error = new HttpValidationProblem( response, new ValidationProblemDetails( responseError ) )
     }
 
-    else if ( ( response.error as ProblemDetails )?.status !== undefined ) {
+    else if ( ( responseError as ProblemDetails )?.status !== undefined ) {
       // problem details
-      error = new HttpProblem( response, new ProblemDetails( response.error ) )
+      error = new HttpProblem( response, new ProblemDetails( responseError ) )
     }
 
     if ( error instanceof ServerError ) {
