@@ -12,6 +12,7 @@ import { HttpErrorMapperModule } from './api/http-error-mapper/http-error-mapper
 import { ServerErrorHandlingModule } from './api/server-error-handling/server-error-handling.module';
 import { NavMenuModule } from './nav-menu/nav-menu.module';
 import { AnnouncementsClientModule } from './api/announcements-client/announcements-client.module';
+import { TimetableClientModule } from './api/timetable-client/timetable-client.module';
 
 @NgModule( {
   declarations: [
@@ -33,6 +34,7 @@ import { AnnouncementsClientModule } from './api/announcements-client/announceme
     HttpErrorMapperModule,
     ErrorNotifierModule,
     AnnouncementsClientModule,
+    TimetableClientModule,
   ],
   bootstrap: [AppComponent]
 } )
