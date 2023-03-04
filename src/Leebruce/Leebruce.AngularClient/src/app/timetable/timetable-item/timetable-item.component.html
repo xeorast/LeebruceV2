@@ -1,0 +1,32 @@
+<div class="marker">
+    <div class="line"></div>
+    <div class="circle"></div>
+    <div class="line"></div>
+</div>
+
+<div class="tile {{classForColor}}">
+
+    <span class="subject">
+        <ng-container *ngIf="lessonModel.substitution?.originalSubject">
+            <span class="substitution">{{lessonModel.substitution?.originalSubject}}</span>
+            <span>&nbsp;&minus;&gt;&nbsp;</span>
+        </ng-container>
+        <span class="{{classFromCancellation}}">{{lessonModel.subject}}</span>
+    </span>
+
+    <span class="name">
+        <ng-container *ngIf="lessonModel.substitution?.originalTeacher">
+            <span class="substitution">{{lessonModel.substitution?.originalTeacher}}</span>
+            <span>&nbsp;&minus;&gt;&nbsp;</span>
+        </ng-container>
+        <span class="{{classFromCancellation}}">{{teacherName}}</span>
+    </span>
+
+    <span class="time">
+        <span class="{{classFromCancellation}}">{{time}}</span>
+    </span>
+
+    <span class="room">
+        <span class="{{classFromCancellation}}">{{lessonModel.room}}</span>
+    </span>
+</div>
