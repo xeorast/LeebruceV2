@@ -27,6 +27,7 @@ import { TimetableClientModule } from './api/timetable-client/timetable-client.m
       { path: 'counter', loadChildren: () => import( './counter/counter.module' ).then( m => m.CounterModule ) },
       { path: 'login', loadChildren: () => import( './login/login.module' ).then( m => m.LoginModule ) },
       { path: 'announcements', loadChildren: () => import( './announcements/announcements.module' ).then( m => m.AnnouncementsModule ) },
+      { path: 'timetable', loadChildren: () => import('./timetable/timetable.module').then(m => m.TimetableModule) },
     ] ),
     NavMenuModule,
     AuthenticationModule,

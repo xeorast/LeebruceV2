@@ -1,0 +1,30 @@
+.date-pick-roll {
+    flex-wrap: nowrap;
+    overflow: auto;
+    justify-content: center;
+}
+
+.date-pick-wrap {
+    display: flex;
+    justify-content: center;
+    width: auto;
+}
+
+.date-pick {
+    transition: transform .1s;
+
+    $unselected-scale: scale(0.85);
+    $hover-translate: translate(2px, -2px);
+
+    &:not(.selected) {
+        transform: $unselected-scale;
+    }
+
+    &:not(.selected):hover {
+        transform: $unselected-scale $hover-translate;
+    }
+
+    &.selected:hover {
+        transform: $hover-translate;
+    }
+}

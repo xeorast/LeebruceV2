@@ -9,11 +9,18 @@
 }
 
 :root {
-    color-scheme: dark light;
+    color-scheme: light dark;
+    --white-color: #fff;
     --light-color: #ccc;
+    --mid-light-color: #999;
+    --mid-color: #777;
+    --mid-dark-color: #5d5d65;
     --dark-color: #2d2d30;
-    --main-bg-color: var(--light-color);
+    --black-color: #000;
+
+    --main-bg-color: var(--white-color);
     --main-text-color: var(--dark-color);
+    --bg-accent-color: var(--light-color);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -21,15 +28,20 @@
         color-scheme: dark light;
         --main-bg-color: var(--dark-color);
         --main-text-color: var(--light-color);
+        --bg-accent-color: var(--mid-dark-color)
     }
 }
 
+[data-bs-theme=dark] {
+    --bs-body-bg: var(--main-bg-color);
+    --bs-body-color: var(--main-text-color);
+}
 
 html,
 body {
     height: 100%;
-    /* background-color: var(--main-bg-color); */
-    /* color: var(--main-text-color); */
+    background-color: var(--main-bg-color);
+    color: var(--main-text-color);
 }
 
 body {
@@ -37,7 +49,12 @@ body {
     height: 100%;
 }
 
-[data-bs-theme=dark] {
-    --bs-body-bg: var(--main-bg-color);
-    --bs-body-color: var(--main-text-color);
+.btn-inherit {
+    color: inherit;
+    transition: filter .3s, transform .1s;
+}
+
+.btn-inherit:hover {
+    filter: brightness(150%);
+    transform: translate(2px, -2px);
 }
