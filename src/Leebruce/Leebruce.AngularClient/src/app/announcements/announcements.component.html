@@ -2,13 +2,13 @@
 
     <div class="accordion-item" *ngFor="let announcement of announcements; let index=index;">
         <h2 id="heading{{index}}" class="accordion-header">
-            <button class="accordion-button {{index==0?'collapsed':''}}" type="button"
+            <button class="accordion-button {{index!=0?'collapsed':''}}" type="button"
                 data-bs-toggle="collapse" attr.data-bs-target="#collapse{{index}}"
                 attr.aria-expanded="{{index==0?'true':'false'}}" attr.aria-controls="collapse{{index}}">
                 <div>
                     <div>{{announcement.title}}</div>
                     <div class="text-muted small">
-                        <span>{{announcement.date}} by {{announcement.author}}</span>
+                        <span>{{announcement.date | date: 'dd.MM.yyyy'}} by {{announcement.author}}</span>
                     </div>
                 </div>
             </button>

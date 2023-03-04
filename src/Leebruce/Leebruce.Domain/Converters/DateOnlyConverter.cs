@@ -41,9 +41,9 @@ public class DateOnlyConverter : TypeConverter
 
 	public override object? ConvertTo( ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType )
 	{
-		if ( destinationType == typeof( string ) && value is DateOnly date )
+		if ( destinationType == typeof( string ) && value is DateTime date )
 		{
-			return date.ToString( culture );
+			return date.ToString( "o",culture );
 		}
 
 		return base.ConvertTo( context, culture, value, destinationType );
