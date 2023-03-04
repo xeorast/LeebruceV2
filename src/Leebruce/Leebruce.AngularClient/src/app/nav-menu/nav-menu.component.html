@@ -1,41 +1,48 @@
-<div class="top-row">
-    <a href="">
+<div class="top-row navbar">
+    <a class="navbar-brand" href="">
         <span>Leebruce</span>
     </a>
 
-    <button
+    <!-- <button
         class="navbar-toggler"
         (click)="toggleNavMenu()">
         <span>toggle</span>
+    </button> -->
+    <button type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+        class="navbar-toggler">
+        <span class="navbar-toggler-icon"></span>
     </button>
 </div>
 
-<div
+<!-- <div
     class="navbar-collapse"
     [ngClass]="{show: !collapseNavMenu}"
-    (click)="toggleNavMenu()">
+    (click)="toggleNavMenu()"> -->
+<div id="navbarSupportedContent"
+    class="navbar-collapse collapse">
 
-    <ul class="nav">
-        <li
+    <ul class="nav flex-column">
+        <li class="nav-item px-3"
             [routerLinkActive]="['link-active']"
             [routerLinkActiveOptions]="{ exact: true }">
-            <a
-                [routerLink]="['/']">Home</a>
+            <a class="nav-link" [routerLink]="['/']">
+                <i class="bi bi-house"></i> Home
+            </a>
         </li>
-        <li
-            [routerLinkActive]="['link-active']">
-            <a
-                [routerLink]="['/counter']">counter</a>
+        <li class="nav-item px-3" [routerLinkActive]="['link-active']">
+            <a class="nav-link" [routerLink]="['/counter']">
+                <i class="bi bi-plus-circle"></i> Counter
+            </a>
         </li>
-        <li
-            [routerLinkActive]="['link-active']">
-            <a
-                [routerLink]="['/login']">login</a>
+        <li class="nav-item px-3" [routerLinkActive]="['link-active']">
+            <a class="nav-link" [routerLink]="['/login']">
+                <i class="bi bi-list-ul"></i> Login
+            </a>
         </li>
-        <li
-            [routerLinkActive]="['link-active']">
-            <a
-                [routerLink]="['/announcements']">announcements</a>
+        <li class="nav-item px-3" [routerLinkActive]="['link-active']">
+            <a class="nav-link" [routerLink]="['/announcements']">
+                <i class="bi bi-megaphone"></i> announcements
+            </a>
         </li>
     </ul>
 </div>

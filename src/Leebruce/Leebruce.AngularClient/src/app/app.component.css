@@ -6,16 +6,19 @@
     grid-template-columns: auto 1fr;
     grid-template-rows: 1fr auto;
     height: 100%;
+    overflow: hidden;
 }
 
 .sidebar {
     grid-area: sidebar;
     background-image: linear-gradient(180deg, hsl(219, 91%, 21%) 0%, hsl(288, 84%, 15%) 70%);
+    overflow: auto;
 }
 
 .main {
     grid-area: main;
     padding: 1rem;
+    overflow: auto;
 }
 
 .error-presenter {
