@@ -16,7 +16,7 @@ public class DateOnlyJsonConverter : ToStringJsonConverter<DateOnly>
 	}
 	protected override string ToString( DateOnly value )
 	{
-		return value.ToShortDateString();
+		return value.ToString("o");
 	}
 
 }
