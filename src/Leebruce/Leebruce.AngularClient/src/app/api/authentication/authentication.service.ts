@@ -7,6 +7,7 @@ import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
 export class AuthenticationService {
 
   constructor( private http: HttpClient ) {
+    this._token = this.retrieveToken()
   }
 
   private _token?: string;
@@ -29,6 +30,7 @@ export class AuthenticationService {
 
   private setToken( token: string ) {
     this._token = token
+    this.storeToken( token )
   }
 
   private errorHandler( error: HttpError ) {
@@ -42,6 +44,14 @@ export class AuthenticationService {
     }
 
     throw error
+  }
+
+  private storeToken( token: string ) {
+    sessionStorage.setItem( 'access-token', token )
+  }
+
+  private retrieveToken() {
+    return sessionStorage.getItem( 'access-token' ) ?? undefined
   }
 
 }
