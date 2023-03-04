@@ -24,21 +24,25 @@ ul.nav {
 
 .top-row {
     background-color: hsl(219, 91%, 15%);
-    height: 3rem;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 1rem;
+    padding-right: 1rem;
+    padding-left: 1rem;
 }
 
 @media(max-width: 600px) {
-    .navbar-collapse:not(.show) {
+    /* .navbar-collapse:not(.show) {
         display: none;
-    }
+    } */
 }
 
 @media(min-width: 600px) {
     .navbar-toggler {
         display: none;
+    }
+
+    .navbar-collapse {
+        display: flex !important;
     }
 }

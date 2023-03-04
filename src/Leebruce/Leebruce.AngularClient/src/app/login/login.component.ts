@@ -21,6 +21,8 @@ export class LoginComponent implements OnInit, OnDestroy {
     password: ''
   };
 
+  wasSubmited = false
+
   constructor(
     private route: ActivatedRoute,
     private router: Router,
