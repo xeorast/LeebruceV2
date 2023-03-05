@@ -54,7 +54,7 @@
             <!--     ---     -->
             <!-- attachments -->
             <div class="modal-body">
-                <p class="mb-1">{{modalBody}}</p>
+                <div class="mb-1" [innerHTML]="modalBody"></div>
                 <ng-container *ngIf="currentMessage?.attachments?.length && currentMessage!.attachments.length > 0">
                     <hr />
                     <div class="row g-1">

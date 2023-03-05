@@ -50,6 +50,15 @@ public static class Startup
 		_ = builder.Services.AddScoped<IScheduleService, ScheduleService>();
 		_ = builder.Services.AddScoped<IGradesService, GradesService>();
 		_ = builder.Services.AddScoped<JsonService>();
+		_ = builder.Services.AddScoped<ILiblinkService>( s => new LiblinkService(
+				  s.GetRequiredService<IHttpClientFactory>()
+				  .CreateClient( nameof( LiblinkService ) ) ) );
+
+		_ = builder.Services.AddHttpClient( nameof( LiblinkService ) )
+			.ConfigurePrimaryHttpMessageHandler( () =>
+			{
+				return new HttpClientHandler() { AllowAutoRedirect = false };
+			} );
 
 	}
 

@@ -43,4 +43,48 @@ public static class StringExtensions
 	}
 	static readonly Regex brRx = new( @"<br\s*?\/>" );
 
+	[return: NotNullIfNotNull( nameof( str ) )]
+	public static string? NormalizeHtmlAnchors( this string? str )
+	{
+		if ( str is null )
+			return null;
+
+		var segments = anchorRx.Split( str );
+		StringBuilder sb = new();
+		for ( int i = 0; i < segments.Length; i += 3 )
+		{
+			var encodedSegment = HttpUtility.HtmlEncode( segments[i] );
+			_ = sb.Append( encodedSegment );
+			if ( segments.Length > i + 1 )
+			{
+				var anchor = @$"<a href=""{segments[i + 1]}"" target=""_blank"" rel=""noopener noreferrer"">{segments[i + 2]}</a>";
+				_ = sb.Append( anchor );
+			}
+		}
+
+		return sb.ToString();
+
+	}
+
+	[return: NotNullIfNotNull( nameof( str ) )]
+	public static string? EncodeHtml( this string? str )
+	{
+		if ( str is null )
+			return null;
+
+		// encode line breaks
+		var paragraphs = paragraphRx.Split( str );
+		StringBuilder sb = new();
+		foreach ( var paragraph in paragraphs )
+		{
+			_ = sb.Append( $"<p>{paragraph}</p>" );
+		}
+		str = sb.ToString();
+		str = str.Replace( "\r\n", "<br/>" );
+		str = str.Replace( "\n", "<br/>" );
+		return str;
+	}
+	static readonly Regex paragraphRx = new( @"(?<!\n\n)\n\n" );
+	static readonly Regex anchorRx = new( @"<a[^<]*href=""([^""]*)""[^<]*>([^<]*)</a>" );
+
 }
