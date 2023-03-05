@@ -12,30 +12,56 @@
 <!-- teacher   room -->
 <div class="tile {{classForColor}}">
 
-    <!-- [original-subject] subject -->
-    <span class="subject">
-        <ng-container *ngIf="lessonModel.substitution?.originalSubject">
-            <span class="substitution">{{lessonModel.substitution?.originalSubject}}</span>
-            <span>&nbsp;&minus;&gt;&nbsp;</span>
-        </ng-container>
-        <span class="{{classFromCancellation}}">{{lessonModel.subject}}</span>
-    </span>
-    <!-- [original-teacher] teacher -->
-    <span class="name">
-        <ng-container *ngIf="lessonModel.substitution?.originalTeacher">
-            <span class="substitution">{{lessonModel.substitution?.originalTeacher}}</span>
-            <span>&nbsp;&minus;&gt;&nbsp;</span>
-        </ng-container>
-        <span class="{{classFromCancellation}}">{{teacherName}}</span>
-    </span>
+    <!-- ACTUAL CONTENT -->
+    <ng-container *ngIf="lessonModel">
+        <!-- [original-subject] subject -->
+        <span class="subject">
+            <ng-container *ngIf="lessonModel.substitution?.originalSubject">
+                <span class="substitution">{{lessonModel.substitution?.originalSubject}}</span>
+                <span>&nbsp;&minus;&gt;&nbsp;</span>
+            </ng-container>
+            <span class="{{classFromCancellation}}">{{lessonModel.subject}}</span>
+        </span>
+        <!-- [original-teacher] teacher -->
+        <span class="name">
+            <ng-container *ngIf="lessonModel.substitution?.originalTeacher">
+                <span class="substitution">{{lessonModel.substitution?.originalTeacher}}</span>
+                <span>&nbsp;&minus;&gt;&nbsp;</span>
+            </ng-container>
+            <span class="{{classFromCancellation}}">{{teacherName}}</span>
+        </span>
 
-    <!-- timeStart timeEnd -->
-    <span class="time">
-        <span class="{{classFromCancellation}}">{{time}}</span>
-    </span>
+        <!-- timeStart timeEnd -->
+        <span class="time">
+            <span class="{{classFromCancellation}}">{{time}}</span>
+        </span>
 
-    <!-- room -->
-    <span class="room">
-        <span class="{{classFromCancellation}}">{{lessonModel.room}}</span>
-    </span>
+        <!-- room -->
+        <span class="room">
+            <span class="{{classFromCancellation}}">{{lessonModel.room}}</span>
+        </span>
+    </ng-container>
+
+    <!-- PLACEHOLDER -->
+    <ng-container *ngIf="!lessonModel">
+        <!-- [original-subject] subject -->
+        <span class="subject">
+            <span class="placeholder col-6"></span>
+        </span>
+        <!-- [original-teacher] teacher -->
+        <span class="name">
+            <span class="placeholder col-4">{{teacherName}}</span>
+        </span>
+
+        <!-- timeStart timeEnd -->
+        <span class="time">
+            <span class="placeholder col-4" style="width:8em">{{time}}</span>
+        </span>
+
+        <!-- room -->
+        <span class="room">
+            <span class="placeholder font-monospace">&nbsp;&nbsp;</span>
+        </span>
+    </ng-container>
+
 </div>

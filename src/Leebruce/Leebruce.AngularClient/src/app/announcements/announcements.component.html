@@ -1,5 +1,6 @@
 <div class="accordion" id="announcementsAccordion">
 
+    <!-- ACTUAL CONTENT -->
     <div class="accordion-item" *ngFor="let announcement of announcements; let index=index;">
         <!-- title        | -->
         <!-- date author  ↓ -->
@@ -23,5 +24,32 @@
             <div class="accordion-body" [innerHTML]="announcement.content"></div>
         </div>
     </div>
+
+    <!-- PLACEHOLDER -->
+    <ng-container *ngIf="!announcements">
+        <div class="accordion-item placeholder-glow" *ngFor="let item of [].constructor(4); let index = index;">
+            <!-- title        | -->
+            <!-- date author  ↓ -->
+            <h2 class="accordion-header">
+                <button class="accordion-button" [ngClass]="{collapsed: index!=0}" type="button">
+                    <div class="w-100">
+                        <div class="placeholder col-{{3+index}}"></div>
+                        <div class="text-muted small">
+                            <span class="placeholder col-{{5-index}}"></span>
+                        </div>
+                    </div>
+                </button>
+            </h2>
+            <!-- content -->
+            <div class="accordion-collapse collapse"
+                [ngClass]="{show: index==0}">
+                <div class="accordion-body">
+                    <span class="placeholder col-12"></span>
+                    <span class="placeholder col-12"></span>
+                    <span class="placeholder col-6"></span>
+                </div>
+            </div>
+        </div>
+    </ng-container>
 
 </div>

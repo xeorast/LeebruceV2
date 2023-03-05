@@ -1,10 +1,12 @@
 <!-- list -->
 <div class="list-group">
-    <!-- subject    date -->
-    <!-- author          -->
+
+    <!-- ACTUAL CONTENT -->
     <button *ngFor="let message of messages"
         class="list-group-item list-group-item-action {{getActiveClass(message.id)}}"
         (click)="fetchMessage(message.id)">
+        <!-- subject    date -->
+        <!-- author          -->
         <div class="d-flex w-100 justify-content-between">
             <p class="mb-1">
                 {{message.subject}}
@@ -14,6 +16,23 @@
         </div>
         <small class="text-muted">{{message.author}}</small>
     </button>
+
+    <!-- PLACEHOLDER -->
+    <ng-container *ngIf="!messages">
+        <button *ngFor="let item of [].constructor(5); let index = index;"
+            class="list-group-item list-group-item-action placeholder-glow">
+            <!-- subject    date -->
+            <!-- author          -->
+            <div class="d-flex w-100 justify-content-between align-items-start">
+                <p class="mb-1 w-100">
+                    <span class="placeholder col-{{3+index}}"></span>
+                    <i *ngIf="index%2!=0" class="bi bi-paperclip"></i>
+                </p>
+                <small class="text-muted placeholder col-1"></small>
+            </div>
+            <small class="text-muted placeholder col-{{5-index/2 | number: '1.0-0'}}"></small>
+        </button>
+    </ng-container>
 </div>
 
 <!-- Modal -->

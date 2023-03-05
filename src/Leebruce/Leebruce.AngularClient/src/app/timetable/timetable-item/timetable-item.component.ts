@@ -9,7 +9,7 @@ import { LessonModel } from 'src/app/api/timetable-client/timetable-client.servi
 export class TimetableItemComponent implements OnInit {
 
   @Input()
-  lessonModel!: LessonModel
+  lessonModel?: LessonModel
   @Input()
   state!: 'completed' | 'ongoing' | 'upcomming'
 
@@ -26,10 +26,13 @@ export class TimetableItemComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    this.teacherName = `${this.lessonModel.teacherName} ${this.lessonModel.teacherSurname}`
-    this.time = `${this.lessonModel.time.start} - ${this.lessonModel.time.end}`
+    if ( this.lessonModel ) {
+      this.teacherName = `${this.lessonModel.teacherName} ${this.lessonModel.teacherSurname}`
+      this.time = `${this.lessonModel.time.start} - ${this.lessonModel.time.end}`
 
-    this.classFromCancellation = this.lessonModel.isCancelled || this.lessonModel.classAbsence ? 'cancelled' : undefined;
+      this.classFromCancellation = this.lessonModel.isCancelled || this.lessonModel.classAbsence ? 'cancelled' : undefined;
+    }
+
     this.classForColor = `tile-${this.getRandomItem( TimetableItemComponent.tileNumbers )}`
 
     this.isCompleted = this.state == 'completed'
