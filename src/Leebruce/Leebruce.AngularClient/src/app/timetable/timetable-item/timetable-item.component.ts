@@ -27,7 +27,7 @@ export class TimetableItemComponent implements OnInit {
 
   ngOnInit(): void {
     this.teacherName = `${this.lessonModel.teacherName} ${this.lessonModel.teacherSurname}`
-    this.time = `${this.lessonModel.time.start} - ${this.lessonModel.time.start}`
+    this.time = `${this.lessonModel.time.start} - ${this.lessonModel.time.end}`
 
     this.classFromCancellation = this.lessonModel.isCancelled || this.lessonModel.classAbsence ? 'cancelled' : undefined;
     this.classForColor = `tile-${this.getRandomItem( TimetableItemComponent.tileNumbers )}`

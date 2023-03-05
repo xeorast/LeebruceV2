@@ -1,11 +1,18 @@
+<!-- status-marker data -->
+
+<!-- marker -->
 <div class="marker">
     <div class="line"></div>
     <div class="circle"></div>
     <div class="line"></div>
 </div>
 
+<!-- subject        -->
+<!-- time           -->
+<!-- teacher   room -->
 <div class="tile {{classForColor}}">
 
+    <!-- [original-subject] subject -->
     <span class="subject">
         <ng-container *ngIf="lessonModel.substitution?.originalSubject">
             <span class="substitution">{{lessonModel.substitution?.originalSubject}}</span>
@@ -13,7 +20,7 @@
         </ng-container>
         <span class="{{classFromCancellation}}">{{lessonModel.subject}}</span>
     </span>
-
+    <!-- [original-teacher] teacher -->
     <span class="name">
         <ng-container *ngIf="lessonModel.substitution?.originalTeacher">
             <span class="substitution">{{lessonModel.substitution?.originalTeacher}}</span>
@@ -22,10 +29,12 @@
         <span class="{{classFromCancellation}}">{{teacherName}}</span>
     </span>
 
+    <!-- timeStart timeEnd -->
     <span class="time">
         <span class="{{classFromCancellation}}">{{time}}</span>
     </span>
 
+    <!-- room -->
     <span class="room">
         <span class="{{classFromCancellation}}">{{lessonModel.room}}</span>
     </span>

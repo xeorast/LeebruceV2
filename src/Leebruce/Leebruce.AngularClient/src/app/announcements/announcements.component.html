@@ -1,10 +1,12 @@
 <div class="accordion" id="announcementsAccordion">
 
     <div class="accordion-item" *ngFor="let announcement of announcements; let index=index;">
+        <!-- title        | -->
+        <!-- date author  ↓ -->
         <h2 id="heading{{index}}" class="accordion-header">
-            <button class="accordion-button {{index!=0?'collapsed':''}}" type="button"
+            <button class="accordion-button" [ngClass]="{collapsed: index!=0}" type="button"
                 data-bs-toggle="collapse" attr.data-bs-target="#collapse{{index}}"
-                attr.aria-expanded="{{index==0?'true':'false'}}" attr.aria-controls="collapse{{index}}">
+                [attr.aria-expanded]="index==0?'true':'false'" attr.aria-controls="collapse{{index}}">
                 <div>
                     <div>{{announcement.title}}</div>
                     <div class="text-muted small">
@@ -13,8 +15,9 @@
                 </div>
             </button>
         </h2>
-
-        <div id="collapse{{index}}" class="accordion-collapse collapse {{index==0?'show':''}}"
+        <!-- content -->
+        <div id="collapse{{index}}" class="accordion-collapse collapse"
+            [ngClass]="{show: index==0}"
             data-bs-parent="#announcementsAccordion"
             attr.aria-labelledby="heading{{index}}">
             <div class="accordion-body" [innerHTML]="announcement.content"></div>
