@@ -13,6 +13,7 @@ import { ServerErrorHandlingModule } from './api/server-error-handling/server-er
 import { NavMenuModule } from './nav-menu/nav-menu.module';
 import { AnnouncementsClientModule } from './api/announcements-client/announcements-client.module';
 import { TimetableClientModule } from './api/timetable-client/timetable-client.module';
+import { MessagesClientModule } from './api/messages-client/messages-client.module';
 
 @NgModule( {
   declarations: [
@@ -36,6 +37,7 @@ import { TimetableClientModule } from './api/timetable-client/timetable-client.m
     ErrorNotifierModule,
     AnnouncementsClientModule,
     TimetableClientModule,
+    MessagesClientModule,
   ],
   bootstrap: [AppComponent]
 } )
