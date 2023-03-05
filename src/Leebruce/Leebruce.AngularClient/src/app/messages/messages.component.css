@@ -1,0 +1,21 @@
+.file-button {
+    display: flex;
+    align-items: center;
+}
+
+.message-modal-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+}
+
+.file-icon {
+    font-size: 1.5em;
+    margin-top: -0.25em;
+    margin-bottom: -0.25em;
+    margin-right: 0.25em;
+}
+
+.file-spinner {
+    margin-left: 0.25em;
+}
