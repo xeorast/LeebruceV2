@@ -1,6 +1,12 @@
+<!--    date select   -->
+<!--    week select   -->
+<!--        ---       -->
+<!-- timetable records -->
 <div class="container" *ngIf="current || timetableDays">
 
     <div class="row date-pick-roll" *ngIf="timetableDays">
+        <!--  day  -->
+        <!-- month -->
         <div *ngFor="let day of timetableDays" class="date-pick-wrap p-1">
             <button class="btn btn-hvr-translate date-pick {{getDatePickClass(day)}}" (click)="select(day.date)">
                 <h5>{{day.date | date: "dd"}}</h5>
@@ -8,16 +14,18 @@
             </button>
         </div>
     </div>
-
+    <!-- previous now next -->
     <div class="row">
         <button class="col-5 btn btn-inherit p-0" (click)="previous()">&lt; previous week</button>
         <button class="col-2 btn btn-inherit p-0" (click)="today()">today</button>
         <button class="col-5 btn btn-inherit p-0" (click)="next()">next week &gt;</button>
     </div>
 
+    <!-- --- -->
     <hr class="row" />
 
     <div class="list row justify-content-center" *ngIf="current">
+        <!-- timetable record -->
         <div *ngFor="let lesson of current.lessons" style="display: flex; justify-content:center">
             <app-timetable-item *ngIf="lesson" class="col-12 col-md-8 col-lg-6 col-xl-5"
                 [lessonModel]="lesson"
