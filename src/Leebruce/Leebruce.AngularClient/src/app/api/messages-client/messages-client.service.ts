@@ -1,7 +1,8 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable } from '@angular/core';
-import { catchError, Observable, tap } from 'rxjs';
+import { Inject, Injectable } from '@angular/core';
+import { catchError, map, Observable, tap } from 'rxjs';
 import { AuthenticationService, NotAuthenticatedError } from '../authentication/authentication.service';
+import { FILESAVER, FileSaver } from '../fileSaver';
 import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
 
 @Injectable()
@@ -9,7 +10,8 @@ export class MessagesClientService {
 
   constructor(
     private http: HttpClient,
-    private auth: AuthenticationService ) { }
+    private auth: AuthenticationService,
+    @Inject( FILESAVER ) private fileSaver: FileSaver ) { }
 
   public getMessages() {
     let authHeader = `Bearer ${this.auth.token}`;
@@ -29,11 +31,12 @@ export class MessagesClientService {
       );
   }
 
-  public downloadAttachment( id: string ) {
+  public downloadAttachment( attachment: AttachmentModel ) {
     let authHeader = `Bearer ${this.auth.token}`;
-    return this.http.get( `api/messages/attachments/${id}`, { headers: { Authorization: authHeader } } )
-      //todo: save file
+    return this.http.get( `api/messages/attachments/${attachment.id}`, { headers: { Authorization: authHeader }, responseType: 'blob' } )
       .pipe(
+        tap( blob => this.fileSaver( blob, attachment.fileName ) ),
+        map( _resp => { } ),
         catchError( error => this.errorHandler( error ) )
       );
   }

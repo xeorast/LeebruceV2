@@ -4,6 +4,7 @@ import { AuthenticationModule } from '../authentication/authentication.module';
 import { HttpErrorMapperModule } from '../http-error-mapper/http-error-mapper.module';
 import { ServerErrorHandlingModule } from '../server-error-handling/server-error-handling.module';
 import { MessagesClientModule } from './messages-client.module';
+import { getFileSaver, FILESAVER } from './../fileSaver';
 
 import { MessagesClientService } from './messages-client.service';
 
@@ -19,6 +20,9 @@ describe( 'MessagesClientService', () => {
         HttpErrorMapperModule,
         MessagesClientModule,
         AuthenticationModule
+      ],
+      providers: [
+        { provide: FILESAVER, useFactory: getFileSaver }
       ]
     } );
     service = TestBed.inject( MessagesClientService );

@@ -14,6 +14,7 @@ import { NavMenuModule } from './nav-menu/nav-menu.module';
 import { AnnouncementsClientModule } from './api/announcements-client/announcements-client.module';
 import { TimetableClientModule } from './api/timetable-client/timetable-client.module';
 import { MessagesClientModule } from './api/messages-client/messages-client.module';
+import { getFileSaver, FILESAVER } from './api/fileSaver';
 
 @NgModule( {
   declarations: [
@@ -39,6 +40,9 @@ import { MessagesClientModule } from './api/messages-client/messages-client.modu
     TimetableClientModule,
     MessagesClientModule,
   ],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  providers: [
+    { provide: FILESAVER, useFactory: getFileSaver }
+  ]
 } )
 export class AppModule { }
