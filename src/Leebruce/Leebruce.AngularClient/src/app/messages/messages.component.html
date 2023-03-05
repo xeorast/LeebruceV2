@@ -1,0 +1,60 @@
+<!-- list -->
+<div class="list-group">
+    <!-- subject    date -->
+    <!-- author          -->
+    <button *ngFor="let message of messages"
+        class="list-group-item list-group-item-action {{getActiveClass(message.id)}}"
+        (click)="fetchMessage(message.id)">
+        <div class="d-flex w-100 justify-content-between">
+            <p class="mb-1">
+                {{message.subject}}
+                <i *ngIf="message.hasAttachments" class="bi bi-paperclip"></i>
+            </p>
+            <small class="text-muted">{{message.date | date: 'dd.MM.YYYY'}}</small>
+        </div>
+        <small class="text-muted">{{message.author}}</small>
+    </button>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="openMessageModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+            <!-- subject        x -->
+            <!-- date author      -->
+            <div class="modal-header message-modal-header">
+                <h3 class="modal-title fs-5" id="exampleModalLabel">{{modalTitle}}</h3>
+                <button class="btn-close align-self-start" type="button"
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+                <small class="text-muted">
+                    {{currentMessage?.date | date: 'dd.MM.YYYY'}}
+                    by {{currentMessage?.author}}
+                </small>
+            </div>
+            <!--   content   -->
+            <!--     ---     -->
+            <!-- attachments -->
+            <div class="modal-body">
+                <p class="mb-1">{{modalBody}}</p>
+                <ng-container *ngIf="currentMessage?.attachments?.length && currentMessage!.attachments.length > 0">
+                    <hr />
+                    <div class="row g-1">
+                        <div class="col-auto" *ngFor="let attachment of currentMessage?.attachments">
+                            <!-- icon fileName [spinner] -->
+                            <button class="file-button btn btn-sm btn-outline-secondary"
+                                [attr.disabled]="isAttachmentPending(attachment.id) ? '' : null"
+                                (click)="downloadAttachment(attachment)">
+                                <i class="file-icon bi {{getAttachmentIconClass(attachment.fileName)}}"></i>
+                                {{attachment.fileName}}
+                                <div *ngIf="isAttachmentPending(attachment.id)" role="status"
+                                    class="file-spinner spinner-border spinner-border-sm">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+                </ng-container>
+            </div>
+        </div>
+    </div>
+</div>
