@@ -19,10 +19,12 @@ public interface IMessagesService
 public class MessagesService : IMessagesService
 {
 	private readonly ILbHelperService _lbHelper;
+	private readonly ILiblinkService _liblinkService;
 
-	public MessagesService( ILbHelperService lbHelper )
+	public MessagesService( ILbHelperService lbHelper, ILiblinkService liblinkService )
 	{
 		_lbHelper = lbHelper;
+		_liblinkService = liblinkService;
 	}
 
 	#region messages list
@@ -128,10 +130,10 @@ public class MessagesService : IMessagesService
 		if ( _lbHelper.IsUnauthorized( document ) )
 			throw new NotAuthorizedException();
 
-		return ExtractMessage( document );
+		return await ExtractMessageAsync( document );
 	}
 
-	static MessageModel ExtractMessage( string document )
+	async Task<MessageModel> ExtractMessageAsync( string document )
 	{
 		var docMatch = messageDocBodyRx.Match( document );
 		var body = docMatch.GetGroup( 1 )
@@ -166,6 +168,8 @@ public class MessagesService : IMessagesService
 		author = author.DecodeHtml();
 		authorClass = authorClass.DecodeHtml();
 		content = content.DecodeHtml();
+		content = await _liblinkService.ConvertLiblinks( content );
+		content = content.NormalizeHtmlAnchors().EncodeHtml();
 
 		var attachments = ExtractAttachments( body ).ToArray();
 
