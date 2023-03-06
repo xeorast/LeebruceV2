@@ -211,12 +211,14 @@ public class TimetableService : ITimetableService
 
 		var teacher = subMatch.GetGroup( "teacher" );
 		var subject = subMatch.GetGroup( "subject" );
+		var room = subMatch.GetGroup( "room" );
 
-		return new SubstitutionModel( teacher, subject );
+		return new SubstitutionModel( teacher, subject,room );
 	}
 	static readonly Regex timetableSubstitutionBody = new( @"<a[^<>]*title=""([^""]*?)"">[\s\S]*?zastępstwo[\s\S]*?<\/a>", RegexOptions.None, regexTimeout );
 	// $1: Teacher, $2: Subject
-	static readonly Regex timetableSubstitutionData = new( @"<b>Nauczyciel:<\/b> (?<teacher>[\s\S]*?) ->[\s\S]*?<b>Przedmiot:<\/b>(?: (?<subject>[^<>]*?) ->)?", RegexOptions.None, regexTimeout );
+	static readonly Regex timetableSubstitutionData = new( @"<b>Nauczyciel:<\/b> (?<teacher>[^""]*?) ->[^""]*?<b>Przedmiot:<\/b>(?: (?<subject>[^<>]*?) ->)?([^""]*?)<b>Sala:<\/b> (?:\[brak\])|(?<room>[^<>]*) ->", RegexOptions.None, regexTimeout );
+	//static readonly Regex timetableSubstitutionData = new( @"<b>Nauczyciel:<\/b> (?<teacher>[\s\S]*?) ->[\s\S]*?<b>Przedmiot:<\/b>(?: (?<subject>[^<>]*?) ->)?", RegexOptions.None, regexTimeout );
 
 	static bool CheckClassAbsence( string cell )
 	{

@@ -37,7 +37,7 @@ export class TimetableComponent implements OnInit {
     this.timetableDays = res
 
     let now = new Date( Date.now() )
-    now.setDate( 2 );
+    //now.setDate( 2 );
     this.select( now )
   }
 

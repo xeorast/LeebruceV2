@@ -38,7 +38,7 @@
 
         <!-- room -->
         <span class="room">
-            <span class="{{classFromCancellation}}">{{lessonModel.room}}</span>
+            <span class="{{classFromCancellation}}">{{lessonModel.room??lessonModel.substitution?.originalRoom}}</span>
         </span>
     </ng-container>
 

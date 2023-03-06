@@ -62,4 +62,5 @@ export interface LessonTimeModel {
 export interface SubstitutionModel {
   originalTeacher?: string,
   originalSubject?: string,
+  originalRoom?: string,
 }
