@@ -2,4 +2,5 @@
 
 public record SubstitutionModel(
 	string? OriginalTeacher,
-	string? OriginalSubject );
+	string? OriginalSubject,
+	string? OriginalRoom );
