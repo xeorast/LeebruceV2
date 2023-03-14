@@ -1,4 +1,4 @@
-import { Time } from '@angular/common';
+import { formatDate, Time } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, tap } from 'rxjs';
@@ -15,6 +15,16 @@ export class TimetableClientService {
   public getTimetable() {
     let authHeader = `Bearer ${this.auth.token}`;
     return this.http.get<TimetableDayModel[]>( 'api/timetable', { headers: { Authorization: authHeader } } )
+      .pipe(
+        tap( resp => resp.forEach( day => day.date = new Date( day.date ) ) ),
+        catchError( error => this.errorHandler( error ) )
+      );
+  }
+
+  public getTimetableForDate( date: Date ) {
+    let authHeader = `Bearer ${this.auth.token}`;
+    let dateStr = formatDate( date, 'yyyy-MM-dd', 'en-US' )
+    return this.http.get<TimetableDayModel[]>( `api/timetable/${dateStr}`, { headers: { Authorization: authHeader } } )
       .pipe(
         tap( resp => resp.forEach( day => day.date = new Date( day.date ) ) ),
         catchError( error => this.errorHandler( error ) )
