@@ -1,0 +1,55 @@
+@use "../_event-types" as events;
+@use "sass:color";
+
+$border-radius: 5px;
+$background-alpha: 0.45;
+
+:host {
+    display: block;
+}
+
+.element {
+    display: grid;
+    grid-template-columns: minmax(75px, auto) 1fr;
+}
+
+.big {
+    font-size: 1.25em;
+}
+
+hr {
+    margin: 0;
+}
+
+.time-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-bottom-left-radius: $border-radius;
+    border-top-left-radius: $border-radius;
+    color: #fffc;
+    line-height: normal;
+
+    @each $eventType,
+    $color in events.$colors {
+        :host-context(.#{$eventType}) & {
+            background-color: $color;
+        }
+    }
+}
+
+.details {
+    overflow-x: hidden;
+    padding: .125rem .5rem;
+    border-bottom-right-radius: $border-radius;
+    border-top-right-radius: $border-radius;
+    color: #fff;
+
+    @each $eventType,
+    $color in events.$colors {
+        :host-context(.#{$eventType}) & {
+            background-color: color.change($color, $alpha: $background-alpha);
+        }
+    }
+}

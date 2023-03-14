@@ -32,6 +32,7 @@ import { ScheduleClientModule } from './api/schedule-client/schedule-client.modu
       { path: 'announcements', loadChildren: () => import( './announcements/announcements.module' ).then( m => m.AnnouncementsModule ) },
       { path: 'timetable', loadChildren: () => import( './timetable/timetable.module' ).then( m => m.TimetableModule ) },
       { path: 'messages', loadChildren: () => import( './messages/messages.module' ).then( m => m.MessagesModule ) },
+      { path: 'schedule', loadChildren: () => import('./schedule/schedule.module').then(m => m.ScheduleModule) },
     ] ),
     NavMenuModule,
     AuthenticationModule,

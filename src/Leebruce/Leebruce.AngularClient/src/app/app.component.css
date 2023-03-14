@@ -27,6 +27,12 @@
     background-color: #111;
 }
 
+@media (max-width: 800px) {
+    .main {
+        padding: .5rem;
+    }
+}
+
 @media (max-width: 600px) {
     .page {
         grid-template-areas:

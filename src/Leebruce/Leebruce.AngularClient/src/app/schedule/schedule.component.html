@@ -1,0 +1,48 @@
+<div class="calendar-header">
+    <!-- Month -->
+    <!-- year -->
+    <h3>{{currentMonthName}}</h3>
+    <span>{{currentYear}}</span>
+</div>
+<div [ngClass]="{'placeholder-glow': !daysMap}">
+    <hr class="page-top" />
+    <div class="calendar-page">
+        <div *ngFor="let day of calendarPage; let idx = index" class="day-box">
+            <input type="radio" autocomplete="off" name="day-check"
+                id="day{{idx}}-check"
+                class="btn-check"
+                [attr.disabled]="daysMap ? null : ''"
+                (change)="select(day)">
+
+            <label for="day{{idx}}-check"
+                class="day btn btn-inherit"
+                [ngClass]="{
+                    shadowDay: day.getMonth() != currentMonth, 
+                    currentDay: day.getDate() == today?.getDate() && day.getMonth() == today?.getMonth()
+                }">
+                <!--  day  -->
+                <h5 [ngClass]="{ 'prefilled-placeholder': !daysMap }">{{day | date: "dd"}}</h5>
+                <!-- • • • -->
+                <div *ngIf="daysMap?.[day.valueOf()]?.events?.length" class="event-bubble-bar">
+                    <span *ngFor="let event of daysMap![day.valueOf()]?.events"
+                        class="event-bubble"
+                        [ngClass]="getEventClass(event)">
+                    </span>
+                </div>
+            </label>
+        </div>
+        <!-- ====▯== -->
+        <div *ngIf="today"
+            class="week-bar"
+            [ngClass]="{ placeholder: !daysMap }"
+            [ngStyle]="{'grid-row': getWeek(today)+1}">
+        </div>
+
+    </div>
+    <hr />
+</div>
+<div *ngIf="selectedDay" class="details">
+    <app-schedule-item *ngFor="let event of selectedDay.events"
+        [ngClass]="getEventClass(event)" [eventModel]="event">
+    </app-schedule-item>
+</div>
