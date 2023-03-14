@@ -18,12 +18,12 @@ export class TimetableComponent implements OnInit {
   public current?: TimetableDayModel
 
   ngOnInit(): void {
-    this.load()
+    this.today()
   }
 
-  load() {
-    this.timetableService.getTimetable().subscribe( {
-      next: res => this.setResult( res ),
+  load( date: Date ) {
+    this.timetableService.getTimetableForDate( date ).subscribe( {
+      next: res => this.setResult( res, date ),
       error: async error => {
         if ( error instanceof NotAuthenticatedError ) {
           let currentUrl = this.router.url
@@ -33,34 +33,48 @@ export class TimetableComponent implements OnInit {
     } )
   }
 
-  setResult( res: TimetableDayModel[] ) {
+  setResult( res: TimetableDayModel[], date: Date ) {
     this.timetableDays = res
-
-    let now = new Date( Date.now() )
-    //now.setDate( 2 );
-    this.select( now )
+    this.select( date )
   }
 
   select( newDay: Date ) {
     if ( !this.timetableDays ) {
-      return;
+      return false
     }
 
     for ( const day of this.timetableDays ) {
       if ( this.dateEquals( day.date, newDay ) ) {
         this.current = day
-        return;
+        return true
       }
     }
+    return false
   }
 
   today() {
     let now = new Date( Date.now() )
-    this.select( now )
+    if ( !this.select( now ) ) {
+      this.load( now )
+    }
   }
   previous() {
+    if ( !this.current ) {
+      return
+    }
+
+    let date = new Date( this.current.date )
+    date.setDate( date.getDate() - 7 )
+    this.load( date )
   }
   next() {
+    if ( !this.current ) {
+      return
+    }
+
+    let date = new Date( this.current.date )
+    date.setDate( date.getDate() + 7 )
+    this.load( date )
   }
 
   getDatePickClass( day: TimetableDayModel ) {
