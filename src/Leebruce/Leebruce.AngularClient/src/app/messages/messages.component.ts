@@ -50,21 +50,22 @@ export class MessagesComponent implements OnInit {
     }
   }
 
-  fetchMessage( messageId: string ) {
+  fetchMessage( message: MessageMetadataModel ) {
     // do not reinit fetch of the same message
-    if ( messageId == this.fetchingMessageId ) {
+    if ( message.id == this.fetchingMessageId ) {
       return;
     }
     // cancel previous fetch if any
     this.clearClosedMessage()
 
     // init fetch
-    this.fetchingMessageId = messageId
-    this.currentMessageId = messageId
-    this.msgLoadingSub = this.messagesService.getMessage( messageId ).subscribe( {
+    this.fetchingMessageId = message.id
+    this.currentMessageId = message.id
+    this.msgLoadingSub = this.messagesService.getMessage( message.id ).subscribe( {
       next: res => {
         this.fetchingMessageId = undefined
         this.showMessage( res );
+        message.isUnread = false
       },
       error: async error => await this.fetchErrorHandler( error )
     } )

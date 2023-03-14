@@ -5,4 +5,5 @@ public record MessageMetadataModel(
 	string Author,
 	DateTimeOffset Date,
 	bool HasAttachments,
+	bool IsUnread,
 	string Id );

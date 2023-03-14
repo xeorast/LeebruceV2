@@ -4,12 +4,15 @@
     <!-- ACTUAL CONTENT -->
     <button *ngFor="let message of messages"
         class="list-group-item list-group-item-action {{getActiveClass(message.id)}}"
-        (click)="fetchMessage(message.id)">
+        (click)="fetchMessage(message)">
         <!-- subject    date -->
         <!-- author          -->
         <div class="d-flex w-100 justify-content-between">
             <p class="mb-1">
-                {{message.subject}}
+                <i *ngIf="message.isUnread" class="unread-icon bi bi-envelope-exclamation"></i>
+                <span [ngClass]="{unread: message.isUnread}">
+                    {{message.subject}}
+                </span>
                 <i *ngIf="message.hasAttachments" class="bi bi-paperclip"></i>
             </p>
             <small class="text-muted">{{message.date | date: 'dd.MM.YYYY'}}</small>

@@ -60,6 +60,7 @@ export interface MessageMetadataModel {
   author: string,
   date: Date,
   hasAttachments: boolean
+  isUnread: boolean
   id: string
 }
 
