@@ -124,7 +124,7 @@ public class ScheduleService : IScheduleService
 	static readonly Regex ScheduleMonthSelectRx = new( @"<select name=""miesiac""\s*class=""ListaWyboru""[^>]*>([\s\S]*?)</select>", RegexOptions.None, regexTimeout );
 	static readonly Regex ScheduleYearSelectRx = new( @"<select name=""rok""\s*class=""ListaWyboru""[^>]*>([\s\S]*?)</select>", RegexOptions.None, regexTimeout );
 	static readonly Regex ScheduleSelectedRx = new( @"<option value=""([^""]*)"" selected=""selected"" >", RegexOptions.None, regexTimeout );
-	static readonly Regex ScheduleDayRx = new( @"<td class=""center"" ><div class=""kalendarz-dzien""><div class=""kalendarz-numer-dnia"">\s*(?<day>\d*)\s*<\/div><table><tbody>(?<data>[\s\S]*?)<\/tbody>", RegexOptions.None, regexTimeout );
+	static readonly Regex ScheduleDayRx = new( @"<td class=""center\s*(?:today\s*)?"" ><div class=""kalendarz-dzien""><div class=""kalendarz-numer-dnia"">\s*(?<day>\d*)\s*<\/div><table><tbody>(?<data>[\s\S]*?)<\/tbody>", RegexOptions.None, regexTimeout );
 
 	IEnumerable<ScheduleEvent> ExtractEvents( string data )
 	{
