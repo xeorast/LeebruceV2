@@ -19,3 +19,12 @@
 .file-spinner {
     margin-left: 0.25em;
 }
+
+.unread-icon {
+    color: var(--bs-warning-text);
+}
+
+.unread {
+    font-weight: bold;
+    font-style: italic;
+}

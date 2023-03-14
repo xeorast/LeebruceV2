@@ -102,17 +102,19 @@ public class MessagesService : IMessagesService
 			var subject = match.GetGroup( "subject" )
 				?? throw new ProcessingException( "Failed to extract subject from table." );
 
-			bool hasAttachment = match.Value.Contains( "/assets/img/attachment.png" );
+			bool hasAttachment = match.GetGroup( "ifAttachment" ) is not null;
+			bool isUnread = match.GetGroup( "ifUnread" ) is not null;
 
 			author = author.DecodeHtml();
 			subject = subject.DecodeHtml();
 			var id = link.ToUrlBase64();
 
-			yield return new MessageMetadataModel( subject, author, dateOffset, hasAttachment, id );
+			yield return new MessageMetadataModel( subject, author, dateOffset, hasAttachment, isUnread, id );
 		}
 	}
 	// $1: link, $2: author, $3: subject, $4: date
-	static readonly Regex messagesTableRowRx = new( @"<tr[^>]*>(?:\s*<td[^>]*>[\s\S]*?<\/td>\s*<td[^>]*>[\s\S]*?<\/td>\s*)<td\s*>\s*<a href=""\/wiadomosci\/(?<link>[^""]*)"">[\w\s.-]*?\((?<author>[\w\s.-]*?)\)\s*<\/a>\s*<\/td>\s*<td\s*>\s*<a href=""\/wiadomosci\/\1"">\s*(?<subject>[\s\S]*?)\s*<\/a>\s*<\/td>\s*<td[^>]*>\s*(?<date>[\d\s-:]*)\s*<\/td>" );
+	//static readonly Regex messagesTableRowRx = new( @"<tr[^>]*>(?:\s*<td[^>]*>[\s\S]*?<\/td>\s*<td[^>]*>[\s\S]*?<\/td>\s*)<td\s*>\s*<a href=""\/wiadomosci\/(?<link>[^""]*)"">[\w\s.-]*?\((?<author>[\w\s.-]*?)\)\s*<\/a>\s*<\/td>\s*<td\s*>\s*<a href=""\/wiadomosci\/\1"">\s*(?<subject>[\s\S]*?)\s*<\/a>\s*<\/td>\s*<td[^>]*>\s*(?<date>[\d\s-:]*)\s*<\/td>" );
+	static readonly Regex messagesTableRowRx = new( @"<tr[^>]*>(?:\s*<td[^>]*>\s*<input[^>]*>\s*<\/td>\s*<td[^>]*>\s*(?<ifAttachment><img\s*src=""\/assets\/img\/attachment.png""[^>]*>\s*)?<\/td>\s*)<td\s*(?<ifUnread>style=""font-weight: bold;"")?\s*>\s*<a href=""\/wiadomosci\/(?<link>[^""]*)"">[\w\s.-]*?\((?<author>[\w\s.-]*?)\)\s*<\/a>\s*<\/td>\s*<td\s*(?:style=""font-weight: bold;"")?\s*>\s*<a href=""\/wiadomosci\/\3"">\s*(?<subject>[\s\S]*?)\s*<\/a>\s*<\/td>\s*<td[^>]*>\s*(?<date>[\d\s\-:]*)\s*<\/td>" );
 
 	#endregion
 
