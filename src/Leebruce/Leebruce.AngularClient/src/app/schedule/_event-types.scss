@@ -1,0 +1,25 @@
+@use "sass:map";
+
+$better-contrast: false !default;
+
+$colors: (
+    "absence": #ad73db,
+    "cancellation": #fa7b7b,
+    "class-absence": #fa7b7b,
+    "substitution": #0ebc7d,
+    "test": #ffb179,
+    "unknown-event": #757575
+);
+
+@if $better-contrast {
+    $colors: map.set($colors, "test", #ccc016);
+}
+
+$events: (
+    "absence",
+    "cancellation",
+    "class-absence",
+    "substitution",
+    "test",
+    "unknown"
+);
