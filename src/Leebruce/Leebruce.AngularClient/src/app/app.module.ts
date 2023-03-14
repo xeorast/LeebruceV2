@@ -15,6 +15,7 @@ import { AnnouncementsClientModule } from './api/announcements-client/announceme
 import { TimetableClientModule } from './api/timetable-client/timetable-client.module';
 import { MessagesClientModule } from './api/messages-client/messages-client.module';
 import { getFileSaver, FILESAVER } from './api/fileSaver';
+import { ScheduleClientModule } from './api/schedule-client/schedule-client.module';
 
 @NgModule( {
   declarations: [
@@ -40,6 +41,7 @@ import { getFileSaver, FILESAVER } from './api/fileSaver';
     AnnouncementsClientModule,
     TimetableClientModule,
     MessagesClientModule,
+    ScheduleClientModule,
   ],
   bootstrap: [AppComponent],
   providers: [
