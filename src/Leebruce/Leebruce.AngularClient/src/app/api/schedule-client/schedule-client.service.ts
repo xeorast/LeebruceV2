@@ -1,3 +1,4 @@
+import { formatDate } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, tap } from 'rxjs';
@@ -14,6 +15,23 @@ export class ScheduleClientService {
   public getSchedule() {
     let authHeader = `Bearer ${this.auth.token}`;
     return this.http.get<ScheduleDayModel[]>( 'api/schedule', { headers: { Authorization: authHeader } } )
+      .pipe(
+        tap( resp => resp.forEach( day => day.day = new Date( day.day ) ) ),
+        tap( resp => resp.forEach( day => {
+          for ( const event of day.events ) {
+            if ( event.dateAdded ) {
+              event.dateAdded = new Date( event.dateAdded )
+            }
+          }
+        } ) ),
+        catchError( error => this.errorHandler( error ) )
+      );
+  }
+
+  public getScheduleForDate( date: Date ) {
+    let authHeader = `Bearer ${this.auth.token}`;
+    let dateStr = formatDate( date, 'yyyy-MM-dd', 'en-US' )
+    return this.http.get<ScheduleDayModel[]>( `api/schedule/${dateStr}`, { headers: { Authorization: authHeader } } )
       .pipe(
         tap( resp => resp.forEach( day => day.day = new Date( day.day ) ) ),
         tap( resp => resp.forEach( day => {

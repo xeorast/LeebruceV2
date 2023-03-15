@@ -26,21 +26,53 @@
 
 // calendar grid
 .calendar-header {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display: grid;
+    grid-template-areas: "prev month next today" "prev year next today";
+    grid-template-columns: 2fr auto 1fr 1fr;
+    align-items: end;
 
     >h3 {
+        grid-area: month;
         margin-bottom: 0;
     }
 
+    >span {
+        grid-area: year;
+        text-align: center;
+    }
+
+    >.prev {
+        grid-area: prev;
+        justify-self: end;
+        margin-right: 1rem;
+    }
+
+    >.next {
+        grid-area: next;
+        justify-self: start;
+        margin-left: 1rem;
+    }
+
+    >.set-today {
+        grid-area: today;
+        justify-self: end;
+        margin-left: 1rem;
+    }
+
     @media (max-width: 800px) {
-        flex-direction: row;
-        justify-content: center;
-        align-items: flex-start;
+        grid-template-areas: "prev month year today next";
+        grid-template-columns: 2fr auto auto 1fr 1fr;
 
         >* {
             padding: 0 .5ch;
+        }
+
+        >.prev {
+            justify-self: start;
+        }
+
+        >.next {
+            justify-self: end;
         }
     }
 }
