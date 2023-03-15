@@ -35,6 +35,12 @@
                         [ngClass]="getEventClass(event)">
                     </span>
                 </div>
+                <div *ngIf="additionalDaysMap?.[day.valueOf()]?.events?.length" class="event-bubble-bar">
+                    <span *ngFor="let event of additionalDaysMap![day.valueOf()]?.events"
+                        class="event-bubble"
+                        [ngClass]="getEventClass(event)">
+                    </span>
+                </div>
             </label>
         </div>
         <!-- ====▯== -->

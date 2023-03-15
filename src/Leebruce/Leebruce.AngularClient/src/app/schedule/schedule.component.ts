@@ -18,9 +18,13 @@ export class ScheduleComponent implements OnInit {
   public currentMonth?: Date
   public today?: Date
   public daysMap?: { [dateValue: number]: ScheduleDayModel | undefined };
+  public additionalDaysMap?: { [dateValue: number]: ScheduleDayModel | undefined };
+  private resetAdditionalDaysMap?: boolean
 
   public selectedDay?: ScheduleDayModel
   public selectedDate?: Date
+
+  private loadedMonth?: Date
 
   ngOnInit(): void {
     this.initCurrentMonth()
@@ -30,13 +34,30 @@ export class ScheduleComponent implements OnInit {
   load( date: Date ) {
     this.scheduleService.getScheduleForDate( date ).subscribe( {
       next: res => this.setResult( res, date ),
-      error: async error => {
-        if ( error instanceof NotAuthenticatedError ) {
-          let currentUrl = this.router.url
-          await this.router.navigate( ['/login'], { queryParams: { redirect: currentUrl } } );
-        }
-      }
+      error: async error => await this.handleError( error )
     } )
+
+    this.resetAdditionalDaysMap = true
+    let prevDate = new Date( date )
+    prevDate.setMonth( prevDate.getMonth() - 1 )
+    this.scheduleService.getScheduleForDate( prevDate ).subscribe( {
+      next: res => this.setAdditionalResult( res, prevDate ),
+      error: async error => await this.handleError( error )
+    } )
+
+    let nextDate = new Date( date )
+    nextDate.setMonth( nextDate.getMonth() + 1 )
+    this.scheduleService.getScheduleForDate( nextDate ).subscribe( {
+      next: res => this.setAdditionalResult( res, nextDate ),
+      error: async error => await this.handleError( error )
+    } )
+  }
+
+  async handleError( error: Error ) {
+    if ( error instanceof NotAuthenticatedError ) {
+      let currentUrl = this.router.url
+      await this.router.navigate( ['/login'], { queryParams: { redirect: currentUrl } } );
+    }
   }
 
   initCurrentMonth() {
@@ -47,8 +68,22 @@ export class ScheduleComponent implements OnInit {
 
   setResult( res: ScheduleDayModel[], date: Date ) {
     this.daysMap = this.sheduleToDictionary( res )
+    this.loadedMonth = new Date( date.getFullYear(), date.getMonth(), 1 )
     this.initPage( date )
     this.select( date )
+  }
+
+  setAdditionalResult( res: ScheduleDayModel[], date: Date ) {
+    let dict = this.sheduleToDictionary( res )
+    if ( this.resetAdditionalDaysMap ) {
+      this.resetAdditionalDaysMap = false
+      this.additionalDaysMap = {}
+    }
+
+    this.additionalDaysMap ??= {}
+    for ( const key in dict ) {
+      this.additionalDaysMap[key] = dict[key]
+    }
   }
 
   initPage( date: Date ) {
@@ -58,17 +93,16 @@ export class ScheduleComponent implements OnInit {
 
   select( day: Date ) {
     day = new Date( day.getFullYear(), day.getMonth(), day.getDate() )
-    if ( this.calendarPage.find( d => this.datesEqual( d, day ) ) ) {
-      this.selectedDay = this.daysMap?.[day.valueOf()]
-      this.selectedDate = day
-      return true
-    }
-    return false
+    this.selectedDay = this.daysMap?.[day.valueOf()] ?? this.additionalDaysMap?.[day.valueOf()]
+    this.selectedDate = day
   }
 
   goToNow() {
     let now = new Date( Date.now() )
-    if ( !this.select( now ) ) {
+    if ( this.loadedMonth && this.monthsEqual( this.loadedMonth, now ) ) {
+      this.select( now )
+    }
+    else {
       this.load( now )
     }
   }
@@ -132,6 +166,11 @@ export class ScheduleComponent implements OnInit {
     }
 
     return days;
+  }
+
+  monthsEqual( d1: Date, d2: Date ) {
+    return d1.getFullYear() == d2.getFullYear()
+      && d1.getMonth() == d2.getMonth()
   }
 
   datesEqual( d1: Date, d2: Date ) {
