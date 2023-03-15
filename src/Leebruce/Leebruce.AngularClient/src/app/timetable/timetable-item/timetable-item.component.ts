@@ -28,7 +28,9 @@ export class TimetableItemComponent implements OnInit {
   ngOnInit(): void {
     if ( this.lessonModel ) {
       this.teacherName = `${this.lessonModel.teacherName} ${this.lessonModel.teacherSurname}`
-      this.time = `${this.lessonModel.time.start} - ${this.lessonModel.time.end}`
+      let start = this.lessonModel.time.start
+      let end = this.lessonModel.time.end
+      this.time = `${start.hours}:${start.minutes} - ${end.hours}:${end.minutes}`
 
       this.classFromCancellation = this.lessonModel.isCancelled || this.lessonModel.classAbsence ? 'cancelled' : undefined;
     }

@@ -1,7 +1,7 @@
 import { Component, NgZone, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { NotAuthenticatedError } from '../api/authentication/authentication.service';
-import { TimetableClientService, TimetableDayModel } from '../api/timetable-client/timetable-client.service';
+import { LessonModel, TimetableClientService, TimetableDayModel } from '../api/timetable-client/timetable-client.service';
 
 @Component( {
   selector: 'app-timetable',
@@ -75,6 +75,23 @@ export class TimetableComponent implements OnInit {
     let date = new Date( this.current.date )
     date.setDate( date.getDate() + 7 )
     this.load( date )
+  }
+
+  getLessonState( lesson: LessonModel ): 'completed' | 'ongoing' | 'upcomming' {
+    let now = new Date( Date.now() );
+    now.setSeconds( 0 )
+    now.setMilliseconds( 0 )
+    let shownDay = this.current!.date;
+    let start = new Date( shownDay.getFullYear(), shownDay.getMonth(), shownDay.getDate(), lesson.time.start.hours, lesson.time.start.minutes )
+    let end = new Date( shownDay.getFullYear(), shownDay.getMonth(), shownDay.getDate(), lesson.time.end.hours, lesson.time.end.minutes )
+
+    if ( end.valueOf() < now.valueOf() ) {
+      return 'completed'
+    }
+    if ( start.valueOf() < now.valueOf() ) {
+      return 'ongoing'
+    }
+    return 'upcomming'
   }
 
   getDatePickClass( day: TimetableDayModel ) {

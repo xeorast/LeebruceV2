@@ -17,6 +17,7 @@ export class TimetableClientService {
     return this.http.get<TimetableDayModel[]>( 'api/timetable', { headers: { Authorization: authHeader } } )
       .pipe(
         tap( resp => resp.forEach( day => day.date = new Date( day.date ) ) ),
+        tap( resp => resp.forEach( day => this.convertLessonTimes( day ) ) ),
         catchError( error => this.errorHandler( error ) )
       );
   }
@@ -27,8 +28,20 @@ export class TimetableClientService {
     return this.http.get<TimetableDayModel[]>( `api/timetable/${dateStr}`, { headers: { Authorization: authHeader } } )
       .pipe(
         tap( resp => resp.forEach( day => day.date = new Date( day.date ) ) ),
+        tap( resp => resp.forEach( day => this.convertLessonTimes( day ) ) ),
         catchError( error => this.errorHandler( error ) )
       );
+  }
+
+  private convertLessonTimes( day: TimetableDayModel ) {
+    for ( const lesson of day.lessons ) {
+      if ( lesson ) {
+        let startSegments = ( lesson.time.start as unknown as string ).split( ':' )
+        let endSegments = ( lesson.time.end as unknown as string ).split( ':' )
+        lesson.time.start = <Time>{ hours: +startSegments[0], minutes: +startSegments[1] }
+        lesson.time.end = <Time>{ hours: +endSegments[0], minutes: +endSegments[1] }
+      }
+    }
   }
 
   private errorHandler( error: HttpError ): Observable<never> {
@@ -48,7 +61,7 @@ export class TimetableClientService {
 
 export interface TimetableDayModel {
   date: Date,
-  lessons: LessonModel[]
+  lessons: ( LessonModel | null )[]
 }
 
 export interface LessonModel {
