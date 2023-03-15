@@ -199,12 +199,24 @@ public class ScheduleService : IScheduleService
 	}
 	public static Dictionary<string, string> DecodeEventTitle( string data )
 	{
-		data = HttpUtility.HtmlDecode( data );
-		var segments = brRx.Split( data );
+		var matches = additionalDataRx.Matches( data );
 
-		var s = segments.Select( x => x.Split( ": " ) );
-		return s.ToDictionary( x => x[0], x => x[1] );
+		Dictionary<string, string> result = new();
+		foreach (var match in matches.Cast<Match>() )
+        {
+			var category = match.GetGroup( "category" );
+			var value = match.GetGroup( "value" );
+			if ( category is null || value is null )
+			{
+				continue;
+			}
+
+			result[category] = value.DecodeHtml();
+		}
+
+		return result;
 	}
 	static readonly Regex brRx = new( @"<br\s*/?>", RegexOptions.None, regexTimeout );
+	static readonly Regex additionalDataRx = new( @"(?<category>[^<>""]*?): (?<value>(?:[^<>""]|<br \/>)*?)(?=<br \/>[^<>""]*: |"")", RegexOptions.None, regexTimeout );
 
 }
