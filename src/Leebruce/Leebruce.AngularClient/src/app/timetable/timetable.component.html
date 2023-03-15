@@ -46,8 +46,7 @@
             <div *ngFor="let lesson of current.lessons" style="display: flex; justify-content:center">
                 <app-timetable-item *ngIf="lesson" class="col-12 col-md-8 col-lg-6 col-xl-5"
                     [lessonModel]="lesson"
-                    [state]="'completed'"
-                    State="GetTileState(lesson, current.Date)">
+                    [state]="getLessonState(lesson)">
                 </app-timetable-item>
             </div>
         </ng-container>
