@@ -4,7 +4,10 @@ import { LessonModel } from 'src/app/api/timetable-client/timetable-client.servi
 @Component( {
   selector: 'app-timetable-item',
   templateUrl: './timetable-item.component.html',
-  styleUrls: ['./timetable-item.component.scss']
+  styleUrls: [
+    './timetable-item.component.scss',
+    './_marker.scss'
+  ]
 } )
 export class TimetableItemComponent implements OnInit {
 

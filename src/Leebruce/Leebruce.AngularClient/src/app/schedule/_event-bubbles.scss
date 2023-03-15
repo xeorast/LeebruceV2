@@ -1,0 +1,42 @@
+@use "_event-types" as events with ($better-contrast: true);
+
+.event-bubble-bar {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.event-bubble {
+    display: inline-block;
+    height: .4em;
+    aspect-ratio: 1;
+    border-radius: .2em;
+    margin: .2em;
+    box-shadow: #646464 1px 1px 3px;
+
+    @media (prefers-color-scheme: dark) {
+        box-shadow: #484848 1px 1px 3px;
+    }
+
+    @each $eventType,
+    $color in events.$colors {
+        &.#{$eventType} {
+            background-color: $color;
+        }
+    }
+
+    @each $eventType in events.$events {
+        &.#{$eventType}+.#{$eventType}+.#{$eventType}+.#{$eventType} {
+            display: none;
+        }
+    }
+
+    @media (max-width: 800px) {
+        margin: .1em;
+
+        @each $eventType in events.$events {
+            &.#{$eventType}+.#{$eventType} {
+                display: none;
+            }
+        }
+    }
+}
