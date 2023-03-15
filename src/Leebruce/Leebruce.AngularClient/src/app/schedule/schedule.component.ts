@@ -15,22 +15,21 @@ export class ScheduleComponent implements OnInit {
     private scheduleService: ScheduleClientService ) { }
 
   public calendarPage: Date[] = []
-  public currentMonth?: number
-  public currentYear?: number
-  public currentMonthName: string = ''
+  public currentMonth?: Date
   public today?: Date
   public daysMap?: { [dateValue: number]: ScheduleDayModel | undefined };
 
   public selectedDay?: ScheduleDayModel
+  public selectedDate?: Date
 
   ngOnInit(): void {
     this.initCurrentMonth()
-    this.load()
+    this.load( new Date( Date.now() ) )
   }
 
-  load() {
-    this.scheduleService.getSchedule().subscribe( {
-      next: res => this.setResult( res ),
+  load( date: Date ) {
+    this.scheduleService.getScheduleForDate( date ).subscribe( {
+      next: res => this.setResult( res, date ),
       error: async error => {
         if ( error instanceof NotAuthenticatedError ) {
           let currentUrl = this.router.url
@@ -42,29 +41,63 @@ export class ScheduleComponent implements OnInit {
 
   initCurrentMonth() {
     let now = new Date( Date.now() )
-    this.calendarPage = this.generatePage( now.getMonth(), now.getFullYear() )
-    this.currentMonth = now.getMonth()
-    this.currentYear = now.getFullYear()
-    this.currentMonthName = now.toLocaleDateString( 'en-US', { month: 'long' } )
     this.today = now
+    this.initPage( now )
   }
 
-  setResult( res: ScheduleDayModel[] ) {
-    let now = new Date( Date.now() )
-    // now.setDate( now.getDate() + -2 )
-    this.calendarPage = this.generatePage( now.getMonth(), now.getFullYear() )
+  setResult( res: ScheduleDayModel[], date: Date ) {
     this.daysMap = this.sheduleToDictionary( res )
-    this.currentMonth = now.getMonth()
-    this.currentYear = now.getFullYear()
-    this.currentMonthName = now.toLocaleDateString( 'en-US', { month: 'long' } )
-    this.today = now
+    this.initPage( date )
+    this.select( date )
+  }
 
-    this.select( now )
+  initPage( date: Date ) {
+    this.calendarPage = this.generatePage( date.getMonth(), date.getFullYear() )
+    this.currentMonth = new Date( date.getFullYear(), date.getMonth(), 1 )
   }
 
   select( day: Date ) {
     day = new Date( day.getFullYear(), day.getMonth(), day.getDate() )
-    this.selectedDay = this.daysMap?.[day.valueOf()]
+    if ( this.calendarPage.find( d => this.datesEqual( d, day ) ) ) {
+      this.selectedDay = this.daysMap?.[day.valueOf()]
+      this.selectedDate = day
+      return true
+    }
+    return false
+  }
+
+  goToNow() {
+    let now = new Date( Date.now() )
+    if ( !this.select( now ) ) {
+      this.load( now )
+    }
+  }
+
+  previous() {
+    if ( !this.currentMonth ) {
+      return
+    }
+
+    let date = new Date( this.currentMonth )
+    date.setMonth( date.getMonth() - 1 )
+    if ( this.selectedDate ) {
+      date.setDate( this.selectedDate.getDate() )
+      console.log( date )
+    }
+    this.load( date )
+  }
+
+  next() {
+    if ( !this.currentMonth ) {
+      return
+    }
+
+    let date = new Date( this.currentMonth )
+    date.setMonth( date.getMonth() + 1 )
+    if ( this.selectedDate ) {
+      date.setDate( this.selectedDate.getDate() )
+    }
+    this.load( date )
   }
 
   sheduleToDictionary( shedule: ScheduleDayModel[] ) {
@@ -86,7 +119,8 @@ export class ScheduleComponent implements OnInit {
     }
 
     // add to the end of month
-    while ( date.getMonth() != month + 1 ) {
+    let edgeMonth = month == 11 ? 0 : month + 1
+    while ( date.getMonth() != edgeMonth ) {
       days.push( new Date( date ) );
       date.setDate( date.getDate() + 1 );
     }
@@ -98,6 +132,12 @@ export class ScheduleComponent implements OnInit {
     }
 
     return days;
+  }
+
+  datesEqual( d1: Date, d2: Date ) {
+    return d1.getFullYear() == d2.getFullYear()
+      && d1.getMonth() == d2.getMonth()
+      && d1.getDate() == d2.getDate()
   }
 
   getWeek( date: Date ) {
