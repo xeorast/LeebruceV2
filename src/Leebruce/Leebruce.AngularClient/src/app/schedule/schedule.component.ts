@@ -6,7 +6,11 @@ import { ScheduleClientService, ScheduleDayModel, ScheduleEventModel } from '../
 @Component( {
   selector: 'app-schedule',
   templateUrl: './schedule.component.html',
-  styleUrls: ['./schedule.component.scss']
+  styleUrls: [
+    './schedule.component.scss',
+    './_calendar-page.scss',
+    './_event-bubbles.scss'
+  ]
 } )
 export class ScheduleComponent implements OnInit {
 

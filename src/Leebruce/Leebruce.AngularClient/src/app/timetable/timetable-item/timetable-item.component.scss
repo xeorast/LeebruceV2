@@ -40,38 +40,6 @@
     align-items: center;
 }
 
-.marker {
-    grid-area: marker;
-    display: grid;
-    grid-template-rows: 1fr auto 1fr;
-    justify-items: center;
-    padding-top: .4rem;
-    padding-bottom: .4rem;
-}
-
-.marker .line {
-    height: auto;
-    width: 0;
-    border-left: dashed 3px var(--bg-accent-color)
-}
-
-.marker .circle {
-    width: .9rem;
-    height: .9rem;
-    border-radius: .45rem;
-    border: 3px solid var(--bg-accent-color);
-}
-
-:host.completed .marker .circle {
-  background: var(--mid-color);
-}
-
-:host.ongoing .marker .circle {
-    background: var(--bs-info);
-}
-
-/* :host.upcomming .marker .circle {} */
-
 
 .subject {
     grid-area: subj;

@@ -1,0 +1,99 @@
+.calendar-page {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 1rem;
+
+    @media (max-width: 800px) {
+        gap: .5rem;
+
+        >* {
+            padding: .15rem;
+        }
+    }
+
+    @for $i from 1 through 7 {
+        .day-box:nth-child(7n + #{$i}) {
+            grid-column: $i;
+        }
+    }
+
+    @for $i from 0 through 5 {
+        .day-box:nth-child(n + #{7 * $i + 1}):nth-child(-n + #{7 * $i + 7}) {
+            grid-row: #{$i+1};
+        }
+    }
+}
+
+.day {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+
+    &:active {
+        border-color: transparent;
+    }
+}
+
+:disabled+.day {
+    pointer-events: auto;
+}
+
+:checked+.day {
+    border-color: transparent;
+
+    >h5 {
+        color: #9ec5fe;
+    }
+}
+
+.shadowDay {
+    opacity: 25% !important;
+}
+
+.currentDay {
+    $frame-width: 5px;
+    $frame-outer-radius: 7px;
+    $frame-inner-radius: 4px;
+    $frame-color: #c44242;
+
+    position: relative;
+    isolation: isolate;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: -$frame-width;
+        right: -$frame-width;
+        top: -$frame-width;
+        bottom: -$frame-width;
+        border-radius: $frame-outer-radius;
+        border: solid $frame-color $frame-width;
+        background: $frame-color;
+        z-index: -2;
+    }
+
+    &::after {
+        content: '';
+        position: absolute;
+        left: 0;
+        right: 0;
+        top: 0;
+        bottom: 0;
+        border-radius: $frame-inner-radius;
+        background: var(--main-bg-color);
+        z-index: -1;
+    }
+}
+
+.week-bar {
+    display: flex;
+    grid-column: 1/-1;
+    height: 100%;
+    width: 100%;
+    background: white;
+    filter: opacity(0.15);
+    pointer-events: none;
+}
