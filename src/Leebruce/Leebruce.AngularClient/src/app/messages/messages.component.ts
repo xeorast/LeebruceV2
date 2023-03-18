@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
-const bootstrap = require( 'bootstrap' );
+import { Modal } from 'bootstrap';
 import { Subscription } from 'rxjs';
 import { NotAuthenticatedError } from '../api/authentication/authentication.service';
 import { AttachmentModel, MessageMetadataModel, MessageModel, MessagesClientService } from '../api/messages-client/messages-client.service';
@@ -27,7 +27,7 @@ export class MessagesComponent implements OnInit {
   public fetchingAttachmentIds: string[] = []
 
   private msgLoadingSub?: Subscription
-  private modalObj?: any
+  private modalObj?: Modal
 
   ngOnInit(): void {
     this.messagesService.getMessages().subscribe( {
@@ -40,7 +40,7 @@ export class MessagesComponent implements OnInit {
     let modalElem = document.getElementById( 'openMessageModal' )!
 
     modalElem.addEventListener( 'hide.bs.modal', _event => this.clearClosedMessage() )
-    this.modalObj = new bootstrap.Modal( modalElem, {} )
+    this.modalObj = new Modal( modalElem, {} )
   }
 
   async fetchErrorHandler( error: any ) {
