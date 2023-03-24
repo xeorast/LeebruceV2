@@ -30,7 +30,7 @@ public static class StringExtensions
 		return ( encoding ?? Encoding.UTF8 ).GetString( Base64UrlTextEncoder.Decode( base64 ) );
 	}
 
-	[return: NotNullIfNotNull( "str" )]
+	[return: NotNullIfNotNull( nameof( str ) )]
 	public static string? DecodeHtml( this string? str )
 	{
 		if ( str is null )
@@ -43,7 +43,7 @@ public static class StringExtensions
 	}
 	static readonly Regex brRx = new( @"<br\s*?\/>" );
 
-	[return: NotNullIfNotNull( "str" )]
+	[return: NotNullIfNotNull( nameof( str ) )]
 	public static string? NormalizeHtmlAnchors( this string? str )
 	{
 		if ( str is null )
@@ -66,7 +66,7 @@ public static class StringExtensions
 
 	}
 
-	[return: NotNullIfNotNull( "str" )]
+	[return: NotNullIfNotNull( nameof( str ) )]
 	public static string? EncodeHtml( this string? str )
 	{
 		if ( str is null )

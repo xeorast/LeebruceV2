@@ -15,6 +15,7 @@ public struct TimePair
 
 	public static bool TryParse( [NotNullWhen( true )] string? str, out TimePair result )
 	{
+		result = default;
 		if ( str is null )
 			return false;
 

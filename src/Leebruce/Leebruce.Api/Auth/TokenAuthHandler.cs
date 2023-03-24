@@ -68,7 +68,7 @@ public class TokenAuthHandler : AuthenticationHandler<TokenOptions>
 
 	private string? GetTokenFromHeader()
 	{
-		string authorization = Request.Headers.Authorization;
+		string authorization = Request.Headers.Authorization.ToString();
 
 		if ( string.IsNullOrEmpty( authorization )
 			|| !authorization.StartsWith( "Bearer ", StringComparison.OrdinalIgnoreCase ) )
