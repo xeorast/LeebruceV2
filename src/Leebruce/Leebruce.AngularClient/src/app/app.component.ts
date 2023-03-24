@@ -5,7 +5,7 @@ import { ErrorNotifierService } from './api/error-notifier/error-notifier.servic
 @Component( {
   selector: 'app-root',
   templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css']
+  styleUrls: ['./app.component.scss']
 } )
 export class AppComponent implements OnInit, OnDestroy {
   title = 'Leebruce.AngularClient';
