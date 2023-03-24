@@ -29,6 +29,10 @@ ul.nav {
     justify-content: space-between;
     padding-right: 1rem;
     padding-left: 1rem;
+
+    @media(prefers-color-scheme: light) {
+        background-color: hsl(219, 100%, 22%);
+    }
 }
 
 @media(max-width: 600px) {

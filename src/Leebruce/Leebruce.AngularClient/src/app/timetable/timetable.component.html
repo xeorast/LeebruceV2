@@ -21,7 +21,7 @@
         <!-- PLACEHOLDER -->
         <ng-container *ngIf="!timetableDays">
             <div *ngFor="let item of [].constructor(7); let index = index;" class="date-pick-wrap p-1 placeholder-glow">
-                <button class="btn btn-hvr-translate date-pick"
+                <button class="btn btn-hvr-translate inactive date-pick"
                     [ngClass]="index==4?'btn-primary selected':'btn-secondary'">
                     <h5 class="placeholder d-block">&nbsp;&nbsp;</h5>
                     <span class="placeholder d-block font-monospace">&nbsp;&nbsp;&nbsp;</span>
