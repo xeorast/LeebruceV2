@@ -1,6 +1,6 @@
 ﻿namespace Leebruce.Domain;
 
-public record MessageMetadataModel(
+public record class MessageMetadataModel(
 	string Subject,
 	string Author,
 	DateTimeOffset Date,

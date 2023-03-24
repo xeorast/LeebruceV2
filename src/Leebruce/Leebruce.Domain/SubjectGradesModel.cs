@@ -2,7 +2,7 @@
 
 namespace Leebruce.Domain;
 
-public record SubjectGradesModel(
+public record class SubjectGradesModel(
 	string Subject,
 	GradeModel[] Grades,
 	bool IsRepresentative );

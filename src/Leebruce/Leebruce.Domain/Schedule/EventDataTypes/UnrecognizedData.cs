@@ -1,6 +1,6 @@
 ﻿namespace Leebruce.Domain.Schedule.EventDataTypes;
 
 //<unrecognized>
-public record UnrecognizedData(
+public record class UnrecognizedData(
 	string Value )
 	: IEventData;

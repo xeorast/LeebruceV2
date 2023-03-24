@@ -1,6 +1,6 @@
 ﻿namespace Leebruce.Domain;
 
-public record AnnouncementModel(
+public record class AnnouncementModel(
 	string Title,
 	DateOnly Date,
 	string Author,

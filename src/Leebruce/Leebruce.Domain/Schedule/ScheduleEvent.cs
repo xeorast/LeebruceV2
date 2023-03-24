@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 
 namespace Leebruce.Domain.Schedule;
 
-public record ScheduleEvent(
+public record class ScheduleEvent(
 	string? Id,
 	DateTimeOffset? DateAdded,
 	AbsenceData? AbsenceData = null,

@@ -1,7 +1,7 @@
 ﻿namespace Leebruce.Domain.Schedule.EventDataTypes;
 
 //Nr lekcji: 1\nKartkówka
-public record TestEtcData(
+public record class TestEtcData(
 	string? Subject,
 	string? Creator,
 	string? What,

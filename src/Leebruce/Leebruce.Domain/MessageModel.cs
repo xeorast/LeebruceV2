@@ -1,6 +1,6 @@
 ﻿namespace Leebruce.Domain;
 
-public record MessageModel(
+public record class MessageModel(
 	string Subject,
 	string Author,
 	string CharacterClass,

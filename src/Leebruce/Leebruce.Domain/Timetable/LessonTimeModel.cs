@@ -1,6 +1,6 @@
 ﻿namespace Leebruce.Domain.Timetable;
 
-public record LessonTimeModel(
+public record class LessonTimeModel(
 	int Number,
 	TimeOnly Start,
 	TimeOnly End );

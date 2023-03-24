@@ -1,5 +1,5 @@
 ﻿namespace Leebruce.Domain;
 
-public record AttachmentModel(
+public record class AttachmentModel(
 	string FileName,
 	string Id );

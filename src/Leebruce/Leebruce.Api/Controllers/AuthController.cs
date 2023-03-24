@@ -48,7 +48,7 @@ public class AuthController : ExtendedControllerBase
 		}
 	}
 
-	public record LoginDto(
+	public record class LoginDto(
 		[Required] string Username,
 		[Required] string Password );
 

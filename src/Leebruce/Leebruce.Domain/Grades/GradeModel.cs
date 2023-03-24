@@ -10,7 +10,7 @@ public enum SpecialGrade
 	Unprepared,
 }
 
-public record GradeModel(
+public record class GradeModel(
 	int? Value,
 	SpecialGrade? SpecialValue,
 	bool CountToAverage,

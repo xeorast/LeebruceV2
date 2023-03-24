@@ -1,6 +1,6 @@
 ﻿namespace Leebruce.Domain.Timetable;
 
-public record LessonModel(
+public record class LessonModel(
 	string Subject,
 	string TeacherName,
 	string TeacherSurname,

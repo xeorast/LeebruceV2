@@ -1,6 +1,6 @@
 ﻿namespace Leebruce.Api.Models;
 
-public sealed record FileDto(
+public sealed record class FileDto(
 	string FileName,
 	string MediaType,
 	Stream Content ) 

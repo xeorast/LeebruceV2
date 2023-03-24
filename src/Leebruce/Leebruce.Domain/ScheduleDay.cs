@@ -2,6 +2,6 @@
 
 namespace Leebruce.Domain;
 
-public record ScheduleDay(
+public record class ScheduleDay(
 	DateOnly Day,
 	ScheduleEvent[] Events );
