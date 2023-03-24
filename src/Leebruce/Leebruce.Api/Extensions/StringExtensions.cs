@@ -43,7 +43,7 @@ public static class StringExtensions
 	}
 	static readonly Regex brRx = new( @"<br\s*?\/>" );
 
-	[return: NotNullIfNotNull( nameof( str ) )]
+	[return: NotNullIfNotNull( "str" )]
 	public static string? NormalizeHtmlAnchors( this string? str )
 	{
 		if ( str is null )
@@ -66,7 +66,7 @@ public static class StringExtensions
 
 	}
 
-	[return: NotNullIfNotNull( nameof( str ) )]
+	[return: NotNullIfNotNull( "str" )]
 	public static string? EncodeHtml( this string? str )
 	{
 		if ( str is null )
