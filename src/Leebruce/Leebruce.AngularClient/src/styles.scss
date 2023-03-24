@@ -59,6 +59,10 @@ body {
     transform: translate(2px, -2px);
 }
 
+.placeholder {
+    border-radius: 0.3ch;
+}
+
 // placeholder with actual text instead of solid rectangle
 .prefilled-placeholder {
     @extend .placeholder;
