@@ -1,5 +1,8 @@
 <div class="top-row navbar">
-    <a class="navbar-brand" href="">
+    <a class="navbar-brand"
+        [routerLinkActive]="['link-active']"
+        [routerLinkActiveOptions]="{ exact: true }"
+        [routerLink]="['/']">
         <span>Leebruce</span>
     </a>
 
@@ -23,26 +26,9 @@
     class="navbar-collapse collapse">
 
     <ul class="nav flex-column">
-        <li class="nav-item px-3"
-            [routerLinkActive]="['link-active']"
-            [routerLinkActiveOptions]="{ exact: true }">
-            <a class="nav-link" [routerLink]="['/']">
-                <i class="bi bi-house"></i> Home
-            </a>
-        </li>
-        <li class="nav-item px-3" [routerLinkActive]="['link-active']">
-            <a class="nav-link" [routerLink]="['/counter']">
-                <i class="bi bi-plus-circle"></i> Counter
-            </a>
-        </li>
         <li class="nav-item px-3" [routerLinkActive]="['link-active']">
             <a class="nav-link" [routerLink]="['/login']">
                 <i class="bi bi-person"></i> Login
-            </a>
-        </li>
-        <li class="nav-item px-3" [routerLinkActive]="['link-active']">
-            <a class="nav-link" [routerLink]="['/announcements']">
-                <i class="bi bi-megaphone"></i> Announcements
             </a>
         </li>
         <li class="nav-item px-3" [routerLinkActive]="['link-active']">
@@ -53,6 +39,11 @@
         <li class="nav-item px-3" [routerLinkActive]="['link-active']">
             <a class="nav-link" [routerLink]="['/schedule']">
                 <i class="bi bi-calendar-week"></i> Schedule
+            </a>
+        </li>
+        <li class="nav-item px-3" [routerLinkActive]="['link-active']">
+            <a class="nav-link" [routerLink]="['/announcements']">
+                <i class="bi bi-megaphone"></i> Announcements
             </a>
         </li>
         <li class="nav-item px-3" [routerLinkActive]="['link-active']">
