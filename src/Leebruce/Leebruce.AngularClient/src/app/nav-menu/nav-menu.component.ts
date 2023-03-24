@@ -20,4 +20,7 @@ export class NavMenuComponent {
     // this.collapseNavMenu = !this.collapseNavMenu;
     this.collapse?.toggle()
   }
+  hideNavMenu() {
+    this.collapse?.hide()
+  }
 }

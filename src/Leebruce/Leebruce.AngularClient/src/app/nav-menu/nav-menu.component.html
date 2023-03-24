@@ -23,7 +23,8 @@
     [ngClass]="{show: !collapseNavMenu}"
     (click)="toggleNavMenu()"> -->
 <div id="navbarSupportedContent"
-    class="navbar-collapse collapse">
+    class="navbar-collapse collapse"
+    (click)="hideNavMenu()">
 
     <ul class="nav flex-column">
         <li class="nav-item px-3" [routerLinkActive]="['link-active']">
