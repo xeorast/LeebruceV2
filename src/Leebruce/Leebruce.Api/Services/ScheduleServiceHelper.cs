@@ -36,7 +36,7 @@ public partial class ScheduleServiceHelper
 
 	public static ClassAbsenceData? TryFromClassAbsenceData( string[] segments )
 	{
-		if ( segments[0] != "Nieobecność klasy:" )
+		if ( segments[0] is not ( "Nieobecność klasy:" or ", Nieobecność klasy:"/* (xd) */ ) )
 			return null;
 
 		var when = segments.Length > 2 ? segments[1] : null;
