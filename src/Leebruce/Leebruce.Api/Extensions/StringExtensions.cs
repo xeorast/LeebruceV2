@@ -68,6 +68,15 @@ public static partial class StringExtensions
 	}
 
 	[return: NotNullIfNotNull( nameof( str ) )]
+	public static string? WrapLinksInHtmlAnchors( this string? str )
+	{
+		if ( str is null )
+			return null;
+
+		return UrlWithSchemeRx().Replace( str, """<a href="$0" target="_blank" rel="noopener noreferrer">$0</a>""" );
+	}
+
+	[return: NotNullIfNotNull( nameof( str ) )]
 	public static string? EncodeHtml( this string? str )
 	{
 		if ( str is null )
@@ -85,6 +94,9 @@ public static partial class StringExtensions
 		str = str.Replace( "\n", "<br/>" );
 		return str;
 	}
+
+	[GeneratedRegex( @"https?:\/\/(?:www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,4}\b(?:[\(\)\-a-zA-Z0-9@:%_\+.~#?&\/\/=]*)" )]
+	private static partial Regex UrlWithSchemeRx();
 	[GeneratedRegex( @"(?<!\n\n)\n\n" )]
 	private static partial Regex paragraphRx();
 	[GeneratedRegex( @"<a[^<]*href=""([^""]*)""[^<]*>([^<]*)</a>" )]

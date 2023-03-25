@@ -76,7 +76,10 @@ public partial class AnnouncementsService : IAnnouncementsService
 		var content = AnnContentRx().Match( item ).GetGroup( "content" )
 			?? throw new ProcessingException( "Failed to extract content from announcement" );
 
-		content = content.DecodeHtml();
+		content = content.DecodeHtml()
+			.WrapLinksInHtmlAnchors()
+			.NormalizeHtmlAnchors()
+			.EncodeHtml();
 		title = title.DecodeHtml();
 		author = author.DecodeHtml();
 
