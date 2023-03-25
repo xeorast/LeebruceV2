@@ -1,5 +1,4 @@
-﻿using Leebruce.Api.Models;
-using System.Net;
+﻿using Leebruce.Api.Extensions;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 
@@ -7,29 +6,19 @@ namespace Leebruce.Api.Services.LbAuth;
 
 public interface ILbHelperService
 {
-	HttpClientHandler CreateHandler( ClaimsPrincipal user );
 	Task<string> GetUserNameAsync( ClaimsPrincipal user );
 	public bool IsUnauthorized( string document );
 }
 
 public partial class LbHelperService : ILbHelperService
 {
-	//todo: automatically create one httpclient per call
-	//private readonly IHttpContextAccessor _httpContext;
-	//public HttpClient Http { get; }
+	private readonly ILbUserService _lbUser;
+	private readonly HttpClient _http;
 
-	public HttpClientHandler CreateHandler( ClaimsPrincipal user )
+	public LbHelperService( ILbUserService lbUser, HttpClient http )
 	{
-		return CreateHandler( LbAuthData.FromClaims( user.Claims ) );
-	}
-	public HttpClientHandler CreateHandler( LbAuthData parameters )
-	{
-		CookieContainer cookies = new();
-		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.dsidName, parameters.DziennikSid ) );
-		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.sdsidName, parameters.SdziennikSid ) );
-		cookies.Add( LbConstants.lbCookiesDomain, new Cookie( LbConstants.oatokenName, parameters.OAuthToken ) );
-
-		return new() { AllowAutoRedirect = false, CookieContainer = cookies };
+		_lbUser = lbUser;
+		_http = http;
 	}
 
 	public bool IsUnauthorized( string document )
@@ -40,10 +29,7 @@ public partial class LbHelperService : ILbHelperService
 
 	public async Task<string> GetUserNameAsync( ClaimsPrincipal user )
 	{
-		using HttpClientHandler handler = CreateHandler( user );
-		using HttpClient http = new( handler );
-
-		using var resp = await http.GetAsync( "https://synergia.librus.pl/uczen/index" );
+		using var resp = await _http.GetWithCookiesAsync( "https://synergia.librus.pl/uczen/index", _lbUser.UserCookieHeader );
 		var ctnt = await resp.Content.ReadAsStringAsync();
 		if ( ctnt.Contains( "Brak dostępu" ) )
 		{
@@ -58,7 +44,7 @@ public partial class LbHelperService : ILbHelperService
 
 		return match.Groups[1].Value;
 	}
-	[GeneratedRegex(  @"<div id=""user-section""[\s\S]*?jesteś zalogowany jako: <b>[\W\s]*([\w\s-.]*)"  )]
+	[GeneratedRegex( @"<div id=""user-section""[\s\S]*?jesteś zalogowany jako: <b>[\W\s]*([\w\s-.]*)" )]
 	private static partial Regex userNameRx();
 
 }

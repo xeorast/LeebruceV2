@@ -19,21 +19,22 @@ public interface IMessagesService
 public partial class MessagesService : IMessagesService
 {
 	private readonly ILbHelperService _lbHelper;
+	private readonly ILbUserService _lbUser;
+	private readonly HttpClient _http;
 	private readonly ILiblinkService _liblinkService;
 
-	public MessagesService( ILbHelperService lbHelper, ILiblinkService liblinkService )
+	public MessagesService( ILbHelperService lbHelper, ILbUserService lbUser, ILiblinkService liblinkService, HttpClient http )
 	{
 		_lbHelper = lbHelper;
+		_lbUser = lbUser;
 		_liblinkService = liblinkService;
+		_http = http;
 	}
 
 	#region messages list
 	public async Task<MessageMetadataModel[]> GetMessagesAsync( ClaimsPrincipal principal )
 	{
-		using HttpClientHandler handler = _lbHelper.CreateHandler( principal );
-		using HttpClient http = new( handler );
-
-		using var resp = await http.GetAsync( "https://synergia.librus.pl/wiadomosci" );
+		using var resp = await _http.GetWithCookiesAsync( "https://synergia.librus.pl/wiadomosci", _lbUser.UserCookieHeader );
 		string document = await resp.Content.ReadAsStringAsync();
 
 		if ( _lbHelper.IsUnauthorized( document ) )
@@ -45,9 +46,6 @@ public partial class MessagesService : IMessagesService
 	}
 	public async Task<MessageMetadataModel[]> GetMessagesAsync( ClaimsPrincipal principal, int page )
 	{
-		using HttpClientHandler handler = _lbHelper.CreateHandler( principal );
-		using HttpClient http = new( handler );
-
 		using StringContent pageCtnt = new( page.ToString() );
 		using StringContent idPojemnikaCtnt = new( "105" );
 		using MultipartFormDataContent form = new()
@@ -55,7 +53,8 @@ public partial class MessagesService : IMessagesService
 			{ pageCtnt, "numer_strony105" },
 			{ idPojemnikaCtnt, "idPojemnika" },
 		};
-		using var resp = await http.PostAsync( "https://synergia.librus.pl/wiadomosci", form );
+
+		using var resp = await _http.PostWithCookiesAsync( "https://synergia.librus.pl/wiadomosci", form, _lbUser.UserCookieHeader );
 		string document = await resp.Content.ReadAsStringAsync();
 
 		if ( _lbHelper.IsUnauthorized( document ) )
@@ -125,12 +124,9 @@ public partial class MessagesService : IMessagesService
 	#region single message
 	public async Task<MessageModel> GetMessageAsync( ClaimsPrincipal principal, string id )
 	{
-		using HttpClientHandler handler = _lbHelper.CreateHandler( principal );
-		using HttpClient http = new( handler );
-
 		var link = StringExtensions.FromUrlBase64( id );
 
-		using var resp = await http.GetAsync( $"https://synergia.librus.pl/wiadomosci/{link}" );
+		using var resp = await _http.GetWithCookiesAsync( $"https://synergia.librus.pl/wiadomosci/{link}", _lbUser.UserCookieHeader );
 		string document = await resp.Content.ReadAsStringAsync();
 
 		if ( _lbHelper.IsUnauthorized( document ) )
@@ -226,13 +222,10 @@ public partial class MessagesService : IMessagesService
 	#region attachments
 	public async Task<FileDto> GetAttachmentAsync( ClaimsPrincipal principal, string id )
 	{
-		using HttpClientHandler handler = _lbHelper.CreateHandler( principal );
-		using HttpClient http = new( handler );
-
 		var link = StringExtensions.FromUrlBase64( id );
 
 		// get actual location
-		using var preResp = await http.GetAsync( $"https://synergia.librus.pl/wiadomosci/pobierz_zalacznik/{link}" );
+		using var preResp = await _http.GetWithCookiesAsync( $"https://synergia.librus.pl/wiadomosci/pobierz_zalacznik/{link}", _lbUser.UserCookieHeader );
 		var preDoc = await preResp.Content.ReadAsStringAsync();
 		if ( _lbHelper.IsUnauthorized( preDoc ) )
 			throw new NotAuthorizedException();
@@ -242,8 +235,8 @@ public partial class MessagesService : IMessagesService
 
 		// query location
 		var fileResp =
-		await TryGetAttachmentFromGetFileAsync( http, location )
-			?? await GetAttachmentFromCSDownloadAsync( http, location )
+		await TryGetAttachmentFromGetFileAsync( location )
+			?? await GetAttachmentFromCSDownloadAsync( location )
 			?? throw new ProcessingException( "Unexpected location link." );
 
 		var contentType = fileResp.Content.Headers.ContentType
@@ -259,6 +252,7 @@ public partial class MessagesService : IMessagesService
 			.FirstOrDefault()
 			?? throw new ProcessingException( "Failed to get file name from content disposition." );
 		fileName = fileName["filename=".Length..];
+		fileName = fileName.Trim( '\"' );
 
 		//ContentDisposition contentDisposition = new( cd );
 		//string fileName = contentDisposition.FileName
@@ -276,14 +270,14 @@ public partial class MessagesService : IMessagesService
 		return new FileDto( fileName, mediaType, document );
 	}
 
-	public async Task<HttpResponseMessage?> TryGetAttachmentFromGetFileAsync( HttpClient http, Uri location )
+	public async Task<HttpResponseMessage?> TryGetAttachmentFromGetFileAsync( Uri location )
 	{
 		if ( location.Segments[1] != "GetFile/" )
 			return null;
 
-		return await http.GetAsync( new Uri( location.ToString() + "/get" ) );
+		return await _http.GetWithCookiesAsync( location.ToString() + "/get", _lbUser.UserCookieHeader );
 	}
-	public async Task<HttpResponseMessage?> GetAttachmentFromCSDownloadAsync( HttpClient http, Uri location )
+	public async Task<HttpResponseMessage?> GetAttachmentFromCSDownloadAsync( Uri location )
 	{
 		var locationStr = location.ToString();
 		if ( !locationStr.Contains( "CSTryToDownload" ) )
@@ -300,7 +294,7 @@ public partial class MessagesService : IMessagesService
 		TokenCheckResponse checkResponse;
 		do
 		{
-			using var checkResp = await http.PostAsync( "https://sandbox.librus.pl/index.php?action=CSCheckKey", ctnt );
+			using var checkResp = await _http.PostWithCookiesAsync( "https://sandbox.librus.pl/index.php?action=CSCheckKey", ctnt, _lbUser.UserCookieHeader );
 			checkResponse = await checkResp.Content.ReadFromJsonAsync<TokenCheckResponse>()
 				?? throw new ProcessingException( "Token check sent invalid response." );
 			await Task.Delay( 200 );
@@ -308,7 +302,7 @@ public partial class MessagesService : IMessagesService
 
 		// download
 		var downloadLocation = locationStr.Replace( "CSTryToDownload", "CSDownload" );
-		return await http.GetAsync( downloadLocation );
+		return await _http.GetWithCookiesAsync( downloadLocation, _lbUser.UserCookieHeader );
 	}
 
 	/// <summary>

@@ -15,19 +15,20 @@ public interface IGradesService
 public partial class GradesService : IGradesService
 {
 	private readonly ILbHelperService _lbHelper;
+	private readonly HttpClient _http;
+	private readonly ILbUserService _lbUser;
 	private const int regexTimeout = 2000;
 
-	public GradesService( ILbHelperService lbHelper )
+	public GradesService( ILbHelperService lbHelper, ILbUserService lbUser, HttpClient http )
 	{
 		_lbHelper = lbHelper;
+		_lbUser = lbUser;
+		_http = http;
 	}
 
 	public async Task<SubjectGradesModel[]> GetGradesAsync( ClaimsPrincipal principal )
 	{
-		using HttpClientHandler handler = _lbHelper.CreateHandler( principal );
-		using HttpClient http = new( handler );
-
-		using var resp = await http.GetAsync( "https://synergia.librus.pl/przegladaj_oceny/uczen" );
+		using var resp = await _http.GetWithCookiesAsync( "https://synergia.librus.pl/przegladaj_oceny/uczen", _lbUser.UserCookieHeader );
 		string document = await resp.Content.ReadAsStringAsync();
 
 		if ( _lbHelper.IsUnauthorized( document ) )
@@ -265,10 +266,8 @@ public partial class GradesService : IGradesService
 
 	public async Task<GradesGraphRecordModel[]> GetGraphAsync( ClaimsPrincipal principal )
 	{
-		using HttpClientHandler handler = _lbHelper.CreateHandler( principal );
-		using HttpClient http = new( handler );
 
-		using var resp = await http.GetAsync( "https://synergia.librus.pl/uczen/graph_ajax.php?type=wykres_sredniej&classId=74264&userId=1792335&_=1656850225307" );
+		using var resp = await _http.GetWithCookiesAsync( "https://synergia.librus.pl/uczen/graph_ajax.php?type=wykres_sredniej&classId=74264&userId=1792335&_=1656850225307", _lbUser.UserCookieHeader );
 		string document = await resp.Content.ReadAsStringAsync();
 
 		if ( _lbHelper.IsUnauthorized( document ) )

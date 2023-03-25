@@ -1,4 +1,5 @@
 ﻿using Leebruce.Api.Auth;
+using Leebruce.Api.Extensions;
 using Leebruce.Api.OpenApi;
 using Leebruce.Domain.Converters;
 using Microsoft.OpenApi.Any;
@@ -8,6 +9,7 @@ namespace Leebruce.Api;
 
 public static class Startup
 {
+	const string httpClientForAuthedCalls = "httpClientForAuthenticatedCalls";
 	public static void ConfigureServices( WebApplicationBuilder builder )
 	{
 		TimeTypesConverters.Register();
@@ -41,23 +43,29 @@ public static class Startup
 		} ).AddToken();
 
 		// services
+		_ = builder.Services.AddHttpContextAccessor();
+		_ = builder.Services.AddScoped<ILbUserService, LbUserService>();
 		_ = builder.Services.AddScoped<ILbLoginService, LbLoginService>();
-		_ = builder.Services.AddScoped<ILbLogoutService, LbLogoutService>();
+		_ = builder.Services.AddScopedWithHttp<ILbLogoutService, LbLogoutService>( httpClientForAuthedCalls );
 		_ = builder.Services.AddScoped<ILbHelperService, LbHelperService>();
-		_ = builder.Services.AddScoped<ITimetableService, TimetableService>();
-		_ = builder.Services.AddScoped<IAnnouncementsService, AnnouncementsService>();
-		_ = builder.Services.AddScoped<IMessagesService, MessagesService>();
-		_ = builder.Services.AddScoped<IScheduleService, ScheduleService>();
-		_ = builder.Services.AddScoped<IGradesService, GradesService>();
+		_ = builder.Services.AddScopedWithHttp<ITimetableService, TimetableService>( httpClientForAuthedCalls );
+		_ = builder.Services.AddScopedWithHttp<IAnnouncementsService, AnnouncementsService>( httpClientForAuthedCalls );
+		_ = builder.Services.AddScopedWithHttp<IMessagesService, MessagesService>( httpClientForAuthedCalls );
+		_ = builder.Services.AddScopedWithHttp<IScheduleService, ScheduleService>( httpClientForAuthedCalls );
+		_ = builder.Services.AddScopedWithHttp<IGradesService, GradesService>( httpClientForAuthedCalls );
 		_ = builder.Services.AddScoped<JsonService>();
-		_ = builder.Services.AddScoped<ILiblinkService>( s => new LiblinkService(
-				  s.GetRequiredService<IHttpClientFactory>()
-				  .CreateClient( nameof( LiblinkService ) ) ) );
+		_ = builder.Services.AddScopedWithHttp<ILiblinkService, LiblinkService>( nameof( LiblinkService ) );
 
 		_ = builder.Services.AddHttpClient( nameof( LiblinkService ) )
 			.ConfigurePrimaryHttpMessageHandler( () =>
 			{
 				return new HttpClientHandler() { AllowAutoRedirect = false };
+			} );
+
+		_ = builder.Services.AddHttpClient( httpClientForAuthedCalls )
+			.ConfigurePrimaryHttpMessageHandler( () =>
+			{
+				return new HttpClientHandler() { AllowAutoRedirect = false, UseCookies = false };
 			} );
 
 	}

@@ -17,21 +17,22 @@ public interface IScheduleService
 public partial class ScheduleService : IScheduleService
 {
 	private readonly ILbHelperService _lbHelper;
+	private readonly ILbUserService _lbUser;
+	private readonly HttpClient _http;
 	private readonly IWebHostEnvironment _environment;
 	private const int regexTimeout = 2000;
 
-	public ScheduleService( ILbHelperService lbHelper, IWebHostEnvironment environment )
+	public ScheduleService( ILbHelperService lbHelper, ILbUserService lbUser, IWebHostEnvironment environment, HttpClient http )
 	{
 		_lbHelper = lbHelper;
+		_lbUser = lbUser;
 		_environment = environment;
+		_http = http;
 	}
 
 	public async Task<ScheduleDay[]> GetScheduleAsync( ClaimsPrincipal principal )
 	{
-		using HttpClientHandler handler = _lbHelper.CreateHandler( principal );
-		using HttpClient http = new( handler );
-
-		using var resp = await http.GetAsync( "https://synergia.librus.pl/terminarz" );
+		using var resp = await _http.GetWithCookiesAsync( "https://synergia.librus.pl/terminarz", _lbUser.UserCookieHeader );
 		string document = await resp.Content.ReadAsStringAsync();
 
 		if ( _lbHelper.IsUnauthorized( document ) )
@@ -41,9 +42,6 @@ public partial class ScheduleService : IScheduleService
 	}
 	public async Task<ScheduleDay[]> GetScheduleAsync( ClaimsPrincipal principal, DateOnly date )
 	{
-		using HttpClientHandler handler = _lbHelper.CreateHandler( principal );
-		using HttpClient http = new( handler );
-
 		Dictionary<string, string> data = new()
 		{
 			["miesiac"] = date.Month.ToString(),
@@ -51,7 +49,7 @@ public partial class ScheduleService : IScheduleService
 		};
 		using FormUrlEncodedContent ctnt = new( data );
 
-		using var resp = await http.PostAsync( "https://synergia.librus.pl/terminarz", ctnt );
+		using var resp = await _http.PostWithCookiesAsync( "https://synergia.librus.pl/terminarz", ctnt, _lbUser.UserCookieHeader );
 		string document = await resp.Content.ReadAsStringAsync();
 
 		if ( _lbHelper.IsUnauthorized( document ) )
@@ -208,8 +206,8 @@ public partial class ScheduleService : IScheduleService
 		var matches = AdditionalDataRx().Matches( data );
 
 		Dictionary<string, string> result = new();
-		foreach (var match in matches.Cast<Match>() )
-        {
+		foreach ( var match in matches.Cast<Match>() )
+		{
 			var category = match.GetGroup( "category" );
 			var value = match.GetGroup( "value" );
 			if ( category is null || value is null )

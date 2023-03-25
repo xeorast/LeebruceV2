@@ -14,19 +14,20 @@ public interface ITimetableService
 public partial class TimetableService : ITimetableService
 {
 	private readonly ILbHelperService _lbHelper;
+	private readonly ILbUserService _lbUser;
+	private readonly HttpClient _http;
 	private const int regexTimeout = 2000;
 
-	public TimetableService( ILbHelperService lbHelper )
+	public TimetableService( ILbHelperService lbHelper, ILbUserService lbUser, HttpClient http )
 	{
 		_lbHelper = lbHelper;
+		_lbUser = lbUser;
+		_http = http;
 	}
 
 	public async Task<TimetableDayModel[]> GetTimetableAsync( ClaimsPrincipal principal )
 	{
-		using HttpClientHandler? handler = _lbHelper.CreateHandler( principal );
-		using HttpClient http = new( handler );
-
-		using var resp = await http.GetAsync( "https://synergia.librus.pl/przegladaj_plan_lekcji" );
+		using var resp = await _http.GetWithCookiesAsync( "https://synergia.librus.pl/przegladaj_plan_lekcji", _lbUser.UserCookieHeader );
 		string document = await resp.Content.ReadAsStringAsync();
 
 		if ( _lbHelper.IsUnauthorized( document ) )
@@ -36,13 +37,11 @@ public partial class TimetableService : ITimetableService
 	}
 	public async Task<TimetableDayModel[]> GetTimetableAsync( ClaimsPrincipal principal, DateOnly date )
 	{
-		using HttpClientHandler? handler = _lbHelper.CreateHandler( principal );
-		using HttpClient http = new( handler );
-
 		Dictionary<string, string> data = new() { ["tydzien"] = GetWeek( date ) };
 		using FormUrlEncodedContent ctnt = new( data );
 
-		using var resp = await http.PostAsync( "https://synergia.librus.pl/przegladaj_plan_lekcji", ctnt );
+
+		using var resp = await _http.PostWithCookiesAsync( "https://synergia.librus.pl/przegladaj_plan_lekcji", ctnt, _lbUser.UserCookieHeader );
 		string document = await resp.Content.ReadAsStringAsync();
 
 		if ( _lbHelper.IsUnauthorized( document ) )
