@@ -5,9 +5,9 @@ using System.Text.RegularExpressions;
 
 namespace Leebruce.Api.Services;
 
-public class ScheduleServiceHelper
+public partial class ScheduleServiceHelper
 {
-	private static readonly TimeSpan regexTimeout = TimeSpan.FromSeconds( 2 );
+	private const int regexTimeout = 2000;
 
 	public static AbsenceData? TryFromAbsenceData( string[] segments )
 	{
@@ -53,7 +53,7 @@ public class ScheduleServiceHelper
 		if ( !segments[0].StartsWith( "Zastępstwo z " ) )
 			return null;
 
-		var match = substitutionRx.Match( segments[0] );
+		var match = SubstitutionRx().Match( segments[0] );
 		if ( !match.Success )
 			throw new ProcessingException( "Unexpected substitution data format." );
 
@@ -72,7 +72,8 @@ public class ScheduleServiceHelper
 
 		return new SubstitutionData( who, subject, lessonNo );
 	}
-	static readonly Regex substitutionRx = new( @"Zastępstwo z (?<who>.*) na lekcji nr: (?<no>.*) \((?<subject>.*)\)", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"Zastępstwo z (?<who>.*) na lekcji nr: (?<no>.*) \((?<subject>.*)\)", RegexOptions.None, regexTimeout )]
+	private static partial Regex SubstitutionRx();
 
 	public static CancellationData? TryFromCancellationData( string[] segments )
 	{
@@ -82,7 +83,7 @@ public class ScheduleServiceHelper
 		if ( segments.Length < 2 )
 			throw new ProcessingException( "Cancellation data missing." );
 
-		var match = cancellationRx.Match( segments[1] );
+		var match = CancellationRx().Match( segments[1] );
 		if ( !match.Success )
 			throw new ProcessingException( "Unexpected cancellation data format." );
 
@@ -101,7 +102,8 @@ public class ScheduleServiceHelper
 
 		return new CancellationData( who, subject, lessonNo );
 	}
-	static readonly Regex cancellationRx = new( @"(?<who>.*) na lekcji nr: (?<no>.*) \((?<subject>.*)\)", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"(?<who>.*) na lekcji nr: (?<no>.*) \((?<subject>.*)\)", RegexOptions.None, regexTimeout )]
+	private static partial Regex CancellationRx();
 
 	public static TestEtcData? TryFromTestEtcData( string[] segments, Dictionary<string, string> additionalData )
 	{
@@ -139,7 +141,7 @@ public class ScheduleServiceHelper
 				continue;
 			}
 
-			var whatMatch = whatRx.Match( item );
+			var whatMatch = WhatRx().Match( item );
 			if ( whatMatch.Success )
 			{
 				subject = whatMatch.Groups["subject"].Value;
@@ -161,7 +163,8 @@ public class ScheduleServiceHelper
 
 		return new TestEtcData( subject, creator, what, description, lessonNo, room, group );
 	}
-	static readonly Regex whatRx = new( @"<span class=\""przedmiot\"">(?<subject>.*)</span>, (?<what>.*)", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<span class=\""przedmiot\"">(?<subject>.*)</span>, (?<what>.*)", RegexOptions.None, regexTimeout )]
+	private static partial Regex WhatRx();
 
 	public static UnrecognizedData FromUnrecognizedData( string[] segments, bool showWhateverGotCaptured )
 	{

@@ -16,7 +16,7 @@ public interface IMessagesService
 	Task<FileDto> GetAttachmentAsync( ClaimsPrincipal principal, string id );
 }
 
-public class MessagesService : IMessagesService
+public partial class MessagesService : IMessagesService
 {
 	private readonly ILbHelperService _lbHelper;
 	private readonly ILiblinkService _liblinkService;
@@ -68,20 +68,22 @@ public class MessagesService : IMessagesService
 
 	static string ExtractListTable( string document )
 	{
-		var tableMatch = messagesListTableRx.Match( document );
+		var tableMatch = MessagesListTableRx().Match( document );
 		var table = tableMatch.GetGroup( 1 )
 			?? throw new ProcessingException( "Failed to extract table from document." );
 
-		var bodyMatch = messagesListTableBodyRx.Match( table );
+		var bodyMatch = MessagesListTableBodyRx().Match( table );
 		return bodyMatch.GetGroup( 1 )
 			?? throw new ProcessingException( "Failed to extract body from table." ); ;
 	}
-	static readonly Regex messagesListTableRx = new( @"<table class=""decorated stretch""[\s\S]*?>([\s\S]*?)<\/table>" );
-	static readonly Regex messagesListTableBodyRx = new( @"<tbody[\s\S]*?>([\s\S]*?)<\/tbody>" );
+	[GeneratedRegex( @"<table class=""decorated stretch""[\s\S]*?>([\s\S]*?)<\/table>" )]
+	private static partial Regex MessagesListTableRx();
+	[GeneratedRegex( @"<tbody[\s\S]*?>([\s\S]*?)<\/tbody>" )]
+	private static partial Regex MessagesListTableBodyRx();
 
 	static IEnumerable<MessageMetadataModel> ExtractMessages( string tableBody )
 	{
-		var matches = messagesTableRowRx.Matches( tableBody );
+		var matches = MessagesTableRowRx().Matches( tableBody );
 		foreach ( var match in matches.Cast<Match>() )
 		{
 			var dateStr = match.GetGroup( "date" )
@@ -113,8 +115,10 @@ public class MessagesService : IMessagesService
 		}
 	}
 	// $1: link, $2: author, $3: subject, $4: date
-	//static readonly Regex messagesTableRowRx = new( @"<tr[^>]*>(?:\s*<td[^>]*>[\s\S]*?<\/td>\s*<td[^>]*>[\s\S]*?<\/td>\s*)<td\s*>\s*<a href=""\/wiadomosci\/(?<link>[^""]*)"">[\w\s.-]*?\((?<author>[\w\s.-]*?)\)\s*<\/a>\s*<\/td>\s*<td\s*>\s*<a href=""\/wiadomosci\/\1"">\s*(?<subject>[\s\S]*?)\s*<\/a>\s*<\/td>\s*<td[^>]*>\s*(?<date>[\d\s-:]*)\s*<\/td>" );
-	static readonly Regex messagesTableRowRx = new( @"<tr[^>]*>(?:\s*<td[^>]*>\s*<input[^>]*>\s*<\/td>\s*<td[^>]*>\s*(?<ifAttachment><img\s*src=""\/assets\/img\/attachment.png""[^>]*>\s*)?<\/td>\s*)<td\s*(?<ifUnread>style=""font-weight: bold;"")?\s*>\s*<a href=""\/wiadomosci\/(?<link>[^""]*)"">[\w\s.-]*?\((?<author>[\w\s.-]*?)\)\s*<\/a>\s*<\/td>\s*<td\s*(?:style=""font-weight: bold;"")?\s*>\s*<a href=""\/wiadomosci\/\3"">\s*(?<subject>[\s\S]*?)\s*<\/a>\s*<\/td>\s*<td[^>]*>\s*(?<date>[\d\s\-:]*)\s*<\/td>" );
+	//[GeneratedRegex(  @"<tr[^>]*>(?:\s*<td[^>]*>[\s\S]*?<\/td>\s*<td[^>]*>[\s\S]*?<\/td>\s*)<td\s*>\s*<a href=""\/wiadomosci\/(?<link>[^""]*)"">[\w\s.-]*?\((?<author>[\w\s.-]*?)\)\s*<\/a>\s*<\/td>\s*<td\s*>\s*<a href=""\/wiadomosci\/\1"">\s*(?<subject>[\s\S]*?)\s*<\/a>\s*<\/td>\s*<td[^>]*>\s*(?<date>[\d\s-:]*)\s*<\/td>"  )]
+	//private static partial Regex MessagesTableRowRx();
+	[GeneratedRegex( @"<tr[^>]*>(?:\s*<td[^>]*>\s*<input[^>]*>\s*<\/td>\s*<td[^>]*>\s*(?<ifAttachment><img\s*src=""\/assets\/img\/attachment.png""[^>]*>\s*)?<\/td>\s*)<td\s*(?<ifUnread>style=""font-weight: bold;"")?\s*>\s*<a href=""\/wiadomosci\/(?<link>[^""]*)"">[\w\s.-]*?\((?<author>[\w\s.-]*?)\)\s*<\/a>\s*<\/td>\s*<td\s*(?:style=""font-weight: bold;"")?\s*>\s*<a href=""\/wiadomosci\/\3"">\s*(?<subject>[\s\S]*?)\s*<\/a>\s*<\/td>\s*<td[^>]*>\s*(?<date>[\d\s\-:]*)\s*<\/td>" )]
+	private static partial Regex MessagesTableRowRx();
 
 	#endregion
 
@@ -137,11 +141,11 @@ public class MessagesService : IMessagesService
 
 	async Task<MessageModel> ExtractMessageAsync( string document )
 	{
-		var docMatch = messageDocBodyRx.Match( document );
+		var docMatch = MessageDocBodyRx().Match( document );
 		var body = docMatch.GetGroup( 1 )
 			?? throw new ProcessingException( "Failed to extract body from document." );
 
-		var dateMatch = messageDateRx.Match( body );
+		var dateMatch = MessageDateRx().Match( body );
 		var dateStr = dateMatch.GetGroup( "date" )
 			?? throw new ProcessingException( "Failed to extract date from document." );
 
@@ -151,18 +155,18 @@ public class MessagesService : IMessagesService
 		var offset = TimeZoneInfo.FindSystemTimeZoneById( "Central European Standard Time" ).GetUtcOffset( date );
 		DateTimeOffset dateOffset = new( date, offset );
 
-		var authorMatch = messageAuthorRx.Match( body );
+		var authorMatch = MessageAuthorRx().Match( body );
 		var author = authorMatch.GetGroup( "author" )
 			?? throw new ProcessingException( "Failed to extract author from document." );
 
 		var authorClass = authorMatch.GetGroup( "authorClass" )
 			?? throw new ProcessingException( "Failed to extract author from document." );
 
-		var subjectMatch = messageSubjectRx.Match( body );
+		var subjectMatch = MessageSubjectRx().Match( body );
 		var subject = subjectMatch.GetGroup( "subject" )
 			?? throw new ProcessingException( "Failed to extract subject from document." );
 
-		var contentMatch = messageContentRx.Match( body );
+		var contentMatch = MessageContentRx().Match( body );
 		var content = contentMatch.GetGroup( "content" )
 			?? throw new ProcessingException( "Failed to extract content from document." );
 
@@ -177,20 +181,25 @@ public class MessagesService : IMessagesService
 
 		return new MessageModel( subject, author, authorClass, dateOffset, content, attachments );
 	}
-	static readonly Regex messageDocBodyRx = new( @"<body([\s\S]*)<\/body>" );
-	static readonly Regex messageAuthorRx = new( @"<tr><td class=""medium left""><b>Nadawca<\/b><\/td><td class=""left"">[\s\S]*?\((?<author>[\s\S]*?)\)\s*\[(?<authorClass>[\s\S]*?)\]<\/td><\/tr>" );
-	static readonly Regex messageSubjectRx = new( @"<tr><td class=""medium left""><b>Temat<\/b><\/td><td class=""left"">\s*(?<subject>[^<]*?)\s*<\/td><\/tr>" );
-	static readonly Regex messageDateRx = new( @"<tr><td class=""medium left""><b>Wysłano<\/b><\/td><td class=""left"">\s*(?<date>[^<]*?)\s*<\/td><\/tr>" );
-	static readonly Regex messageContentRx = new( @"<div class=""container-message-content"">(?<content>[\s\S]*?)<\/div>" );
+	[GeneratedRegex( @"<body([\s\S]*)<\/body>" )]
+	private static partial Regex MessageDocBodyRx();
+	[GeneratedRegex( @"<tr><td class=""medium left""><b>Nadawca<\/b><\/td><td class=""left"">[\s\S]*?\((?<author>[\s\S]*?)\)\s*\[(?<authorClass>[\s\S]*?)\]<\/td><\/tr>" )]
+	private static partial Regex MessageAuthorRx();
+	[GeneratedRegex( @"<tr><td class=""medium left""><b>Temat<\/b><\/td><td class=""left"">\s*(?<subject>[^<]*?)\s*<\/td><\/tr>" )]
+	private static partial Regex MessageSubjectRx();
+	[GeneratedRegex( @"<tr><td class=""medium left""><b>Wysłano<\/b><\/td><td class=""left"">\s*(?<date>[^<]*?)\s*<\/td><\/tr>" )]
+	private static partial Regex MessageDateRx();
+	[GeneratedRegex( @"<div class=""container-message-content"">(?<content>[\s\S]*?)<\/div>" )]
+	private static partial Regex MessageContentRx();
 
 	static IEnumerable<AttachmentModel> ExtractAttachments( string body )
 	{
-		var filesTableMatch = messageFilesTableRx.Match( body );
+		var filesTableMatch = MessageFilesTableRx().Match( body );
 		var filesTable = filesTableMatch.GetGroup( 1 );
 		if ( filesTable is null )
 			yield break;
 
-		var fileMatches = messageFileRx.Matches( filesTable );
+		var fileMatches = MessageFileRx().Matches( filesTable );
 		foreach ( var fileMatch in fileMatches.Cast<Match>() )
 		{
 			var fileName = fileMatch.GetGroup( "fileName" )
@@ -206,9 +215,11 @@ public class MessagesService : IMessagesService
 		}
 
 	}
-	static readonly Regex messageFilesTableRx = new( @"<table>\s*<tr>\s*<td colspan=""2"" class=""left"">\s*<b>Pliki:<\/b>\s*([\s\S]*?)<\/table>" );
+	[GeneratedRegex( @"<table>\s*<tr>\s*<td colspan=""2"" class=""left"">\s*<b>Pliki:<\/b>\s*([\s\S]*?)<\/table>" )]
+	private static partial Regex MessageFilesTableRx();
 	// $1: File 1.pdf (may be with spaces), $2: <messageId>\/<attachmentId> (slash is escaped because in source it is in js string)
-	static readonly Regex messageFileRx = new( @"<tr>\s*<td>\s*<!-- icon -->\s*<img src=""[\s\S]*?"" \/>\s*<!-- name -->\s*(?<fileName>[\s\S]*?)\s*<\/td>\s*<td>\s*&nbsp;\s*<!-- download button -->\s*<a href=""javascript:void\(0\);"">\s*<\s*img\s*src=""\/assets\/img\/homework_files_icons\/download.png""\s*class=""""\s*title=""""\s*onClick=""\s*otworz_w_nowym_oknie\(\s*&quot;\\\/wiadomosci\\\/pobierz_zalacznik\\\/(?<link>[\s\S]*?)&quot;,\s*&quot;o2&quot;,\s*420,\s*250\s*\)\s*""\s*\/>\s*<\/a>\s*<\/td>\s*<\/tr>" );
+	[GeneratedRegex( @"<tr>\s*<td>\s*<!-- icon -->\s*<img src=""[\s\S]*?"" \/>\s*<!-- name -->\s*(?<fileName>[\s\S]*?)\s*<\/td>\s*<td>\s*&nbsp;\s*<!-- download button -->\s*<a href=""javascript:void\(0\);"">\s*<\s*img\s*src=""\/assets\/img\/homework_files_icons\/download.png""\s*class=""""\s*title=""""\s*onClick=""\s*otworz_w_nowym_oknie\(\s*&quot;\\\/wiadomosci\\\/pobierz_zalacznik\\\/(?<link>[\s\S]*?)&quot;,\s*&quot;o2&quot;,\s*420,\s*250\s*\)\s*""\s*\/>\s*<\/a>\s*<\/td>\s*<\/tr>" )]
+	private static partial Regex MessageFileRx();
 
 	#endregion
 
@@ -373,7 +384,7 @@ public class MessagesService : IMessagesService
 		}
 	}
 
-	public record TokenCheckResponse(
+	public record class TokenCheckResponse(
 		string Status );
 
 	#endregion

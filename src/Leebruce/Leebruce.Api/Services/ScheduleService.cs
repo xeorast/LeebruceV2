@@ -14,11 +14,11 @@ public interface IScheduleService
 	Task<ScheduleDay[]> GetScheduleAsync( ClaimsPrincipal principal, DateOnly date );
 }
 
-public class ScheduleService : IScheduleService
+public partial class ScheduleService : IScheduleService
 {
 	private readonly ILbHelperService _lbHelper;
 	private readonly IWebHostEnvironment _environment;
-	private static readonly TimeSpan regexTimeout = TimeSpan.FromSeconds( 2 );
+	private const int regexTimeout = 2000;
 
 	public ScheduleService( ILbHelperService lbHelper, IWebHostEnvironment environment )
 	{
@@ -63,16 +63,16 @@ public class ScheduleService : IScheduleService
 	IEnumerable<ScheduleDay> ExtractDays( string document )
 	{
 		// body
-		var bodyMatch = ScheduleBodyRx.Match( document );
+		var bodyMatch = ScheduleBodyRx().Match( document );
 		var body = bodyMatch.GetGroup( 1 )
 			?? throw new ProcessingException( "Failed to extract body from document." );
 
 		// month
-		var monthSelectMatch = ScheduleMonthSelectRx.Match( body );
+		var monthSelectMatch = ScheduleMonthSelectRx().Match( body );
 		var monthSelect = monthSelectMatch.GetGroup( 1 )
 			?? throw new ProcessingException( "Failed to extract month select from document." );
 
-		var monthMatch = ScheduleSelectedRx.Match( monthSelect );
+		var monthMatch = ScheduleSelectedRx().Match( monthSelect );
 		var monthStr = monthMatch.GetGroup( 1 )
 			?? throw new ProcessingException( "Failed to extract month from select." );
 
@@ -80,11 +80,11 @@ public class ScheduleService : IScheduleService
 			throw new ProcessingException( "Month extracted from select was invalid." );
 
 		// year
-		var yearSelectMatch = ScheduleYearSelectRx.Match( body );
+		var yearSelectMatch = ScheduleYearSelectRx().Match( body );
 		var yearSelect = yearSelectMatch.GetGroup( 1 )
 			?? throw new ProcessingException( "Failed to extract year select from document." );
 
-		var yearMatch = ScheduleSelectedRx.Match( yearSelect );
+		var yearMatch = ScheduleSelectedRx().Match( yearSelect );
 		var yearStr = yearMatch.GetGroup( 1 )
 			?? throw new ProcessingException( "Failed to extract year from select." );
 
@@ -92,7 +92,7 @@ public class ScheduleService : IScheduleService
 			throw new ProcessingException( "Year extracted from select was invalid." );
 
 		// day and data
-		var dayMatches = ScheduleDayRx.Matches( body );
+		var dayMatches = ScheduleDayRx().Matches( body );
 		foreach ( var match in dayMatches.Cast<Match>() )
 		{
 			ScheduleDay? scheduleDay = null;
@@ -120,15 +120,20 @@ public class ScheduleService : IScheduleService
 				yield return scheduleDay;
 		}
 	}
-	static readonly Regex ScheduleBodyRx = new( @"<body[^>]*>([\s\S]*?)<\/body>", RegexOptions.None, regexTimeout );
-	static readonly Regex ScheduleMonthSelectRx = new( @"<select name=""miesiac""\s*class=""ListaWyboru""[^>]*>([\s\S]*?)</select>", RegexOptions.None, regexTimeout );
-	static readonly Regex ScheduleYearSelectRx = new( @"<select name=""rok""\s*class=""ListaWyboru""[^>]*>([\s\S]*?)</select>", RegexOptions.None, regexTimeout );
-	static readonly Regex ScheduleSelectedRx = new( @"<option value=""([^""]*)"" selected=""selected"" >", RegexOptions.None, regexTimeout );
-	static readonly Regex ScheduleDayRx = new( @"<td class=""center\s*(?:today\s*)?"" ><div class=""kalendarz-dzien""><div class=""kalendarz-numer-dnia"">\s*(?<day>\d*)\s*<\/div><table><tbody>(?<data>[\s\S]*?)<\/tbody>", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<body[^>]*>([\s\S]*?)<\/body>", RegexOptions.None, regexTimeout )]
+	private static partial Regex ScheduleBodyRx();
+	[GeneratedRegex( @"<select name=""miesiac""\s*class=""ListaWyboru""[^>]*>([\s\S]*?)</select>", RegexOptions.None, regexTimeout )]
+	private static partial Regex ScheduleMonthSelectRx();
+	[GeneratedRegex( @"<select name=""rok""\s*class=""ListaWyboru""[^>]*>([\s\S]*?)</select>", RegexOptions.None, regexTimeout )]
+	private static partial Regex ScheduleYearSelectRx();
+	[GeneratedRegex( @"<option value=""([^""]*)"" selected=""selected"" >", RegexOptions.None, regexTimeout )]
+	private static partial Regex ScheduleSelectedRx();
+	[GeneratedRegex( @"<td class=""center\s*(?:today\s*)?"" ><div class=""kalendarz-dzien""><div class=""kalendarz-numer-dnia"">\s*(?<day>\d*)\s*<\/div><table><tbody>(?<data>[\s\S]*?)<\/tbody>", RegexOptions.None, regexTimeout )]
+	private static partial Regex ScheduleDayRx();
 
 	IEnumerable<ScheduleEvent> ExtractEvents( string data )
 	{
-		var eventMatches = ScheduleEventRx.Matches( data );
+		var eventMatches = ScheduleEventRx().Matches( data );
 		foreach ( var match in eventMatches.Cast<Match>() )
 		{
 			ScheduleEvent ev;
@@ -144,7 +149,8 @@ public class ScheduleService : IScheduleService
 			yield return ev;
 		}
 	}
-	static readonly Regex ScheduleEventRx = new( @"<tr><td [^>]*?style=""background-color: .*?;.*?"" (?:title=""(?<title>.*?)"")?\s*(?:onclick=""location.href='/terminarz/(?<link>.*?)'"")?\s*>\s*(?<what>.*?)\s*(?:(?:</td></tr>)|$|(?=<tr><td [^>]*?style=""background-color:))", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<tr><td [^>]*?style=""background-color: .*?;.*?"" (?:title=""(?<title>.*?)"")?\s*(?:onclick=""location.href='/terminarz/(?<link>.*?)'"")?\s*>\s*(?<what>.*?)\s*(?:(?:</td></tr>)|$|(?=<tr><td [^>]*?style=""background-color:))", RegexOptions.None, regexTimeout )]
+	private static partial Regex ScheduleEventRx();
 	//(?<link>szczegoly(?:_wolne)?/.*?)
 
 	public ScheduleEvent DecodeEventData( Match match )
@@ -187,7 +193,7 @@ public class ScheduleService : IScheduleService
 	public IEventData DecodeEventData( string data, Dictionary<string, string> additionalData )
 	{
 		data = HttpUtility.HtmlDecode( data );
-		var segments = brRx.Split( data );
+		var segments = BrRx().Split( data );
 
 		return ScheduleServiceHelper.TryFromAbsenceData( segments ) as IEventData
 			?? ScheduleServiceHelper.TryFromClassAbsenceData( segments ) as IEventData
@@ -199,7 +205,7 @@ public class ScheduleService : IScheduleService
 	}
 	public static Dictionary<string, string> DecodeEventTitle( string data )
 	{
-		var matches = additionalDataRx.Matches( data );
+		var matches = AdditionalDataRx().Matches( data );
 
 		Dictionary<string, string> result = new();
 		foreach (var match in matches.Cast<Match>() )
@@ -216,7 +222,9 @@ public class ScheduleService : IScheduleService
 
 		return result;
 	}
-	static readonly Regex brRx = new( @"<br\s*/?>", RegexOptions.None, regexTimeout );
-	static readonly Regex additionalDataRx = new( @"(?<category>[^<>""]*?): (?<value>(?:[^<>""]|<br \/>)*?)(?=<br \/>[^<>""]*: |"")", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<br\s*/?>", RegexOptions.None, regexTimeout )]
+	private static partial Regex BrRx();
+	[GeneratedRegex( @"(?<category>[^<>""]*?): (?<value>(?:[^<>""]|<br \/>)*?)(?=<br \/>[^<>""]*: |"")", RegexOptions.None, regexTimeout )]
+	private static partial Regex AdditionalDataRx();
 
 }

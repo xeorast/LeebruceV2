@@ -11,10 +11,10 @@ public interface ITimetableService
 	Task<TimetableDayModel[]> GetTimetableAsync( ClaimsPrincipal principal, DateOnly date );
 }
 
-public class TimetableService : ITimetableService
+public partial class TimetableService : ITimetableService
 {
 	private readonly ILbHelperService _lbHelper;
-	private static readonly TimeSpan regexTimeout = TimeSpan.FromSeconds( 2 );
+	private const int regexTimeout = 2000;
 
 	public TimetableService( ILbHelperService lbHelper )
 	{
@@ -88,21 +88,23 @@ public class TimetableService : ITimetableService
 	#region Timetable regexes
 	static (string header, string body) ExtractTable( string document )
 	{
-		var tableMatch = timetableTable.Match( document );
+		var tableMatch = TimetableTableRx().Match( document );
 		var table = tableMatch.GetGroup( "table" ) ?? throw new ProcessingException( "Failed to extract table from document." );
 
-		var headerBodyMatch = timetableHeaderBody.Match( table );
+		var headerBodyMatch = TimetableHeaderBodyRx().Match( table );
 		var header = headerBodyMatch.GetGroup( "header" ) ?? throw new ProcessingException( "Failed to extract header from table." );
 		var body = headerBodyMatch.GetGroup( "body" ) ?? throw new ProcessingException( "Failed to extract body from table." );
 
 		return (header, body);
 	}
-	static readonly Regex timetableTable = new( @"<table class=""decorated plan-lekcji""[\s\S]*?>(?<table>[\s\S]*?)<\/table>", RegexOptions.None, regexTimeout );
-	static readonly Regex timetableHeaderBody = new( @"<thead[\s\S]*?>(?<header>[\s\S]*?)<\/thead>\s*?(?<body>[\s\S]*?)\s*?<tfoot>", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<table class=""decorated plan-lekcji""[\s\S]*?>(?<table>[\s\S]*?)<\/table>", RegexOptions.None, regexTimeout )]
+	private static partial Regex TimetableTableRx();
+	[GeneratedRegex( @"<thead[\s\S]*?>(?<header>[\s\S]*?)<\/thead>\s*?(?<body>[\s\S]*?)\s*?<tfoot>", RegexOptions.None, regexTimeout )]
+	private static partial Regex TimetableHeaderBodyRx();
 
 	static IEnumerable<DateOnly> ExtractDates( string header )
 	{
-		var cellMatches = timetableHeaderDays.Matches( header );
+		var cellMatches = TimetableHeaderDaysRx().Matches( header );
 		foreach ( var cellMatch in cellMatches.Cast<Match>() )
 		{
 			var dateStr = cellMatch.GetGroup( "date" ) ?? throw new ProcessingException( "Failed to extract date from header table header." );
@@ -110,21 +112,23 @@ public class TimetableService : ITimetableService
 		}
 	}
 	// $1: DayOfWeek (in polish), $2: 2021-10-11
-	static readonly Regex timetableHeaderDays = new( @"<td>(?<weekDay>[^<>]*?)<BR[^<>]*?\/>(?<date>[^<>]*?)<\/td>", RegexOptions.None, regexTimeout );//todo: remove (unused) day of week group
+	[GeneratedRegex( @"<td>(?<weekDay>[^<>]*?)<BR[^<>]*?\/>(?<date>[^<>]*?)<\/td>", RegexOptions.None, regexTimeout )]
+	private static partial Regex TimetableHeaderDaysRx();//todo: remove (unused) day of week group
 
 	static IEnumerable<string> ExtractRows( string body )
 	{
-		var headerMatch = timetableBodyRows.Matches( body );
+		var headerMatch = TimetableBodyRowsRx().Matches( body );
 		foreach ( var match in headerMatch.Cast<Match>() )
 		{
 			yield return match.GetGroup( "row" ) ?? throw new ProcessingException( "Failed to extract rows from table." );
 		}
 	}
-	static readonly Regex timetableBodyRows = new( @"<tr class=""line1"">(?<row>[\s\S]*?)<\/tr>", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<tr class=""line1"">(?<row>[\s\S]*?)<\/tr>", RegexOptions.None, regexTimeout )]
+	private static partial Regex TimetableBodyRowsRx();
 
 	static LessonTimeModel ExtractTime( string row )
 	{
-		var match = timetableTime.Match( row );
+		var match = TimetableTimeRx().Match( row );
 
 		string numStr = match.GetGroup( "number" ) ?? throw new ProcessingException( "Failed to extract lesson number from table." );
 		if ( !int.TryParse( numStr, out var number ) )
@@ -141,7 +145,8 @@ public class TimetableService : ITimetableService
 		return new( number, start, end );
 	}
 	// $1: 1, $2: 07:50, $3: 08:35
-	static readonly Regex timetableTime = new( @"<td[^<>]*?>(?<number>[\s\S]*?)<\/td>[^<>]*?<th[^<>]*?>(?<start>[\d:]*).*?;-.*?;(?<end>[\d:]*?)<\/th>", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<td[^<>]*?>(?<number>[\s\S]*?)<\/td>[^<>]*?<th[^<>]*?>(?<start>[\d:]*).*?;-.*?;(?<end>[\d:]*?)<\/th>", RegexOptions.None, regexTimeout )]
+	private static partial Regex TimetableTimeRx();
 
 	static string?[] ExtractLessonCell( string row )
 	{
@@ -149,7 +154,7 @@ public class TimetableService : ITimetableService
 
 		static IEnumerable<string?> ExtractLessonCellInternal( string row )
 		{
-			var matches = timetableLessonCell.Matches( row );
+			var matches = TimetableLessonCellRx().Matches( row );
 
 			foreach ( var match in matches.Cast<Match>() )
 			{
@@ -159,14 +164,15 @@ public class TimetableService : ITimetableService
 		}
 	}
 	// $1: cell (may be empty)
-	static readonly Regex timetableLessonCell = new( @"<td class=""line1""[^<>]*?>(?<cell>[\s\S]*?)<\/td>", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<td class=""line1""[^<>]*?>(?<cell>[\s\S]*?)<\/td>", RegexOptions.None, regexTimeout )]
+	private static partial Regex TimetableLessonCellRx();
 
 	static LessonModel? ExtractLesson( string? cell, LessonTimeModel time )
 	{
 		if ( cell is null )
 			return null;
 
-		var match = timetableLesson.Match( cell );
+		var match = TimetableLessonRx().Match( cell );
 
 		if ( !match.Success )
 			throw new ProcessingException( "Failed to extract lesson data from table cell." );
@@ -198,39 +204,45 @@ public class TimetableService : ITimetableService
 			isCancelled );
 	}
 	// $1: subject, $2: Surname, $3: Name, [$4: group] [$4: room]
-	static readonly Regex timetableLesson = new( @"<b>\s*(?<subject>[^<>]*?)\s*<\/b>[^<]*?<br\/>- ?(?<surname>[\w\s.-]*)(?:.*?;)(?<name>[\w\s.-]*)(?:.*?;)?(?:(?:\((?<group>[\w\s.-]*)\))(?:.*?;)?)?(?:s\..*?;(?<room>[\w\s.-]*))?", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<b>\s*(?<subject>[^<>]*?)\s*<\/b>[^<]*?<br\/>- ?(?<surname>[\w\s.-]*)(?:.*?;)(?<name>[\w\s.-]*)(?:.*?;)?(?:(?:\((?<group>[\w\s.-]*)\))(?:.*?;)?)?(?:s\..*?;(?<room>[\w\s.-]*))?", RegexOptions.None, regexTimeout )]
+	private static partial Regex TimetableLessonRx();
 
 	static SubstitutionModel? ExtractSubstitution( string cell )
 	{
-		var bodyMatch = timetableSubstitutionBody.Match( cell );
+		var bodyMatch = TimetableSubstitutionBodyRx().Match( cell );
 
 		if ( !bodyMatch.Success )
 			return null;
 
-		var subMatch = timetableSubstitutionData.Match( bodyMatch.Groups[1].Value );
+		var subMatch = TimetableSubstitutionDataRx().Match( bodyMatch.Groups[1].Value );
 
 		var teacher = subMatch.GetGroup( "teacher" );
 		var subject = subMatch.GetGroup( "subject" );
 		var room = subMatch.GetGroup( "room" );
 
-		return new SubstitutionModel( teacher, subject,room );
+		return new SubstitutionModel( teacher, subject, room );
 	}
-	static readonly Regex timetableSubstitutionBody = new( @"<a[^<>]*title=""([^""]*?)"">[\s\S]*?zastępstwo[\s\S]*?<\/a>", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<a[^<>]*title=""([^""]*?)"">[\s\S]*?zastępstwo[\s\S]*?<\/a>", RegexOptions.None, regexTimeout )]
+	private static partial Regex TimetableSubstitutionBodyRx();
 	// $1: Teacher, $2: Subject
-	static readonly Regex timetableSubstitutionData = new( @"<b>Nauczyciel:<\/b> (?<teacher>[^""]*?) ->[^""]*?<b>Przedmiot:<\/b> (?:(?<subject>[^<>]*) ->[^""]*|(?:[^<>]*))<br><b>Sala:<\/b> (?:\[brak\]|(?<room>[^<>]*)) ->", RegexOptions.None, regexTimeout );
-	//static readonly Regex timetableSubstitutionData = new( @"<b>Nauczyciel:<\/b> (?<teacher>[\s\S]*?) ->[\s\S]*?<b>Przedmiot:<\/b>(?: (?<subject>[^<>]*?) ->)?", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<b>Nauczyciel:<\/b> (?<teacher>[^""]*?) ->[^""]*?<b>Przedmiot:<\/b> (?:(?<subject>[^<>]*) ->[^""]*|(?:[^<>]*))<br><b>Sala:<\/b> (?:\[brak\]|(?<room>[^<>]*)) ->", RegexOptions.None, regexTimeout )]
+	private static partial Regex TimetableSubstitutionDataRx();
+	//[GeneratedRegex(  @"<b>Nauczyciel:<\/b> (?<teacher>[\s\S]*?) ->[\s\S]*?<b>Przedmiot:<\/b>(?: (?<subject>[^<>]*?) ->)?", RegexOptions.None, regexTimeout  )]
+	//private static partial Regex TimetableSubstitutionDataRx();
 
 	static bool CheckClassAbsence( string cell )
 	{
-		return timetableClassAbsence.IsMatch( cell );
+		return TimetableClassAbsenceRx().IsMatch( cell );
 	}
-	static readonly Regex timetableClassAbsence = new( @"<div[^<>]*class=""[^""]*plan-lekcji-info[^""]*""[^<>]*>[^<>]*?nieobecność klasy[^<>]*?<\/div>", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<div[^<>]*class=""[^""]*plan-lekcji-info[^""]*""[^<>]*>[^<>]*?nieobecność klasy[^<>]*?<\/div>", RegexOptions.None, regexTimeout )]
+	private static partial Regex TimetableClassAbsenceRx();
 
 	static bool CheckLessonCancellation( string cell )
 	{
-		return timetableLessonCancellation.IsMatch( cell );
+		return TimetableLessonCancellationRx().IsMatch( cell );
 	}
-	static readonly Regex timetableLessonCancellation = new( @"<div[^<>]*class=""[^""]*plan-lekcji-info[^""]*""[^<>]*>[^<>]*?odwołane[^<>]*?<\/div>", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<div[^<>]*class=""[^""]*plan-lekcji-info[^""]*""[^<>]*>[^<>]*?odwołane[^<>]*?<\/div>", RegexOptions.None, regexTimeout )]
+	private static partial Regex TimetableLessonCancellationRx();
 
 	#endregion
 

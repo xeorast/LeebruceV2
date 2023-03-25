@@ -8,7 +8,7 @@ public interface ILiblinkService
 	Task<string> ConvertLiblinks( string liblikedString );
 }
 
-public class LiblinkService : ILiblinkService
+public partial class LiblinkService : ILiblinkService
 {
 	private readonly HttpClient _client;
 
@@ -19,7 +19,7 @@ public class LiblinkService : ILiblinkService
 
 	public async Task<string> ConvertLiblinks( string liblikedString )
 	{
-		var liblinks = liblinkRx.Matches( liblikedString )
+		var liblinks = LiblinkRx().Matches( liblikedString )
 			.Select( match => match.Value )
 			.ToHashSet();
 
@@ -33,7 +33,8 @@ public class LiblinkService : ILiblinkService
 
 		return sb.ToString();
 	}
-	static readonly Regex liblinkRx = new( @"https://liblink.pl/\w*" );
+	[GeneratedRegex( @"https://liblink.pl/\w*" )]
+	private static partial Regex LiblinkRx();
 
 	private async Task<(string liblink, string clearLink)> ConvertLink( string link )
 	{

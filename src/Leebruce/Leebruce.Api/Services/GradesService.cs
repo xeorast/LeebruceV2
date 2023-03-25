@@ -12,10 +12,10 @@ public interface IGradesService
 	Task<GradesGraphRecordModel[]> GetGraphAsync( ClaimsPrincipal principal );
 }
 
-public class GradesService : IGradesService
+public partial class GradesService : IGradesService
 {
 	private readonly ILbHelperService _lbHelper;
-	private static readonly TimeSpan regexTimeout = TimeSpan.FromSeconds( 2 );
+	private const int regexTimeout = 2000;
 
 	public GradesService( ILbHelperService lbHelper )
 	{
@@ -33,7 +33,7 @@ public class GradesService : IGradesService
 		if ( _lbHelper.IsUnauthorized( document ) )
 			throw new NotAuthorizedException();
 
-		var table = gradesTableRx.Match( document ).GetGroup( 1 )
+		var table = GradesTableRx().Match( document ).GetGroup( 1 )
 			?? throw new ProcessingException( "Failed to extract table from document." );
 
 		return ExtractSubjects( table, out var _ );//todo: return whether subjects list is complete
@@ -42,7 +42,7 @@ public class GradesService : IGradesService
 	static SubjectGradesModel[] ExtractSubjects( string table, out bool isComplete )
 	{
 		isComplete = true;
-		var matches = subjectRx.Matches( table );
+		var matches = SubjectRx().Matches( table );
 		List<SubjectGradesModel> subjects = new( matches.Count );
 
 		foreach ( var subjectMatch in matches.Cast<Match>() )
@@ -66,7 +66,7 @@ public class GradesService : IGradesService
 		var summary = subjectMatch.GetGroup( "summary" )
 			?? throw new ProcessingException( "Failed to extract subject summary from table." );
 
-		var summaryMatch = summaryRx.Match( summary );
+		var summaryMatch = SummaryRx().Match( summary );
 
 		// comments
 		var grades1 = summaryMatch.GetGroup( "grades1" )
@@ -122,7 +122,7 @@ public class GradesService : IGradesService
 
 	static (string id, string? comment)[] ExtractGradesComments( string grades )
 	{
-		var matches = summaryGradesRx.Matches( grades );
+		var matches = SummaryGradesRx().Matches( grades );
 		List<(string id, string? comment)> comments = new( matches.Count );
 
 		foreach ( var gradeMatch in matches.Cast<Match>() )
@@ -140,12 +140,12 @@ public class GradesService : IGradesService
 	static GradeModel[] ExtractGrades( string subjectTable, Dictionary<string, string?> comments, out bool isComplete )
 	{
 		isComplete = true;
-		var matches = subjectGradesRx.Matches( subjectTable );
+		var matches = SubjectGradesRx().Matches( subjectTable );
 		List<GradeModel> grades = new( matches.Count );
 
 		foreach ( var gradeRowMatch in matches.Cast<Match>() )
 		{
-			var gradeMatch = gradeInfoRx.Match( gradeRowMatch.Value );
+			var gradeMatch = GradeInfoRx().Match( gradeRowMatch.Value );
 
 			try
 			{
@@ -232,7 +232,7 @@ public class GradesService : IGradesService
 			?? throw ExceptionFor( "addedBy" );
 
 		// id
-		var id = gradeIdRx.Match( gradeMatch.Value ).GetGroup( "link" );
+		var id = GradeIdRx().Match( gradeMatch.Value ).GetGroup( "link" );
 
 		// comment
 		var comment = id is null ? null : comments[id];
@@ -242,19 +242,26 @@ public class GradesService : IGradesService
 
 
 	// $1: content
-	static readonly Regex gradesTableRx = new( @"<table class=""decorated stretch"">([\s\S]*)<\/table>", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<table class=""decorated stretch"">([\s\S]*)<\/table>", RegexOptions.None, regexTimeout )]
+	private static partial Regex GradesTableRx();
 	// $summary; $table
-	static readonly Regex subjectRx = new( @"<tr class=""(line\d)"">\s*(?<summary><td class='center micro screen-only'><img src=""/images/tree_colapsed\.png"" id=""przedmioty_(\d*)_node[\s\S]*?)<\/tr><tr class=""\1""[^>]*id=""przedmioty_\2""[^>]*>\s*<td[^>]*><table class=""stretch"">(?<table>[\s\S]*?)<\/table><\/td><\/tr>", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<tr class=""(line\d)"">\s*(?<summary><td class='center micro screen-only'><img src=""/images/tree_colapsed\.png"" id=""przedmioty_(\d*)_node[\s\S]*?)<\/tr><tr class=""\1""[^>]*id=""przedmioty_\2""[^>]*>\s*<td[^>]*><table class=""stretch"">(?<table>[\s\S]*?)<\/table><\/td><\/tr>", RegexOptions.None, regexTimeout )]
+	private static partial Regex SubjectRx();
 	// $subject; $grades1; $average1; $suggestedTerm1; $term1; $grades2; $average2; $term2; $averageTotal; $suggestedTotal; $total
-	static readonly Regex summaryRx = new( @"<td class='center micro screen-only'>[\s\S]*?<\/td>\s*<td\s*>(?<subject>[\s\S]*?)<\/td><td\s*>(?<grades1>[\s\S]*?)<\/td><td class=""right"">(?<average1>[\s\S]*?)<\/td>(?:<td class=""center""\s*>(?<suggestedTerm1>[\s\S]*?)<\/td>)?<td class=""center""\s*>(?<term1>[\s\S]*?)<\/td><td\s*>(?<grades2>[\s\S]*?)<\/td><td\s*class=""right"">(?<average2>[\s\S]*?)<\/td>(?:<td class=""center""\s*>(?<suggestedTerm2>[\s\S]*?)<\/td>)?<td class=""center""\s*>(?<term2>[\s\S]*?)<\/td><td\s*class=""right""\s*>(?<averageTotal>[\s\S]*?)<\/td><td class=""center""\s*>(?<suggestedTotal>[\s\S]*?)<\/td>(?:<td class=""center""\s*>(?<total>[\s\S]*?)<\/td>)?", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<td class='center micro screen-only'>[\s\S]*?<\/td>\s*<td\s*>(?<subject>[\s\S]*?)<\/td><td\s*>(?<grades1>[\s\S]*?)<\/td><td class=""right"">(?<average1>[\s\S]*?)<\/td>(?:<td class=""center""\s*>(?<suggestedTerm1>[\s\S]*?)<\/td>)?<td class=""center""\s*>(?<term1>[\s\S]*?)<\/td><td\s*>(?<grades2>[\s\S]*?)<\/td><td\s*class=""right"">(?<average2>[\s\S]*?)<\/td>(?:<td class=""center""\s*>(?<suggestedTerm2>[\s\S]*?)<\/td>)?<td class=""center""\s*>(?<term2>[\s\S]*?)<\/td><td\s*class=""right""\s*>(?<averageTotal>[\s\S]*?)<\/td><td class=""center""\s*>(?<suggestedTotal>[\s\S]*?)<\/td>(?:<td class=""center""\s*>(?<total>[\s\S]*?)<\/td>)?", RegexOptions.None, regexTimeout )]
+	private static partial Regex SummaryRx();
 	// $comment; $link
-	static readonly Regex summaryGradesRx = new( @"<span[^>]*>\s*<a title=""[^""]*Komentarz: (?<comment>[^""]*)"" class=""ocena"" href=""\/przegladaj_oceny\/szczegoly\/(?<link>[^""]*)"" >[^<]*<\/a><\/span>", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<span[^>]*>\s*<a title=""[^""]*Komentarz: (?<comment>[^""]*)"" class=""ocena"" href=""\/przegladaj_oceny\/szczegoly\/(?<link>[^""]*)"" >[^<]*<\/a><\/span>", RegexOptions.None, regexTimeout )]
+	private static partial Regex SummaryGradesRx();
 	// row
-	static readonly Regex subjectGradesRx = new( @"<tr class=""line1 detail-grades""[\s\S]*?<\/tr>", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<tr class=""line1 detail-grades""[\s\S]*?<\/tr>", RegexOptions.None, regexTimeout )]
+	private static partial Regex SubjectGradesRx();
 	// $color; $grade; $category; $date; $teacher; $count: "aktywne" - yes, "nieaktywne" - no; $weight; $resit; $addedBy
-	static readonly Regex gradeInfoRx = new( @"<tr class=""line1 detail-grades"" style=""background-color: #(?<color>\w*);""><td class=""center"">(?<grade>[^<\s]*)<\/td><td class=""center"">[\s\S]*?<\/td><td>(?<category>[\s\S]*?)<\/td><td class=""center"">(?<date>[\s\S]*?)<\/td><td\s*>(?<teacher>[\s\S]*?)<\/td><td class=""center"">[\s\S]*?""\/images\/(?<count>[\s\S]*?)\.png[^>]*><\/td><td class=""right""\s*>(?<weight>[^<]*?)<\/td><td class=""center""\s*>(?<resit>[\s\S]*?)<\/td><td\s*>(?<addedBy>[\s\S]*?)<\/td><\/tr>", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"<tr class=""line1 detail-grades"" style=""background-color: #(?<color>\w*);""><td class=""center"">(?<grade>[^<\s]*)<\/td><td class=""center"">[\s\S]*?<\/td><td>(?<category>[\s\S]*?)<\/td><td class=""center"">(?<date>[\s\S]*?)<\/td><td\s*>(?<teacher>[\s\S]*?)<\/td><td class=""center"">[\s\S]*?""\/images\/(?<count>[\s\S]*?)\.png[^>]*><\/td><td class=""right""\s*>(?<weight>[^<]*?)<\/td><td class=""center""\s*>(?<resit>[\s\S]*?)<\/td><td\s*>(?<addedBy>[\s\S]*?)<\/td><\/tr>", RegexOptions.None, regexTimeout )]
+	private static partial Regex GradeInfoRx();
 	// $link
-	static readonly Regex gradeIdRx = new( @"'\/komentarz_oceny\/1\/(?<link>[\s\S]*?)'", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"'\/komentarz_oceny\/1\/(?<link>[\s\S]*?)'", RegexOptions.None, regexTimeout )]
+	private static partial Regex GradeIdRx();
 
 	public async Task<GradesGraphRecordModel[]> GetGraphAsync( ClaimsPrincipal principal )
 	{
@@ -267,7 +274,7 @@ public class GradesService : IGradesService
 		if ( _lbHelper.IsUnauthorized( document ) )
 			throw new NotAuthorizedException();
 
-		var graphMatches = gradeGraphRx.Matches( document );
+		var graphMatches = GradeGraphRx().Matches( document );
 		List<GradesGraphRecordModel> graph = new( graphMatches.Count );
 
 		foreach ( var barMatch in graphMatches.Cast<Match>() )
@@ -297,6 +304,7 @@ public class GradesService : IGradesService
 	}
 
 	// $month; $perUser; $perLevel
-	static readonly Regex gradeGraphRx = new( @"{\s*columnGradeAverangeGraphDiv:""(?<month>[^""]*)"",\s*x0:\s*(?<perUser>[\d\.]*),\s*x1:\s*(?<perLevel>[\d\.]*)}", RegexOptions.None, regexTimeout );
+	[GeneratedRegex( @"{\s*columnGradeAverangeGraphDiv:""(?<month>[^""]*)"",\s*x0:\s*(?<perUser>[\d\.]*),\s*x1:\s*(?<perLevel>[\d\.]*)}", RegexOptions.None, regexTimeout )]
+	private static partial Regex GradeGraphRx();
 
 }

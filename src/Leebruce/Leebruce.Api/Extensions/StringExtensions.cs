@@ -6,7 +6,7 @@ using System.Web;
 
 namespace Leebruce.Api.Extensions;
 
-public static class StringExtensions
+public static partial class StringExtensions
 {
 	public static string? NullIfEmpty( this string? str )
 	{
@@ -38,10 +38,11 @@ public static class StringExtensions
 
 		str = str.Replace( "\r\n", "" );
 		str = str.Replace( "\n", "" );
-		str = brRx.Replace( str, "\n" );
+		str = brRx().Replace( str, "\n" );
 		return HttpUtility.HtmlDecode( str );
 	}
-	static readonly Regex brRx = new( @"<br\s*?\/>" );
+	[GeneratedRegex( @"<br\s*?\/>" )]
+	private static partial Regex brRx();
 
 	[return: NotNullIfNotNull( nameof( str ) )]
 	public static string? NormalizeHtmlAnchors( this string? str )
@@ -49,7 +50,7 @@ public static class StringExtensions
 		if ( str is null )
 			return null;
 
-		var segments = anchorRx.Split( str );
+		var segments = anchorRx().Split( str );
 		StringBuilder sb = new();
 		for ( int i = 0; i < segments.Length; i += 3 )
 		{
@@ -73,7 +74,7 @@ public static class StringExtensions
 			return null;
 
 		// encode line breaks
-		var paragraphs = paragraphRx.Split( str );
+		var paragraphs = paragraphRx().Split( str );
 		StringBuilder sb = new();
 		foreach ( var paragraph in paragraphs )
 		{
@@ -84,7 +85,9 @@ public static class StringExtensions
 		str = str.Replace( "\n", "<br/>" );
 		return str;
 	}
-	static readonly Regex paragraphRx = new( @"(?<!\n\n)\n\n" );
-	static readonly Regex anchorRx = new( @"<a[^<]*href=""([^""]*)""[^<]*>([^<]*)</a>" );
+	[GeneratedRegex( @"(?<!\n\n)\n\n" )]
+	private static partial Regex paragraphRx();
+	[GeneratedRegex( @"<a[^<]*href=""([^""]*)""[^<]*>([^<]*)</a>" )]
+	private static partial Regex anchorRx();
 
 }

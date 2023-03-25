@@ -87,11 +87,11 @@ public class LbLoginService : ILbLoginService, IDisposable
 			throw new NotAuthorizedException( $"Error(s) occured: {_json.ToJson( respData.Errors )}" );
 		}
 	}
-	record CredentialsResponse(
+	record class CredentialsResponse(
 		string Status,
 		CredentialsResponse.Error[] Errors )
 	{
-		public record Error(
+		public record class Error(
 			int Code,
 			string Message );
 	}

@@ -12,7 +12,7 @@ public interface ILbHelperService
 	public bool IsUnauthorized( string document );
 }
 
-public class LbHelperService : ILbHelperService
+public partial class LbHelperService : ILbHelperService
 {
 	//todo: automatically create one httpclient per call
 	//private readonly IHttpContextAccessor _httpContext;
@@ -50,7 +50,7 @@ public class LbHelperService : ILbHelperService
 			throw new NotAuthorizedException( "User not logged in." );
 		}
 
-		var match = userNameRx.Match( ctnt );
+		var match = userNameRx().Match( ctnt );
 		if ( !match.Success )
 		{
 			throw new Exception( "Cannot get username." );
@@ -58,6 +58,7 @@ public class LbHelperService : ILbHelperService
 
 		return match.Groups[1].Value;
 	}
-	static readonly Regex userNameRx = new( @"<div id=""user-section""[\s\S]*?jesteś zalogowany jako: <b>[\W\s]*([\w\s-.]*)" );
+	[GeneratedRegex(  @"<div id=""user-section""[\s\S]*?jesteś zalogowany jako: <b>[\W\s]*([\w\s-.]*)"  )]
+	private static partial Regex userNameRx();
 
 }
