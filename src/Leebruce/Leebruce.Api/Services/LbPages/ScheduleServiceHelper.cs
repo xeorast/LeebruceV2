@@ -3,7 +3,7 @@ using Leebruce.Domain.Schedule;
 using Leebruce.Domain.Schedule.EventDataTypes;
 using System.Text.RegularExpressions;
 
-namespace Leebruce.Api.Services;
+namespace Leebruce.Api.Services.LbPages;
 
 public partial class ScheduleServiceHelper
 {

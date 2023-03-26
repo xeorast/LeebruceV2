@@ -48,7 +48,7 @@ public class MessagesController : ExtendedControllerBase
 		try
 		{
 			var file = await _messagesService.GetAttachmentAsync( User, id );
-			
+
 			return File( file.Content, file.MediaType, file.FileName );
 		}
 		catch ( NotAuthorizedException )

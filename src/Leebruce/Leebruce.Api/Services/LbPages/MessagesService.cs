@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace Leebruce.Api.Services;
+namespace Leebruce.Api.Services.LbPages;
 
 public interface IMessagesService
 {

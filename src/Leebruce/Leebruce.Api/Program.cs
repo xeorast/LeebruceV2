@@ -1,6 +1,7 @@
+global using Leebruce.Api.Exeptions;
 global using Leebruce.Api.Services;
 global using Leebruce.Api.Services.LbAuth;
-global using Leebruce.Api.Exeptions;
+global using Leebruce.Api.Services.LbPages;
 using Leebruce.Api;
 
 var builder = WebApplication.CreateBuilder( args );

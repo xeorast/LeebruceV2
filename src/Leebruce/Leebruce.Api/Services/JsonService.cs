@@ -2,13 +2,13 @@
 using Microsoft.Extensions.Options;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
-using js = System.Text.Json;
+using System.Text.Json;
 
 namespace Leebruce.Api.Services;
 
 public class JsonService
 {
-	private readonly js.JsonSerializerOptions _jsonOptions;
+	private readonly JsonSerializerOptions _jsonOptions;
 
 	public JsonService( IOptions<JsonOptions> jsonOptions )
 	{
@@ -17,20 +17,20 @@ public class JsonService
 
 	public string ToJson<T>( T obj )
 	{
-		return js.JsonSerializer.Serialize<T>( obj, _jsonOptions );
+		return JsonSerializer.Serialize<T>( obj, _jsonOptions );
 	}
 	public T? FromJson<T>( string json )
 	{
-		return js.JsonSerializer.Deserialize<T>( json, _jsonOptions );
+		return JsonSerializer.Deserialize<T>( json, _jsonOptions );
 	}
 	public bool TryFromJson<T>( string json, [NotNullWhen( true )] out T? value )
 	{
 		value = default;
 		try
 		{
-			value = js.JsonSerializer.Deserialize<T>( json, _jsonOptions );
+			value = JsonSerializer.Deserialize<T>( json, _jsonOptions );
 		}
-		catch ( js.JsonException )
+		catch ( JsonException )
 		{
 			return false;
 		}

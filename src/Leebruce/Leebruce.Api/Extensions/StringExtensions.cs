@@ -58,7 +58,7 @@ public static partial class StringExtensions
 			_ = sb.Append( encodedSegment );
 			if ( segments.Length > i + 1 )
 			{
-				var anchor = @$"<a href=""{segments[i + 1]}"" target=""_blank"" rel=""noopener noreferrer"">{segments[i + 2]}</a>";
+				var anchor = $"""<a href="{segments[i + 1]}" target="_blank" rel="noopener noreferrer">{segments[i + 2]}</a>""";
 				_ = sb.Append( anchor );
 			}
 		}

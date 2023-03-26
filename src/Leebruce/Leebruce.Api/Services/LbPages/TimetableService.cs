@@ -3,7 +3,7 @@ using Leebruce.Domain.Timetable;
 using System.Security.Claims;
 using System.Text.RegularExpressions;
 
-namespace Leebruce.Api.Services;
+namespace Leebruce.Api.Services.LbPages;
 
 public interface ITimetableService
 {
@@ -62,11 +62,11 @@ public partial class TimetableService : ITimetableService
 		string?[][] cellColumns = cellRows.Transpose();
 
 		LessonModel?[][] lessonColumns = ( from column in cellColumns
-										   select Enumerable.Zip( column, times, ExtractLesson )
+										   select column.Zip( times, ExtractLesson )
 										   .TrimEnd( null ).ToArray()
 										   ).ToArray();
 
-		var days = Enumerable.Zip( dates, lessonColumns, ( date, lessons ) => new TimetableDayModel( date, lessons ) ).ToArray();
+		var days = dates.Zip( lessonColumns, ( date, lessons ) => new TimetableDayModel( date, lessons ) ).ToArray();
 
 		return days;
 	}

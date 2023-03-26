@@ -6,7 +6,7 @@ using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Web;
 
-namespace Leebruce.Api.Services;
+namespace Leebruce.Api.Services.LbPages;
 
 public interface IScheduleService
 {

@@ -3,7 +3,7 @@
 public sealed record class FileDto(
 	string FileName,
 	string MediaType,
-	Stream Content ) 
+	Stream Content )
 	: IDisposable
 {
 	public void Dispose()
