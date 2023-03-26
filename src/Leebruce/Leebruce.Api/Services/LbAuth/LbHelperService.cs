@@ -6,6 +6,7 @@ namespace Leebruce.Api.Services.LbAuth;
 
 public interface ILbHelperService
 {
+	// todo: change GetUserNameAsync to operate on fetched site rather than fetch on its own
 	Task<string> GetUserNameAsync( ClaimsPrincipal user );
 	public bool IsUnauthorized( string document );
 }

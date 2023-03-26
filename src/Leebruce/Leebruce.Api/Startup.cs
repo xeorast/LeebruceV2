@@ -46,20 +46,21 @@ public static class Startup
 		_ = builder.Services.AddHttpContextAccessor();
 		_ = builder.Services.AddScoped<ILbUserService, LbUserService>();
 		_ = builder.Services.AddScoped<ILbLoginService, LbLoginService>();
-		_ = builder.Services.AddScopedWithHttp<ILbLogoutService, LbLogoutService>( httpClientForAuthedCalls );
+		_ = builder.Services.AddScoped<ILbLogoutService, LbLogoutService>();
 		_ = builder.Services.AddScoped<ILbHelperService, LbHelperService>();
-		_ = builder.Services.AddScopedWithHttp<ITimetableService, TimetableService>( httpClientForAuthedCalls );
-		_ = builder.Services.AddScopedWithHttp<IAnnouncementsService, AnnouncementsService>( httpClientForAuthedCalls );
-		_ = builder.Services.AddScopedWithHttp<IMessagesService, MessagesService>( httpClientForAuthedCalls );
-		_ = builder.Services.AddScopedWithHttp<IScheduleService, ScheduleService>( httpClientForAuthedCalls );
-		_ = builder.Services.AddScopedWithHttp<IGradesService, GradesService>( httpClientForAuthedCalls );
+		_ = builder.Services.AddScoped<ITimetableService, TimetableService>();
+		_ = builder.Services.AddScoped<IAnnouncementsService, AnnouncementsService>();
+		_ = builder.Services.AddScoped<IMessagesService, MessagesService>();
+		_ = builder.Services.AddScoped<IScheduleService, ScheduleService>();
+		_ = builder.Services.AddScoped<IGradesService, GradesService>();
 		_ = builder.Services.AddScoped<JsonService>();
 		_ = builder.Services.AddScopedWithHttp<ILiblinkService, LiblinkService>( nameof( LiblinkService ) );
+		_ = builder.Services.AddScopedWithHttp<ILbSiteClient, LbSiteClient>( httpClientForAuthedCalls );
 
 		_ = builder.Services.AddHttpClient( nameof( LiblinkService ) )
 			.ConfigurePrimaryHttpMessageHandler( () =>
 			{
-				return new HttpClientHandler() { AllowAutoRedirect = false };
+				return new HttpClientHandler() { AllowAutoRedirect = false, UseCookies = false };
 			} );
 
 		_ = builder.Services.AddHttpClient( httpClientForAuthedCalls )

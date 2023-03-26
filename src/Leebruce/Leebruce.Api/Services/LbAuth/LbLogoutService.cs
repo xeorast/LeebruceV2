@@ -1,5 +1,4 @@
-﻿using Leebruce.Api.Extensions;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 namespace Leebruce.Api.Services.LbAuth;
 
@@ -10,18 +9,16 @@ public interface ILbLogoutService
 
 public class LbLogoutService : ILbLogoutService
 {
-	private readonly ILbUserService _lbUser;
-	private readonly HttpClient _http;
+	private readonly ILbSiteClient _lbClient;
 
-	public LbLogoutService( ILbUserService lbUser, HttpClient http )
+	public LbLogoutService( ILbSiteClient lbClient )
 	{
-		_lbUser = lbUser;
-		_http = http;
+		_lbClient = lbClient;
 	}
 
 	public async Task LogoutAsync( ClaimsPrincipal user )
 	{
-		using var resp = await _http.GetWithCookiesAsync( "https://synergia.librus.pl/wyloguj", _lbUser.UserCookieHeader );
+		using var resp = await _lbClient.GetAuthorized( "https://synergia.librus.pl/wyloguj" );
 	}
 
 }

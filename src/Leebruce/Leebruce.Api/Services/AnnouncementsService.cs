@@ -12,26 +12,17 @@ public interface IAnnouncementsService
 
 public partial class AnnouncementsService : IAnnouncementsService
 {
-	private readonly ILbHelperService _lbHelper;
-	private readonly ILbUserService _lbUser;
-	private readonly HttpClient _http;
+	private readonly ILbSiteClient _lbClient;
 	private const int regexTimeout = 2000;
 
-	public AnnouncementsService( ILbHelperService lbHelper, ILbUserService lbUser, HttpClient http )
+	public AnnouncementsService( ILbSiteClient lbClient )
 	{
-		_lbHelper = lbHelper;
-		_lbUser = lbUser;
-		_http = http;
+		_lbClient = lbClient;
 	}
 
 	public async Task<AnnouncementModel[]> GetAnnouncementsAsync( ClaimsPrincipal principal )
 	{
-		using var resp = await _http.GetWithCookiesAsync( "https://synergia.librus.pl/ogloszenia", _lbUser.UserCookieHeader );
-
-		string document = await resp.Content.ReadAsStringAsync();
-
-		if ( _lbHelper.IsUnauthorized( document ) )
-			throw new NotAuthorizedException();
+		var document = await _lbClient.GetContentAuthorized( "https://synergia.librus.pl/ogloszenia" );
 
 		var list = ExtractList( document );
 		return ExtractItems( list )

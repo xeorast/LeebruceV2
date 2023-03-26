@@ -16,27 +16,19 @@ public interface IScheduleService
 
 public partial class ScheduleService : IScheduleService
 {
-	private readonly ILbHelperService _lbHelper;
-	private readonly ILbUserService _lbUser;
-	private readonly HttpClient _http;
+	private readonly ILbSiteClient _lbClient;
 	private readonly IWebHostEnvironment _environment;
 	private const int regexTimeout = 2000;
 
-	public ScheduleService( ILbHelperService lbHelper, ILbUserService lbUser, IWebHostEnvironment environment, HttpClient http )
+	public ScheduleService( ILbSiteClient lbClient, IWebHostEnvironment environment )
 	{
-		_lbHelper = lbHelper;
-		_lbUser = lbUser;
+		_lbClient = lbClient;
 		_environment = environment;
-		_http = http;
 	}
 
 	public async Task<ScheduleDay[]> GetScheduleAsync( ClaimsPrincipal principal )
 	{
-		using var resp = await _http.GetWithCookiesAsync( "https://synergia.librus.pl/terminarz", _lbUser.UserCookieHeader );
-		string document = await resp.Content.ReadAsStringAsync();
-
-		if ( _lbHelper.IsUnauthorized( document ) )
-			throw new NotAuthorizedException();
+		var document = await _lbClient.GetContentAuthorized( "https://synergia.librus.pl/terminarz" );
 
 		return ExtractDays( document ).ToArray();
 	}
@@ -49,11 +41,7 @@ public partial class ScheduleService : IScheduleService
 		};
 		using FormUrlEncodedContent ctnt = new( data );
 
-		using var resp = await _http.PostWithCookiesAsync( "https://synergia.librus.pl/terminarz", ctnt, _lbUser.UserCookieHeader );
-		string document = await resp.Content.ReadAsStringAsync();
-
-		if ( _lbHelper.IsUnauthorized( document ) )
-			throw new NotAuthorizedException();
+		var document = await _lbClient.PostContentAuthorized( "https://synergia.librus.pl/terminarz", ctnt );
 
 		return ExtractDays( document ).ToArray();
 	}

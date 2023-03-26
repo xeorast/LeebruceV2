@@ -14,25 +14,17 @@ public interface IGradesService
 
 public partial class GradesService : IGradesService
 {
-	private readonly ILbHelperService _lbHelper;
-	private readonly HttpClient _http;
-	private readonly ILbUserService _lbUser;
+	private readonly ILbSiteClient _lbClient;
 	private const int regexTimeout = 2000;
 
-	public GradesService( ILbHelperService lbHelper, ILbUserService lbUser, HttpClient http )
+	public GradesService( ILbSiteClient lbClient )
 	{
-		_lbHelper = lbHelper;
-		_lbUser = lbUser;
-		_http = http;
+		_lbClient = lbClient;
 	}
 
 	public async Task<SubjectGradesModel[]> GetGradesAsync( ClaimsPrincipal principal )
 	{
-		using var resp = await _http.GetWithCookiesAsync( "https://synergia.librus.pl/przegladaj_oceny/uczen", _lbUser.UserCookieHeader );
-		string document = await resp.Content.ReadAsStringAsync();
-
-		if ( _lbHelper.IsUnauthorized( document ) )
-			throw new NotAuthorizedException();
+		var document = await _lbClient.GetContentAuthorized( "https://synergia.librus.pl/przegladaj_oceny/uczen" );
 
 		var table = GradesTableRx().Match( document ).GetGroup( 1 )
 			?? throw new ProcessingException( "Failed to extract table from document." );
@@ -266,12 +258,7 @@ public partial class GradesService : IGradesService
 
 	public async Task<GradesGraphRecordModel[]> GetGraphAsync( ClaimsPrincipal principal )
 	{
-
-		using var resp = await _http.GetWithCookiesAsync( "https://synergia.librus.pl/uczen/graph_ajax.php?type=wykres_sredniej&classId=74264&userId=1792335&_=1656850225307", _lbUser.UserCookieHeader );
-		string document = await resp.Content.ReadAsStringAsync();
-
-		if ( _lbHelper.IsUnauthorized( document ) )
-			throw new NotAuthorizedException();
+		var document = await _lbClient.GetContentAuthorized( "https://synergia.librus.pl/uczen/graph_ajax.php?type=wykres_sredniej&classId=74264&userId=1792335&_=1656850225307" );
 
 		var graphMatches = GradeGraphRx().Matches( document );
 		List<GradesGraphRecordModel> graph = new( graphMatches.Count );
