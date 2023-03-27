@@ -70,6 +70,7 @@ export interface ScheduleEventModel {
   absenceData?: AbsenceDataModel,
   cancellationData?: CancellationDataModel,
   classAbsenceData?: ClassAbsenceDataModel,
+  freeDayData?: FreeDayData,
   substitutionData?: SubstitutionDataModel,
   testEtcData?: TestEtcDataModel,
   unrecognizedData?: UnrecognizedDataModel,
@@ -96,6 +97,11 @@ export interface CancellationDataModel {
 export interface ClassAbsenceDataModel {
   class: string,
   when: string,
+}
+
+export interface FreeDayData {
+  who: string,
+  what: string,
 }
 
 export interface SubstitutionDataModel {

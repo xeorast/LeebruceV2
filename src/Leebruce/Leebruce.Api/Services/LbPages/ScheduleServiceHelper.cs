@@ -45,6 +45,20 @@ public partial class ScheduleServiceHelper
 		return new ClassAbsenceData( who, when );
 	}
 
+	public static FreeDayData? TryFromFreeDayData( string link, string[] segments )
+	{
+		if ( !link.StartsWith( "szczegoly_wolne/" ) )
+			return null;
+
+		if ( segments.Length == 0 )
+			throw new ProcessingException( "Free day data missing." );
+
+		if ( segments[0].Split( ':', 2 ) is not [string what, string who] )
+			throw new ProcessingException( "Free day target missing." );
+
+		return new( who, what );
+	}
+
 	public static SubstitutionData? TryFromSubstitutionData( string[] segments )
 	{
 		if ( segments.Length > 1 )

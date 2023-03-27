@@ -9,6 +9,7 @@ public record class ScheduleEvent(
 	AbsenceData? AbsenceData = null,
 	CancellationData? CancellationData = null,
 	ClassAbsenceData? ClassAbsenceData = null,
+	FreeDayData? FreeDayData = null,
 	SubstitutionData? SubstitutionData = null,
 	TestEtcData? TestEtcData = null,
 	UnrecognizedData? UnrecognizedData = null,
@@ -28,6 +29,8 @@ public record class ScheduleEvent(
 	[JsonIgnore( Condition = whenNull )]
 	public ClassAbsenceData? ClassAbsenceData { get; init; } = ClassAbsenceData;
 	[JsonIgnore( Condition = whenNull )]
+	public FreeDayData? FreeDayData { get; init; } = FreeDayData;
+	[JsonIgnore( Condition = whenNull )]
 	public SubstitutionData? SubstitutionData { get; init; } = SubstitutionData;
 	[JsonIgnore( Condition = whenNull )]
 	public TestEtcData? TestEtcData { get; init; } = TestEtcData;
@@ -45,6 +48,7 @@ public record class ScheduleEvent(
 			AbsenceData d => new ScheduleEvent( id, dateAdded, AbsenceData: d ),
 			CancellationData d => new ScheduleEvent( id, dateAdded, CancellationData: d ),
 			ClassAbsenceData d => new ScheduleEvent( id, dateAdded, ClassAbsenceData: d ),
+			FreeDayData d => new ScheduleEvent( id, dateAdded, FreeDayData: d ),
 			SubstitutionData d => new ScheduleEvent( id, dateAdded, SubstitutionData: d ),
 			TestEtcData d => new ScheduleEvent( id, dateAdded, TestEtcData: d ),
 			UnrecognizedData d => new ScheduleEvent( id, dateAdded, UnrecognizedData: d ),

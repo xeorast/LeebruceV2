@@ -44,6 +44,12 @@ export class ScheduleItemComponent implements OnInit {
       this.heading = this.eventModel.classAbsenceData.class
       this.detail = 'Absent class'
     }
+    else if ( this.eventModel?.freeDayData ) {
+      this.timeLine1 = 'All'
+      this.timeLine2 = "Day"
+      this.heading = this.eventModel.freeDayData.what
+      this.detail = this.eventModel.freeDayData.who
+    }
     else if ( this.eventModel?.substitutionData ) {
       this.timeLine1 = this.eventModel.substitutionData.lessonNo.toString()
       this.timeLine2 = 'Lesson'

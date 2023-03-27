@@ -158,7 +158,7 @@ public partial class ScheduleService : IScheduleService
 			: DecodeEventTitle( title );
 
 		// extract data from string and merge with details from "title"
-		var eventData = DecodeEventData( what, additionalData );
+		var eventData = DecodeEventData( what, link ?? "", additionalData );
 
 		// details sometimes contain addition date
 		DateTimeOffset? dateOffset = null;
@@ -173,13 +173,14 @@ public partial class ScheduleService : IScheduleService
 
 		return ScheduleEvent.From( id, dateOffset, eventData );
 	}
-	public IEventData DecodeEventData( string data, Dictionary<string, string> additionalData )
+	public IEventData DecodeEventData( string data, string link, Dictionary<string, string> additionalData )
 	{
 		data = HttpUtility.HtmlDecode( data );
 		var segments = BrRx().Split( data );
 
 		return ScheduleServiceHelper.TryFromAbsenceData( segments ) as IEventData
 			?? ScheduleServiceHelper.TryFromClassAbsenceData( segments ) as IEventData
+			?? ScheduleServiceHelper.TryFromFreeDayData( link, segments ) as IEventData
 			?? ScheduleServiceHelper.TryFromSubstitutionData( segments ) as IEventData
 			?? ScheduleServiceHelper.TryFromCancellationData( segments ) as IEventData
 			?? ScheduleServiceHelper.TryFromTestEtcData( segments, additionalData ) as IEventData

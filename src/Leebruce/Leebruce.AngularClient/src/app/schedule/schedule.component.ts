@@ -202,6 +202,9 @@ export class ScheduleComponent implements OnInit {
     if ( event.classAbsenceData ) {
       return 'class-absence'
     }
+    if ( event.freeDayData ) {
+      return 'free-day'
+    }
     if ( event.substitutionData ) {
       return 'substitution'
     }
