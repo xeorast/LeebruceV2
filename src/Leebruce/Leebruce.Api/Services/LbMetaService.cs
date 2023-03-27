@@ -5,6 +5,7 @@ namespace Leebruce.Api.Services.LbAuth;
 public interface ILbMetaService
 {
 	Task<UpdatesSinceLoginModel> GetNotifications();
+	Task<string> GetUsername();
 }
 
 public partial class LbMetaService : ILbMetaService
@@ -22,5 +23,11 @@ public partial class LbMetaService : ILbMetaService
 	{
 		var doc = await _lbClient.GetContentAuthorized( "https://synergia.librus.pl/uczen/index" );
 		return _lbHelper.GetNotifications( doc );
+	}
+
+	public async Task<string> GetUsername()
+	{
+		var doc = await _lbClient.GetContentAuthorized( "https://synergia.librus.pl/uczen/index" );
+		return _lbHelper.GetUserName( doc );
 	}
 }

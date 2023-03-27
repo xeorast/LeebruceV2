@@ -29,4 +29,17 @@ public class MetaController : ExtendedControllerBase
 		}
 	}
 
+	[HttpGet( "username" )]
+	public async Task<ActionResult<string>> GetUsername()
+	{
+		try
+		{
+			return await _metaService.GetUsername();
+		}
+		catch ( NotAuthorizedException )
+		{
+			return Unauthorized( "Session has expired." );
+		}
+	}
+
 }
