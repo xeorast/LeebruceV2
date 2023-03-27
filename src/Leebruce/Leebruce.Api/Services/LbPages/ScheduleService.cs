@@ -26,12 +26,9 @@ public partial class ScheduleService : IScheduleService
 		_environment = environment;
 	}
 
-	public async Task<ScheduleDay[]> GetScheduleAsync( ClaimsPrincipal principal )
-	{
-		var document = await _lbClient.GetContentAuthorized( "https://synergia.librus.pl/terminarz" );
+	public Task<ScheduleDay[]> GetScheduleAsync( ClaimsPrincipal principal )
+		=> GetScheduleAsync( principal, DateOnly.FromDateTime( DateTime.Now ) );
 
-		return ExtractDays( document ).ToArray();
-	}
 	public async Task<ScheduleDay[]> GetScheduleAsync( ClaimsPrincipal principal, DateOnly date )
 	{
 		Dictionary<string, string> data = new()

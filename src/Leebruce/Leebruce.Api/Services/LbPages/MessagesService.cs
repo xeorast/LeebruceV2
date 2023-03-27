@@ -10,8 +10,7 @@ namespace Leebruce.Api.Services.LbPages;
 
 public interface IMessagesService
 {
-	Task<MessageMetadataModel[]> GetMessagesAsync( ClaimsPrincipal principal );
-	Task<MessageMetadataModel[]> GetMessagesAsync( ClaimsPrincipal principal, int page );
+	Task<MessageMetadataModel[]> GetMessagesAsync( ClaimsPrincipal principal, int page = 0 );
 	Task<MessageModel> GetMessageAsync( ClaimsPrincipal principal, string id );
 	Task<FileDto> GetAttachmentAsync( ClaimsPrincipal principal, string id );
 }
@@ -28,15 +27,7 @@ public partial class MessagesService : IMessagesService
 	}
 
 	#region messages list
-	public async Task<MessageMetadataModel[]> GetMessagesAsync( ClaimsPrincipal principal )
-	{
-		var document = await _lbClient.GetContentAuthorized( "https://synergia.librus.pl/wiadomosci" );
-
-		string table = ExtractListTable( document );
-
-		return ExtractMessages( table ).ToArray();
-	}
-	public async Task<MessageMetadataModel[]> GetMessagesAsync( ClaimsPrincipal principal, int page )
+	public async Task<MessageMetadataModel[]> GetMessagesAsync( ClaimsPrincipal principal, int page = 0 )
 	{
 		using StringContent pageCtnt = new( page.ToString() );
 		using StringContent idPojemnikaCtnt = new( "105" );
