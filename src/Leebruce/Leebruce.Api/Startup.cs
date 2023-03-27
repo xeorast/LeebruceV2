@@ -53,6 +53,7 @@ public static class Startup
 		_ = builder.Services.AddScoped<IMessagesService, MessagesService>();
 		_ = builder.Services.AddScoped<IScheduleService, ScheduleService>();
 		_ = builder.Services.AddScoped<IGradesService, GradesService>();
+		_ = builder.Services.AddScoped<ILbMetaService, LbMetaService>();
 		_ = builder.Services.AddScoped<JsonService>();
 		_ = builder.Services.AddScopedWithHttp<ILiblinkService, LiblinkService>( nameof( LiblinkService ) );
 		_ = builder.Services.AddScopedWithHttp<ILbSiteClient, LbSiteClient>( httpClientForAuthedCalls );
