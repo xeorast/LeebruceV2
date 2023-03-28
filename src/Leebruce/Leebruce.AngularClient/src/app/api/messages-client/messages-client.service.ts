@@ -2,6 +2,7 @@ import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { catchError, map, Observable, tap } from 'rxjs';
 import { AuthenticationService, NotAuthenticatedError } from '../authentication/authentication.service';
+import { CollectionPage } from '../collection-page';
 import { FILESAVER, FileSaver } from '../fileSaver';
 import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
 
@@ -13,11 +14,11 @@ export class MessagesClientService {
     private auth: AuthenticationService,
     @Inject( FILESAVER ) private fileSaver: FileSaver ) { }
 
-  public getMessages() {
+  public getMessages( page = 1 ) {
     let authHeader = `Bearer ${this.auth.token}`;
-    return this.http.get<MessageMetadataModel[]>( 'api/messages', { headers: { Authorization: authHeader } } )
+    return this.http.get<CollectionPage<MessageMetadataModel>>( `api/messages?page=${page}`, { headers: { Authorization: authHeader } } )
       .pipe(
-        tap( resp => resp.forEach( msg => msg.date = new Date( msg.date ) ) ),
+        tap( resp => resp.elements.forEach( msg => msg.date = new Date( msg.date ) ) ),
         catchError( error => this.errorHandler( error ) )
       );
   }

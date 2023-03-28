@@ -17,7 +17,7 @@ public class MessagesController : ExtendedControllerBase
 	}
 
 	[HttpGet]
-	public async Task<ActionResult<MessageMetadataModel[]>> GetMessages( [FromQuery] int page = 1 )
+	public async Task<ActionResult<CollectionPage<MessageMetadataModel>>> GetMessages( [FromQuery] int page = 1 )
 	{
 		try
 		{

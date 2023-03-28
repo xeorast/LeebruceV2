@@ -1,5 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
+import { CollectionPage } from '../api/collection-page';
 import { MessageMetadataModel, MessagesClientService } from '../api/messages-client/messages-client.service';
 
 import { MessagesComponent } from './messages.component';
@@ -9,7 +10,7 @@ describe( 'MessagesComponent', () => {
   let component: MessagesComponent;
   let messagesService: jasmine.SpyObj<MessagesClientService>;
   let fixture: ComponentFixture<MessagesComponent>;
-  let messagesSubject = new Subject<MessageMetadataModel[]>();
+  let messagesSubject = new Subject<CollectionPage<MessageMetadataModel>>();
 
   beforeEach( async () => {
     await TestBed.configureTestingModule( {

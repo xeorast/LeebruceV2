@@ -38,6 +38,36 @@
     </ng-container>
 </div>
 
+<!-- page navigation -->
+<nav>
+    <ul class="pagination justify-content-center mt-3 mb-0">
+        <li class="page-item">
+            <button aria-label="Previous"
+                class="page-link"
+                [ngClass]="{disabled: currentPage == 1}"
+                (click)="fetchMessages( currentPage - 1 )">
+                <span aria-hidden="true">&laquo;</span>
+            </button>
+        </li>
+        <li *ngFor="let item of [].constructor( totalPages ); let i = index;"
+            class="page-item"
+            [ngClass]="{active: i + 1 == currentPage}">
+            <button class="page-link"
+                (click)="fetchMessages( i + 1 )">
+                {{i+1}}
+            </button>
+        </li>
+        <li class="page-item">
+            <button aria-label="Next"
+                class="page-link"
+                [ngClass]="{disabled: currentPage == totalPages}"
+                (click)="fetchMessages( currentPage + 1 )">
+                <span aria-hidden="true">&raquo;</span>
+            </button>
+        </li>
+    </ul>
+</nav>
+
 <!-- Modal -->
 <div class="modal fade" id="openMessageModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">

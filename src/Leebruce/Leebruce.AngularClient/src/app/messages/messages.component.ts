@@ -26,16 +26,14 @@ export class MessagesComponent implements OnInit {
   public fetchingMessageId?: string
   public fetchingAttachmentIds: string[] = []
 
+  public totalPages: number = 3
+  public currentPage: number = 1
+
   private msgLoadingSub?: Subscription
   private modalObj?: Modal
 
   ngOnInit(): void {
-    this.messagesService.getMessages().subscribe( {
-      next: res => {
-        this.messages = res
-      },
-      error: async error => await this.fetchErrorHandler( error )
-    } )
+    this.fetchMessages( 1 )
 
     let modalElem = document.getElementById( 'openMessageModal' )!
 
@@ -48,6 +46,19 @@ export class MessagesComponent implements OnInit {
       let currentUrl = this.router.url
       await this.router.navigate( ['/login'], { queryParams: { redirect: currentUrl } } );
     }
+  }
+
+  fetchMessages( page: number ) {
+    this.currentPage = page
+    this.messages = undefined
+    this.messagesService.getMessages( page ).subscribe( {
+      next: res => {
+        this.messages = res.elements
+        this.totalPages = res.totalPages
+        this.currentPage = res.currentPage
+      },
+      error: async error => await this.fetchErrorHandler( error )
+    } )
   }
 
   fetchMessage( message: MessageMetadataModel ) {

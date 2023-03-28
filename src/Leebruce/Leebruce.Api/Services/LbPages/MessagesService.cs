@@ -10,7 +10,7 @@ namespace Leebruce.Api.Services.LbPages;
 
 public interface IMessagesService
 {
-	Task<MessageMetadataModel[]> GetMessagesAsync( ClaimsPrincipal principal, int page = 0 );
+	Task<CollectionPage<MessageMetadataModel>> GetMessagesAsync( ClaimsPrincipal principal, int page = 0 );
 	Task<MessageModel> GetMessageAsync( ClaimsPrincipal principal, string id );
 	Task<FileDto> GetAttachmentAsync( ClaimsPrincipal principal, string id );
 }
@@ -27,7 +27,7 @@ public partial class MessagesService : IMessagesService
 	}
 
 	#region messages list
-	public async Task<MessageMetadataModel[]> GetMessagesAsync( ClaimsPrincipal principal, int page = 0 )
+	public async Task<CollectionPage<MessageMetadataModel>> GetMessagesAsync( ClaimsPrincipal principal, int page = 0 )
 	{
 		using StringContent pageCtnt = new( page.ToString() );
 		using StringContent idPojemnikaCtnt = new( "105" );
@@ -41,8 +41,43 @@ public partial class MessagesService : IMessagesService
 
 		string table = ExtractListTable( document );
 
-		return ExtractMessages( table ).ToArray();
+		var (total, current) = ExtractPagination( document );
+		var elements = ExtractMessages( table ).ToArray();
+
+		return new( total, current, elements );
 	}
+
+	static (int total, int current) ExtractPagination( string document )
+	{
+		var boxMatch = MessagesPaginationBoxRx().Match( document );
+		if ( !boxMatch.Success )
+		{
+			throw new ProcessingException( "Messages page does not have pagination box." );
+		}
+		var paginationMatch = MessagesPaginationRx().Match( boxMatch.Value );
+		if ( !boxMatch.Success )
+		{
+			throw new ProcessingException( "Messages pagination box is illformed." );
+		}
+
+		if ( paginationMatch.GetGroup( "total" ) is not string totalStr
+			|| !int.TryParse( totalStr, out var total ) )
+		{
+			throw new ProcessingException( "Messages total page count is not a valid integer." );
+		}
+
+		if ( paginationMatch.GetGroup( "current" ) is not string currentStr
+			|| !int.TryParse( currentStr, out var current ) )
+		{
+			throw new ProcessingException( "Messages total page count is not a valid integer." );
+		}
+
+		return (total, current);
+	}
+	[GeneratedRegex( """<div class="pagination">[\s\S]*?</div>""" )]
+	private static partial Regex MessagesPaginationBoxRx();
+	[GeneratedRegex( """<span>Strona&nbsp;(?<current>\d*)&nbsp;z&nbsp;(?<total>\d*)<\/span>""" )]
+	private static partial Regex MessagesPaginationRx();
 
 	static string ExtractListTable( string document )
 	{
