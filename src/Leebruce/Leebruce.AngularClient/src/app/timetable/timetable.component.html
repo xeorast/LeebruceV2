@@ -5,29 +5,14 @@
 <div class="container">
 
     <div class="row date-pick-roll">
-
-        <!-- ACTUAL CONTENT -->
-        <ng-container *ngIf="timetableDays">
-            <div *ngFor="let day of timetableDays" class="date-pick-wrap p-1">
-                <!--  day  -->
-                <!-- month -->
-                <button class="btn btn-hvr-translate date-pick {{getDatePickClass(day)}}" (click)="select(day.date)">
-                    <h5>{{day.date | date: "dd"}}</h5>
-                    <span>{{day.date | date: "MMM"}}</span>
-                </button>
-            </div>
-        </ng-container>
-
-        <!-- PLACEHOLDER -->
-        <ng-container *ngIf="!timetableDays">
-            <div *ngFor="let item of [].constructor(7); let index = index;" class="date-pick-wrap p-1 placeholder-glow">
-                <button class="btn btn-hvr-translate inactive date-pick"
-                    [ngClass]="index==4?'btn-primary selected':'btn-secondary'">
-                    <h5 class="placeholder d-block">&nbsp;&nbsp;</h5>
-                    <span class="placeholder d-block font-monospace">&nbsp;&nbsp;&nbsp;</span>
-                </button>
-            </div>
-        </ng-container>
+        <div *ngFor="let day of model.weekDays" class="date-pick-wrap p-1">
+            <!--  day  -->
+            <!-- month -->
+            <button class="btn btn-hvr-translate date-pick {{getDatePickClass(day)}}" (click)="select(day)">
+                <h5>{{day | date: "dd"}}</h5>
+                <span>{{day | date: "MMM"}}</span>
+            </button>
+        </div>
     </div>
     <!-- previous now next -->
     <div class="row">
@@ -41,9 +26,9 @@
 
     <div class="list row justify-content-center">
         <!-- ACTUAL CONTENT -->
-        <ng-container *ngIf="current">
+        <ng-container *ngIf="model.current">
             <!-- timetable record -->
-            <div *ngFor="let lesson of current.lessons" style="display: flex; justify-content:center">
+            <div *ngFor="let lesson of model.current.lessons" style="display: flex; justify-content:center">
                 <app-timetable-item *ngIf="lesson" class="col-12 col-md-8 col-lg-6 col-xl-5"
                     [lessonModel]="lesson"
                     [state]="getLessonState(lesson)">
@@ -52,7 +37,7 @@
         </ng-container>
 
         <!-- PLACEHOLDER -->
-        <ng-container *ngIf="!current">
+        <ng-container *ngIf="!model.current">
             <!-- timetable record -->
             <div *ngFor="let item of [].constructor(7); let index = index;"
                 style="display: flex; justify-content:center">
