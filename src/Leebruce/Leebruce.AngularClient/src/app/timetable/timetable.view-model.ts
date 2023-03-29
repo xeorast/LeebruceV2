@@ -5,4 +5,5 @@ export interface TimetableViewModel {
     timetableDays?: TimetableDayModel[]
     current?: TimetableDayModel
     currentDate: Date
+    subjectSuggestions?: string[]
 }

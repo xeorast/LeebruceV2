@@ -14,6 +14,8 @@ export class TimetableItemComponent implements OnInit {
   @Input()
   lessonModel?: LessonModel
   @Input()
+  subjectSuggestion?: string
+  @Input()
   state!: 'completed' | 'ongoing' | 'upcomming'
 
   teacherName?: string
@@ -36,9 +38,12 @@ export class TimetableItemComponent implements OnInit {
       this.time = `${start.hours}:${start.minutes} - ${end.hours}:${end.minutes}`
 
       this.classFromCancellation = this.lessonModel.isCancelled || this.lessonModel.classAbsence ? 'cancelled' : undefined;
+      this.classForColor = `tile-${TimetableItemComponent.getColorClass( this.lessonModel?.subject )}`
     }
-
-    this.classForColor = `tile-${this.getRandomItem( TimetableItemComponent.tileNumbers )}`
+    if ( this.subjectSuggestion != undefined ) {
+      this.classForColor ??= `tile-${TimetableItemComponent.getColorClass( this.subjectSuggestion )}`
+    }
+    this.classForColor ??= `tile-${this.getRandomItem( TimetableItemComponent.tileNumbers )}`
 
     this.isCompleted = this.state == 'completed'
     this.isOngoing = this.state == 'ongoing'
@@ -54,6 +59,46 @@ export class TimetableItemComponent implements OnInit {
 
   getRandomItem( arr: any[] ) {
     return arr[this.getRandomInt( 0, arr.length )]
+  }
+
+  static getKnownClass( subject: string ) {
+    switch ( subject ) {
+      case "Język angielski":
+        return 12;
+      case "Fizyka":
+        return 7;
+      case "Religia":
+        return 0;
+      case "Historia":
+        return 18;
+      case "Wychowanie fizyczne":
+        return 30;
+      default:
+        return undefined
+    }
+  }
+
+  static hash( str: string ) {
+    let hash = 0
+    let chr
+    for ( let i = 0; i < str.length; i++ ) {
+      chr = str.charCodeAt( i );
+      hash = ( ( hash << 5 ) - hash ) + chr;
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+  }
+
+  static getColorClass( subject: string ) {
+    let known = TimetableItemComponent.getKnownClass( subject )
+    if ( known != undefined ) {
+      return known
+    }
+
+    let hash = Math.abs( TimetableItemComponent.hash( subject ) )
+    let hash2 = Math.floor( Math.sqrt( hash ) )
+    let idx = Math.abs( hash2 ) % TimetableItemComponent.tileNumbers.length
+    return TimetableItemComponent.tileNumbers[idx]
   }
 
 }

@@ -35,9 +35,19 @@
                 </app-timetable-item>
             </div>
         </ng-container>
+        <!-- PLACEHOLDER when something loaded -->
+        <ng-container *ngIf="!model.current && model.subjectSuggestions">
+            <!-- timetable record -->
+            <div *ngFor="let subject of model.subjectSuggestions" style="display: flex; justify-content:center">
+                <app-timetable-item class="col-12 col-md-8 col-lg-6 col-xl-5"
+                    [subjectSuggestion]="subject"
+                    [state]="getDateLessonState(model.currentDate)">
+                </app-timetable-item>
+            </div>
+        </ng-container>
 
-        <!-- PLACEHOLDER -->
-        <ng-container *ngIf="!model.current">
+        <!-- PLACEHOLDER when nothing loaded -->
+        <ng-container *ngIf="!model.current && !model.subjectSuggestions">
             <!-- timetable record -->
             <div *ngFor="let item of [].constructor(7); let index = index;"
                 style="display: flex; justify-content:center">

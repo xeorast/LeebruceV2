@@ -32,7 +32,8 @@ export class TimetableComponent implements OnInit {
   load( date: Date ) {
     let newModel = <TimetableViewModel>{
       weekDays: TimetableComponent.generateWeekContaining( date ),
-      currentDate: date
+      currentDate: date,
+      subjectSuggestions: this.getColorSuggestions( date.getDay() )
     }
     this.model = newModel
     this.currentFetch$?.unsubscribe()
@@ -40,7 +41,7 @@ export class TimetableComponent implements OnInit {
       .subscribe( {
         next: res => {
           newModel.timetableDays = res
-          this.select( date )
+          this.select( newModel.currentDate )
         },
         error: async error => {
           if ( error instanceof NotAuthenticatedError ) {
@@ -53,6 +54,7 @@ export class TimetableComponent implements OnInit {
 
   select( newDay: Date ) {
     if ( !this.model.timetableDays ) {
+      this.model.currentDate = newDay
       return false
     }
 
@@ -108,6 +110,15 @@ export class TimetableComponent implements OnInit {
     return ret;
   }
 
+  getDateLessonState( day: Date ): 'completed' | 'upcomming' {
+    let now = new Date( Date.now() );
+
+    if ( day.valueOf() < now.valueOf() ) {
+      return 'completed'
+    }
+    return 'upcomming'
+  }
+
   static generateWeekContaining( day: Date ) {
     let date = new Date( day )
     date.setDate( date.getDate() - date.getDay() + 1 )
@@ -120,9 +131,22 @@ export class TimetableComponent implements OnInit {
   }
 
   static dateEquals( date1: Date, date2: Date ) {
-    return date1.getUTCFullYear() == date2.getUTCFullYear()
-      && date1.getUTCMonth() == date2.getUTCMonth()
-      && date1.getUTCDate() == date2.getUTCDate()
+    return date1.getFullYear() == date2.getFullYear()
+      && date1.getMonth() == date2.getMonth()
+      && date1.getDate() == date2.getDate()
+  }
+
+  getColorSuggestions( dayOfWeek: number ) {
+    if ( !this.model.timetableDays )
+      return this.model.subjectSuggestions
+
+    let day = this.model.timetableDays.filter( d => d.date.getDay() == dayOfWeek ).at( 0 )
+
+    let subjects = day?.lessons
+      .filter( lesson => lesson != null )
+      .map( ( lesson => lesson!.subject ) )
+
+    return subjects ?? this.model.subjectSuggestions
   }
 
 }
