@@ -1,42 +1,36 @@
 <div class="calendar-header">
     <!-- Month -->
     <!-- year -->
-    <h3>{{currentMonth | date: 'MMMM'}}</h3>
-    <span>{{currentMonth | date: 'yyyy'}}</span>
+    <h3>{{model.shownMonth | date: 'MMMM'}}</h3>
+    <span>{{model.shownMonth | date: 'yyyy'}}</span>
     <button type="button" class="btn btn-inherit prev" (click)="previous()">&lt;&nbsp;prev</button>
     <button type="button" class="btn btn-inherit next" (click)="next()">next&nbsp;&gt;</button>
     <button type="button" class="btn btn-inherit set-today" (click)="goToNow()" title="today">
         <i class="bi bi-calendar-event-fill"></i>
     </button>
 </div>
-<div [ngClass]="{'placeholder-glow': !daysMap}">
+<div [ngClass]="{'placeholder-glow': !model.daysMap}">
     <hr class="page-top" />
     <div class="calendar-page">
-        <div *ngFor="let day of calendarPage; let idx = index" class="day-box">
+        <div *ngFor="let day of model.shownPageDays; let idx = index" class="day-box">
             <input type="radio" autocomplete="off" name="day-check"
                 id="day{{idx}}-check"
                 class="btn-check"
-                [attr.disabled]="daysMap ? null : ''"
-                [attr.checked]="selectedDate && day && datesEqual(selectedDate, day) ? '' : null"
-                (change)="select(day)">
+                [attr.disabled]="model.daysMap ? null : ''"
+                [attr.checked]="datesEqual(model.selectedDate, day) ? '' : null"
+                (change)="select(model, day)">
 
             <label for="day{{idx}}-check"
                 class="day btn btn-inherit"
                 [ngClass]="{
-                    shadowDay: day.getMonth() != currentMonth?.getMonth(), 
-                    currentDay: day.getDate() == today?.getDate() && day.getMonth() == today?.getMonth()
+                    shadowDay: !monthsEqual(day, model.shownMonth), 
+                    currentDay: datesEqual(model.today, day)
                 }">
                 <!--  day  -->
-                <h5 [ngClass]="{ 'prefilled-placeholder': !daysMap }">{{day | date: "dd"}}</h5>
+                <h5 [ngClass]="{ 'prefilled-placeholder': !model.daysMap }">{{day | date: "dd"}}</h5>
                 <!-- • • • -->
-                <div *ngIf="daysMap?.[day.valueOf()]?.events?.length" class="event-bubble-bar">
-                    <span *ngFor="let event of daysMap![day.valueOf()]?.events"
-                        class="event-bubble"
-                        [ngClass]="getEventClass(event)">
-                    </span>
-                </div>
-                <div *ngIf="additionalDaysMap?.[day.valueOf()]?.events?.length" class="event-bubble-bar">
-                    <span *ngFor="let event of additionalDaysMap![day.valueOf()]?.events"
+                <div *ngIf="model.daysMap?.[day.valueOf()]?.events?.length" class="event-bubble-bar">
+                    <span *ngFor="let event of model.daysMap![day.valueOf()]?.events"
                         class="event-bubble"
                         [ngClass]="getEventClass(event)">
                     </span>
@@ -44,17 +38,17 @@
             </label>
         </div>
         <!-- ====▯== -->
-        <div *ngIf="today && today.getMonth() == currentMonth?.getMonth()"
+        <div *ngIf="model.today.getMonth() == model.shownMonth.getMonth()"
             class="week-bar"
-            [ngClass]="{ placeholder: !daysMap }"
-            [ngStyle]="{'grid-row': getWeek(today)+1}">
+            [ngClass]="{ placeholder: !model.daysMap }"
+            [ngStyle]="{'grid-row': getWeek(model.today)+1}">
         </div>
 
     </div>
     <hr />
 </div>
-<div *ngIf="selectedDay" class="details">
-    <app-schedule-item *ngFor="let event of selectedDay.events"
+<div *ngIf="model.daysMap?.[model.selectedDate.valueOf()]" class="details">
+    <app-schedule-item *ngFor="let event of model.daysMap?.[model.selectedDate.valueOf()]!.events"
         [ngClass]="getEventClass(event)" [eventModel]="event">
     </app-schedule-item>
 </div>

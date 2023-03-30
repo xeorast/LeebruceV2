@@ -1,7 +1,9 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { NotAuthenticatedError } from '../api/authentication/authentication.service';
 import { ScheduleClientService, ScheduleDayModel, ScheduleEventModel } from '../api/schedule-client/schedule-client.service';
+import { ScheduleViewModel } from './schedule.view-model';
 
 @Component( {
   selector: 'app-schedule',
@@ -16,43 +18,51 @@ export class ScheduleComponent implements OnInit {
 
   constructor(
     private router: Router,
-    private scheduleService: ScheduleClientService ) { }
+    private scheduleService: ScheduleClientService ) {
+    let now = new Date( Date.now() )
+    this.model = <ScheduleViewModel>{
+      today: now,
+      shownMonth: new Date( now.getFullYear(), now.getMonth(), 1 ),
+      shownPageDays: ScheduleComponent.generatePage( now.getMonth(), now.getFullYear() ),
+      selectedDate: now,
+    }
+  }
 
-  public calendarPage: Date[] = []
-  public currentMonth?: Date
-  public today?: Date
-  public daysMap?: { [dateValue: number]: ScheduleDayModel | undefined };
-  public additionalDaysMap?: { [dateValue: number]: ScheduleDayModel | undefined };
-  private resetAdditionalDaysMap?: boolean
-
-  public selectedDay?: ScheduleDayModel
-  public selectedDate?: Date
-
-  private loadedMonth?: Date
+  public model: ScheduleViewModel
+  public currentMainFetch$?: Subscription
+  public currentPrevFetch$?: Subscription
+  public currentNextFetch$?: Subscription
 
   ngOnInit(): void {
-    this.initCurrentMonth()
     this.load( new Date( Date.now() ) )
   }
 
   load( date: Date ) {
-    this.scheduleService.getScheduleForDate( date ).subscribe( {
-      next: res => this.setResult( res, date ),
-      error: async error => await this.handleError( error )
-    } )
+    let newModel = <ScheduleViewModel>{
+      today: new Date( Date.now() ),
+      shownMonth: new Date( date.getFullYear(), date.getMonth(), 1 ),
+      shownPageDays: ScheduleComponent.generatePage( date.getMonth(), date.getFullYear() ),
+      selectedDate: date,
+    }
+    this.model = newModel
+    this.currentMainFetch$?.unsubscribe()
+    this.currentPrevFetch$?.unsubscribe()
+    this.currentNextFetch$?.unsubscribe()
 
-    this.resetAdditionalDaysMap = true
-    let prevDate = new Date( date )
-    prevDate.setMonth( prevDate.getMonth() - 1 )
-    this.scheduleService.getScheduleForDate( prevDate ).subscribe( {
-      next: res => this.setAdditionalResult( res, prevDate ),
-      error: async error => await this.handleError( error )
-    } )
+    this.currentMainFetch$ = this.fetchMonthAddToModel( date, newModel )
 
-    let nextDate = new Date( date )
-    nextDate.setMonth( nextDate.getMonth() + 1 )
-    this.scheduleService.getScheduleForDate( nextDate ).subscribe( {
-      next: res => this.setAdditionalResult( res, nextDate ),
+    let prevMonth = new Date( date )
+    ScheduleComponent.setMonthSafe( prevMonth, prevMonth.getMonth() - 1 )
+    this.currentPrevFetch$ = this.fetchMonthAddToModel( prevMonth, newModel )
+
+    let nextMonth = new Date( date )
+    ScheduleComponent.setMonthSafe( nextMonth, nextMonth.getMonth() + 1 )
+    this.currentNextFetch$ = this.fetchMonthAddToModel( nextMonth, newModel )
+  }
+
+  fetchMonthAddToModel( date: Date, model: ScheduleViewModel ) {
+    return this.scheduleService.getScheduleForDate( date ).subscribe( {
+      next: res => ScheduleComponent.setResult( model, res ),
       error: async error => await this.handleError( error )
     } )
   }
@@ -64,81 +74,38 @@ export class ScheduleComponent implements OnInit {
     }
   }
 
-  initCurrentMonth() {
-    let now = new Date( Date.now() )
-    this.today = now
-    this.initPage( now )
+  static setResult( model: ScheduleViewModel, res: ScheduleDayModel[] ) {
+    let map = ScheduleComponent.sheduleToDictionary( res )
+    model.daysMap ??= {}
+    Object.assign( model.daysMap, map )
   }
 
-  setResult( res: ScheduleDayModel[], date: Date ) {
-    this.daysMap = this.sheduleToDictionary( res )
-    this.loadedMonth = new Date( date.getFullYear(), date.getMonth(), 1 )
-    this.initPage( date )
-    this.select( date )
-  }
-
-  setAdditionalResult( res: ScheduleDayModel[], date: Date ) {
-    let dict = this.sheduleToDictionary( res )
-    if ( this.resetAdditionalDaysMap ) {
-      this.resetAdditionalDaysMap = false
-      this.additionalDaysMap = {}
-    }
-
-    this.additionalDaysMap ??= {}
-    for ( const key in dict ) {
-      this.additionalDaysMap[key] = dict[key]
-    }
-  }
-
-  initPage( date: Date ) {
-    this.calendarPage = this.generatePage( date.getMonth(), date.getFullYear() )
-    this.currentMonth = new Date( date.getFullYear(), date.getMonth(), 1 )
-  }
-
-  select( day: Date ) {
+  select( model: ScheduleViewModel, day: Date ) {
     day = new Date( day.getFullYear(), day.getMonth(), day.getDate() )
-    this.selectedDay = this.daysMap?.[day.valueOf()] ?? this.additionalDaysMap?.[day.valueOf()]
-    this.selectedDate = day
+    model.selectedDate = day
   }
 
   goToNow() {
     let now = new Date( Date.now() )
-    if ( this.loadedMonth && this.monthsEqual( this.loadedMonth, now ) ) {
-      this.select( now )
-    }
-    else {
-      this.load( now )
-    }
+    this.load( now )
   }
 
   previous() {
-    if ( !this.currentMonth ) {
-      return
-    }
-
-    let date = new Date( this.currentMonth )
-    date.setMonth( date.getMonth() - 1 )
-    if ( this.selectedDate ) {
-      date.setDate( this.selectedDate.getDate() )
-      console.log( date )
-    }
-    this.load( date )
+    let prevMonth = new Date( this.model.shownMonth )
+    prevMonth.setDate( this.model.selectedDate.getDate() )
+    ScheduleComponent.setMonthSafe( prevMonth, prevMonth.getMonth() - 1 )
+    this.load( prevMonth )
   }
 
   next() {
-    if ( !this.currentMonth ) {
-      return
-    }
+    let nextMonth = new Date( this.model.shownMonth )
+    nextMonth.setDate( this.model.selectedDate.getDate() )
+    ScheduleComponent.setMonthSafe( nextMonth, nextMonth.getMonth() + 1 )
 
-    let date = new Date( this.currentMonth )
-    date.setMonth( date.getMonth() + 1 )
-    if ( this.selectedDate ) {
-      date.setDate( this.selectedDate.getDate() )
-    }
-    this.load( date )
+    this.load( nextMonth )
   }
 
-  sheduleToDictionary( shedule: ScheduleDayModel[] ) {
+  static sheduleToDictionary( shedule: ScheduleDayModel[] ) {
     let daysMap: { [dateValue: number]: ScheduleDayModel } = {};
     for ( const sheduleDay of shedule ) {
       let day = new Date( sheduleDay.day.getFullYear(), sheduleDay.day.getMonth(), sheduleDay.day.getDate() )
@@ -147,7 +114,7 @@ export class ScheduleComponent implements OnInit {
     return daysMap
   }
 
-  generatePage( month: number, year: number ) {
+  static generatePage( month: number, year: number ) {
     var date = new Date( year, month, 1 );
     var days = [];
 
@@ -184,7 +151,7 @@ export class ScheduleComponent implements OnInit {
   }
 
   getWeek( date: Date ) {
-    let idx = this.calendarPage.findIndex( d =>
+    let idx = this.model.shownPageDays.findIndex( d =>
       date.getDate() == d.getDate()
       && date.getMonth() == d.getMonth()
       && date.getFullYear() == d.getFullYear() )
@@ -212,6 +179,14 @@ export class ScheduleComponent implements OnInit {
       return 'test'
     }
     return 'unknown-event'
+  }
+
+  static setMonthSafe( date: Date, month: number ) {
+    date.setMonth( month )
+    // prevent month overflow (e.g. selected 30 mar and we're moving to feb)
+    if ( date.getMonth() == month + 1 ) {
+      date.setDate( 0 )
+    }
   }
 
 }
