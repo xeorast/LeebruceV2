@@ -25,6 +25,8 @@ export class ScheduleComponent implements OnInit {
       shownMonth: new Date( now.getFullYear(), now.getMonth(), 1 ),
       shownPageDays: ScheduleComponent.generatePage( now.getMonth(), now.getFullYear() ),
       selectedDate: now,
+      daysMap: {},
+      complete: false
     }
   }
 
@@ -43,26 +45,30 @@ export class ScheduleComponent implements OnInit {
       shownMonth: new Date( date.getFullYear(), date.getMonth(), 1 ),
       shownPageDays: ScheduleComponent.generatePage( date.getMonth(), date.getFullYear() ),
       selectedDate: date,
+      daysMap: {},
+      complete: false
     }
     this.model = newModel
+    let state = { fetchesRemaining: 3 }
+
     this.currentMainFetch$?.unsubscribe()
     this.currentPrevFetch$?.unsubscribe()
     this.currentNextFetch$?.unsubscribe()
 
-    this.currentMainFetch$ = this.fetchMonthAddToModel( date, newModel )
+    this.currentMainFetch$ = this.fetchMonthAddToModel( date, newModel, state )
 
     let prevMonth = new Date( date )
     ScheduleComponent.setMonthSafe( prevMonth, prevMonth.getMonth() - 1 )
-    this.currentPrevFetch$ = this.fetchMonthAddToModel( prevMonth, newModel )
+    this.currentPrevFetch$ = this.fetchMonthAddToModel( prevMonth, newModel, state )
 
     let nextMonth = new Date( date )
     ScheduleComponent.setMonthSafe( nextMonth, nextMonth.getMonth() + 1 )
-    this.currentNextFetch$ = this.fetchMonthAddToModel( nextMonth, newModel )
+    this.currentNextFetch$ = this.fetchMonthAddToModel( nextMonth, newModel, state )
   }
 
-  fetchMonthAddToModel( date: Date, model: ScheduleViewModel ) {
+  fetchMonthAddToModel( date: Date, model: ScheduleViewModel, state: { fetchesRemaining: number } ) {
     return this.scheduleService.getScheduleForDate( date ).subscribe( {
-      next: res => ScheduleComponent.setResult( model, res ),
+      next: res => ScheduleComponent.setResult( model, res, state ),
       error: async error => await this.handleError( error )
     } )
   }
@@ -74,10 +80,14 @@ export class ScheduleComponent implements OnInit {
     }
   }
 
-  static setResult( model: ScheduleViewModel, res: ScheduleDayModel[] ) {
+  static setResult( model: ScheduleViewModel, res: ScheduleDayModel[], state: { fetchesRemaining: number } ) {
     let map = ScheduleComponent.sheduleToDictionary( res )
-    model.daysMap ??= {}
     Object.assign( model.daysMap, map )
+
+    state.fetchesRemaining -= 1
+    if ( state.fetchesRemaining == 0 ) {
+      model.complete = true
+    }
   }
 
   select( model: ScheduleViewModel, day: Date ) {

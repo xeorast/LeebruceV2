@@ -4,7 +4,8 @@ export interface ScheduleViewModel {
     shownMonth: Date
     shownPageDays: Date[]
     today: Date
-    daysMap?: { [dateValue: number]: ScheduleDayModel };
+    daysMap: { [dateValue: number]: ScheduleDayModel }
+    complete: boolean
 
     selectedDate: Date
 }
