@@ -121,7 +121,9 @@ export class TimetableComponent implements OnInit {
 
   static generateWeekContaining( day: Date ) {
     let date = new Date( day )
-    date.setDate( date.getDate() - date.getDay() + 1 )
+    let daysSinceSunday = date.getDay()
+    let daysSinceMonday = daysSinceSunday == 0 ? 6 : daysSinceSunday - 1
+    date.setDate( date.getDate() - daysSinceMonday )
     let week: Date[] = []
     for ( let i = 0; i < 7; i++ ) {
       week.push( new Date( date ) )
