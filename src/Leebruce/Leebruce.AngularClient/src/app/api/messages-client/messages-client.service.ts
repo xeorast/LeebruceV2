@@ -1,10 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
-import { catchError, map, Observable, tap } from 'rxjs';
-import { AUTH_ENABLED_CONTEXT, NotAuthenticatedError } from '../authentication/authentication.service';
+import { map, tap } from 'rxjs';
+import { AUTH_ENABLED_CONTEXT } from '../authentication/authentication.service';
 import { CollectionPage } from '../collection-page';
 import { FILESAVER, FileSaver } from '../fileSaver';
-import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
 
 @Injectable()
 export class MessagesClientService {
@@ -17,8 +16,7 @@ export class MessagesClientService {
     let context = AUTH_ENABLED_CONTEXT
     return this.http.get<CollectionPage<MessageMetadataModel>>( `api/messages?page=${page}`, { context: context } )
       .pipe(
-        tap( resp => resp.elements.forEach( msg => msg.date = new Date( msg.date ) ) ),
-        catchError( error => this.errorHandler( error ) )
+        tap( resp => resp.elements.forEach( msg => msg.date = new Date( msg.date ) ) )
       );
   }
 
@@ -26,8 +24,7 @@ export class MessagesClientService {
     let context = AUTH_ENABLED_CONTEXT
     return this.http.get<MessageModel>( `api/messages/${id}`, { context: context } )
       .pipe(
-        tap( resp => resp.date = new Date( resp.date ) ),
-        catchError( error => this.errorHandler( error ) )
+        tap( resp => resp.date = new Date( resp.date ) )
       );
   }
 
@@ -36,22 +33,8 @@ export class MessagesClientService {
     return this.http.get( `api/messages/attachments/${attachment.id}`, { context: context, responseType: 'blob' } )
       .pipe(
         tap( blob => this.fileSaver( blob, attachment.fileName ) ),
-        map( _resp => { } ),
-        catchError( error => this.errorHandler( error ) )
+        map( _resp => { } )
       );
-  }
-
-  private errorHandler( error: HttpError ): Observable<never> {
-    let problemDetails: ProblemDetails | undefined
-    if ( error instanceof HttpProblem ) {
-      problemDetails = error.details
-    }
-
-    if ( error.response.status === 401 ) {
-      throw new NotAuthenticatedError( problemDetails?.detail ?? undefined )
-    }
-
-    throw error
   }
 }
 

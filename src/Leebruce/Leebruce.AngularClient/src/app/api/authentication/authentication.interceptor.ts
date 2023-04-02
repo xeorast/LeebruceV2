@@ -1,13 +1,10 @@
-import { Injectable } from '@angular/core';
 import {
-  HttpRequest,
-  HttpHandler,
-  HttpEvent,
-  HttpInterceptor,
-  HTTP_INTERCEPTORS,
+  HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HTTP_INTERCEPTORS
 } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import { AuthenticationService, IS_AUTH_ENABLED } from './authentication.service';
+import { Injectable } from '@angular/core';
+import { catchError, Observable } from 'rxjs';
+import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
+import { AuthenticationService, IS_AUTH_ENABLED, NotAuthenticatedError } from './authentication.service';
 
 @Injectable()
 export class AuthenticationInterceptor implements HttpInterceptor {
@@ -22,8 +19,25 @@ export class AuthenticationInterceptor implements HttpInterceptor {
       } );
     }
 
-    return next.handle( request );
+    return next.handle( request )
+      .pipe(
+        catchError( error => this.authErrorMapper( error ) )
+      )
   }
+
+  private authErrorMapper( error: HttpError ): Observable<never> {
+    let problemDetails: ProblemDetails | undefined
+    if ( error instanceof HttpProblem ) {
+      problemDetails = error.details
+    }
+
+    if ( error.response.status === 401 ) {
+      throw new NotAuthenticatedError( problemDetails?.detail ?? undefined )
+    }
+
+    throw error
+  }
+
 }
 
 export const AuthenticationInterceptorProvider = {

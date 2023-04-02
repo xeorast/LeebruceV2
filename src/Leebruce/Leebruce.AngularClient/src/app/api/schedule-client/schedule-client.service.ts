@@ -1,9 +1,8 @@
 import { formatDate } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, Observable, tap } from 'rxjs';
-import { AUTH_ENABLED_CONTEXT, NotAuthenticatedError } from '../authentication/authentication.service';
-import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
+import { tap } from 'rxjs';
+import { AUTH_ENABLED_CONTEXT } from '../authentication/authentication.service';
 
 @Injectable()
 export class ScheduleClientService {
@@ -22,8 +21,7 @@ export class ScheduleClientService {
               event.dateAdded = new Date( event.dateAdded )
             }
           }
-        } ) ),
-        catchError( error => this.errorHandler( error ) )
+        } ) )
       );
   }
 
@@ -39,23 +37,10 @@ export class ScheduleClientService {
               event.dateAdded = new Date( event.dateAdded )
             }
           }
-        } ) ),
-        catchError( error => this.errorHandler( error ) )
+        } ) )
       );
   }
 
-  private errorHandler( error: HttpError ): Observable<never> {
-    let problemDetails: ProblemDetails | undefined
-    if ( error instanceof HttpProblem ) {
-      problemDetails = error.details
-    }
-
-    if ( error.response.status === 401 ) {
-      throw new NotAuthenticatedError( problemDetails?.detail ?? undefined )
-    }
-
-    throw error
-  }
 }
 
 export interface ScheduleDayModel {

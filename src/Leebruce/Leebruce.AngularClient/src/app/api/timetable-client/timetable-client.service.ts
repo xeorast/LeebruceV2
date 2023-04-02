@@ -1,9 +1,8 @@
 import { formatDate, Time } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, Observable, tap } from 'rxjs';
-import { AUTH_ENABLED_CONTEXT, NotAuthenticatedError } from '../authentication/authentication.service';
-import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
+import { tap } from 'rxjs';
+import { AUTH_ENABLED_CONTEXT } from '../authentication/authentication.service';
 
 @Injectable()
 export class TimetableClientService {
@@ -16,8 +15,7 @@ export class TimetableClientService {
     return this.http.get<TimetableDayModel[]>( 'api/timetable', { context: context } )
       .pipe(
         tap( resp => resp.forEach( day => day.date = new Date( day.date ) ) ),
-        tap( resp => resp.forEach( day => this.convertLessonTimes( day ) ) ),
-        catchError( error => this.errorHandler( error ) )
+        tap( resp => resp.forEach( day => this.convertLessonTimes( day ) ) )
       );
   }
 
@@ -27,8 +25,7 @@ export class TimetableClientService {
     return this.http.get<TimetableDayModel[]>( `api/timetable/${dateStr}`, { context: context } )
       .pipe(
         tap( resp => resp.forEach( day => day.date = new Date( day.date ) ) ),
-        tap( resp => resp.forEach( day => this.convertLessonTimes( day ) ) ),
-        catchError( error => this.errorHandler( error ) )
+        tap( resp => resp.forEach( day => this.convertLessonTimes( day ) ) )
       );
   }
 
@@ -41,19 +38,6 @@ export class TimetableClientService {
         lesson.time.end = <Time>{ hours: +endSegments[0], minutes: +endSegments[1] }
       }
     }
-  }
-
-  private errorHandler( error: HttpError ): Observable<never> {
-    let problemDetails: ProblemDetails | undefined
-    if ( error instanceof HttpProblem ) {
-      problemDetails = error.details
-    }
-
-    if ( error.response.status === 401 ) {
-      throw new NotAuthenticatedError( problemDetails?.detail ?? undefined )
-    }
-
-    throw error
   }
 
 }
