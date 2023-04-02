@@ -1,28 +1,41 @@
 import { HttpClient, HttpContext, HttpContextToken } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, map, tap, throwError } from 'rxjs';
+import { catchError, map, ReplaySubject, tap, throwError } from 'rxjs';
 import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
 
 export const IS_AUTH_ENABLED = new HttpContextToken( () => false );
 export const AUTH_ENABLED_CONTEXT = new HttpContext().set( IS_AUTH_ENABLED, true )
 
 export const IS_REDIRECT_TO_LOGIN = new HttpContextToken( () => false );
-export const AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT = new HttpContext().set( IS_REDIRECT_TO_LOGIN, true )
+export const AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT = new HttpContext().set( IS_AUTH_ENABLED, true ).set( IS_REDIRECT_TO_LOGIN, true )
 
 @Injectable()
 export class AuthenticationService {
 
   constructor( private http: HttpClient ) {
     this._token = this.retrieveToken()
+    this.lastLoginStatus = this._token ? "authenticated" : "notAuthenticated"
+    this.loginStatusSubject.next( { status: this.lastLoginStatus } )
   }
 
   private _token?: string;
   public get token(): string | null {
     return this._token ?? null;
   }
-  public get isLoggedIn(): boolean {
-    return this._token !== undefined
-      && this._token !== null;
+
+  private loginStatusSubject = new ReplaySubject<loginStatus>( 1 )
+  public loginStatus = this.loginStatusSubject.asObservable()
+  public lastLoginStatus: "authenticated" | "notAuthenticated";
+
+  private notifyStatus( status: loginStatus ) {
+    if ( this.lastLoginStatus != status.status ) {
+      this.lastLoginStatus = status.status
+      this.loginStatusSubject.next( status )
+    }
+  }
+
+  public notifySessionEnded() {
+    this.notifyStatus( { status: "notAuthenticated" } )
   }
 
   public logIn( credentials: loginDto ) {
@@ -37,6 +50,7 @@ export class AuthenticationService {
   private setToken( token: string ) {
     this._token = token
     this.storeToken( token )
+    this.notifyStatus( { status: "authenticated" } )
   }
 
   private errorHandler( error: HttpError ) {
@@ -65,6 +79,10 @@ export class AuthenticationService {
 export interface loginDto {
   username: string;
   password: string;
+}
+
+export interface loginStatus {
+  status: "authenticated" | "notAuthenticated";
 }
 
 export class InvalidCredentialsError extends Error {

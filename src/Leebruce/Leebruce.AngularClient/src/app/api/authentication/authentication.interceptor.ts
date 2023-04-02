@@ -38,6 +38,7 @@ export class AuthenticationInterceptor implements HttpInterceptor {
     }
 
     if ( error.response.status === 401 ) {
+      this.authService.notifySessionEnded()
       throw new NotAuthenticatedError( problemDetails?.detail ?? undefined )
     }
 
