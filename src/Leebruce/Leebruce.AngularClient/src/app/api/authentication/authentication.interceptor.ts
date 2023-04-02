@@ -2,14 +2,16 @@ import {
   HttpEvent, HttpHandler, HttpInterceptor, HttpRequest, HTTP_INTERCEPTORS
 } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, Observable } from 'rxjs';
+import { Router } from '@angular/router';
+import { catchError, NEVER, Observable } from 'rxjs';
 import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
-import { AuthenticationService, IS_AUTH_ENABLED, NotAuthenticatedError } from './authentication.service';
+import { AuthenticationService, IS_AUTH_ENABLED, IS_REDIRECT_TO_LOGIN, NotAuthenticatedError } from './authentication.service';
 
 @Injectable()
 export class AuthenticationInterceptor implements HttpInterceptor {
 
   constructor(
+    private router: Router,
     private authService: AuthenticationService ) { }
 
   intercept( request: HttpRequest<unknown>, next: HttpHandler ): Observable<HttpEvent<unknown>> {
@@ -19,10 +21,14 @@ export class AuthenticationInterceptor implements HttpInterceptor {
       } );
     }
 
-    return next.handle( request )
-      .pipe(
-        catchError( error => this.authErrorMapper( error ) )
-      )
+    let ret = next.handle( request )
+      .pipe( catchError( error => this.authErrorMapper( error ) ) )
+
+    if ( request.context.get( IS_REDIRECT_TO_LOGIN ) == true ) {
+      ret = ret.pipe( catchError( error => this.redirectToLoginErrorHandler( error ) ) )
+    }
+
+    return ret
   }
 
   private authErrorMapper( error: HttpError ): Observable<never> {
@@ -37,6 +43,15 @@ export class AuthenticationInterceptor implements HttpInterceptor {
 
     throw error
   }
+
+  private redirectToLoginErrorHandler( error: HttpError ) {
+    if ( error instanceof NotAuthenticatedError ) {
+      let currentUrl = this.router.url
+      this.router.navigate( ['/login'], { queryParams: { redirect: currentUrl } } );
+    }
+    return NEVER
+  }
+
 
 }
 

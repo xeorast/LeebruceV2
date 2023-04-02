@@ -2,7 +2,7 @@ import { formatDate, Time } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { tap } from 'rxjs';
-import { AUTH_ENABLED_CONTEXT } from '../authentication/authentication.service';
+import { AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT } from '../authentication/authentication.service';
 
 @Injectable()
 export class TimetableClientService {
@@ -11,7 +11,7 @@ export class TimetableClientService {
     private http: HttpClient ) { }
 
   public getTimetable() {
-    let context = AUTH_ENABLED_CONTEXT
+    let context = AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT
     return this.http.get<TimetableDayModel[]>( 'api/timetable', { context: context } )
       .pipe(
         tap( resp => resp.forEach( day => day.date = new Date( day.date ) ) ),
@@ -21,7 +21,7 @@ export class TimetableClientService {
 
   public getTimetableForDate( date: Date ) {
     let dateStr = formatDate( date, 'yyyy-MM-dd', 'en-US' )
-    let context = AUTH_ENABLED_CONTEXT
+    let context = AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT
     return this.http.get<TimetableDayModel[]>( `api/timetable/${dateStr}`, { context: context } )
       .pipe(
         tap( resp => resp.forEach( day => day.date = new Date( day.date ) ) ),

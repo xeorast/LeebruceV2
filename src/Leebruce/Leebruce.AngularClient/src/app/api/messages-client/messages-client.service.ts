@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { map, tap } from 'rxjs';
-import { AUTH_ENABLED_CONTEXT } from '../authentication/authentication.service';
+import { AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT } from '../authentication/authentication.service';
 import { CollectionPage } from '../collection-page';
 import { FILESAVER, FileSaver } from '../fileSaver';
 
@@ -13,7 +13,7 @@ export class MessagesClientService {
     @Inject( FILESAVER ) private fileSaver: FileSaver ) { }
 
   public getMessages( page = 1 ) {
-    let context = AUTH_ENABLED_CONTEXT
+    let context = AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT
     return this.http.get<CollectionPage<MessageMetadataModel>>( `api/messages?page=${page}`, { context: context } )
       .pipe(
         tap( resp => resp.elements.forEach( msg => msg.date = new Date( msg.date ) ) )
@@ -21,7 +21,7 @@ export class MessagesClientService {
   }
 
   public getMessage( id: string ) {
-    let context = AUTH_ENABLED_CONTEXT
+    let context = AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT
     return this.http.get<MessageModel>( `api/messages/${id}`, { context: context } )
       .pipe(
         tap( resp => resp.date = new Date( resp.date ) )
@@ -29,7 +29,7 @@ export class MessagesClientService {
   }
 
   public downloadAttachment( attachment: AttachmentModel ) {
-    let context = AUTH_ENABLED_CONTEXT
+    let context = AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT
     return this.http.get( `api/messages/attachments/${attachment.id}`, { context: context, responseType: 'blob' } )
       .pipe(
         tap( blob => this.fileSaver( blob, attachment.fileName ) ),

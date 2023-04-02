@@ -2,7 +2,7 @@ import { formatDate } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { tap } from 'rxjs';
-import { AUTH_ENABLED_CONTEXT } from '../authentication/authentication.service';
+import { AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT } from '../authentication/authentication.service';
 
 @Injectable()
 export class ScheduleClientService {
@@ -11,7 +11,7 @@ export class ScheduleClientService {
     private http: HttpClient ) { }
 
   public getSchedule() {
-    let context = AUTH_ENABLED_CONTEXT
+    let context = AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT
     return this.http.get<ScheduleDayModel[]>( 'api/schedule', { context: context } )
       .pipe(
         tap( resp => resp.forEach( day => day.day = new Date( day.day ) ) ),
@@ -26,7 +26,7 @@ export class ScheduleClientService {
   }
 
   public getScheduleForDate( date: Date ) {
-    let context = AUTH_ENABLED_CONTEXT
+    let context = AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT
     let dateStr = formatDate( date, 'yyyy-MM-dd', 'en-US' )
     return this.http.get<ScheduleDayModel[]>( `api/schedule/${dateStr}`, { context: context } )
       .pipe(

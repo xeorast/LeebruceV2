@@ -6,6 +6,9 @@ import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
 export const IS_AUTH_ENABLED = new HttpContextToken( () => false );
 export const AUTH_ENABLED_CONTEXT = new HttpContext().set( IS_AUTH_ENABLED, true )
 
+export const IS_REDIRECT_TO_LOGIN = new HttpContextToken( () => false );
+export const AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT = new HttpContext().set( IS_REDIRECT_TO_LOGIN, true )
+
 @Injectable()
 export class AuthenticationService {
 

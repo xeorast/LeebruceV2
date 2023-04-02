@@ -1,8 +1,6 @@
-import { Component, NgZone, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
-import { NotAuthenticatedError } from '../api/authentication/authentication.service';
-import { LessonModel, TimetableClientService, TimetableDayModel } from '../api/timetable-client/timetable-client.service';
+import { LessonModel, TimetableClientService } from '../api/timetable-client/timetable-client.service';
 import { TimetableViewModel } from './timetable.view-model';
 
 @Component( {
@@ -13,7 +11,6 @@ import { TimetableViewModel } from './timetable.view-model';
 export class TimetableComponent implements OnInit {
 
   constructor(
-    private router: Router,
     private timetableService: TimetableClientService ) {
     let now = new Date( Date.now() )
     this.model = <TimetableViewModel>{
@@ -42,12 +39,6 @@ export class TimetableComponent implements OnInit {
         next: res => {
           newModel.timetableDays = res
           this.select( newModel.currentDate )
-        },
-        error: async error => {
-          if ( error instanceof NotAuthenticatedError ) {
-            let currentUrl = this.router.url
-            await this.router.navigate( ['/login'], { queryParams: { redirect: currentUrl } } );
-          }
         }
       } )
   }

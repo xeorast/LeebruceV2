@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { tap } from 'rxjs';
-import { AUTH_ENABLED_CONTEXT } from '../authentication/authentication.service';
+import { AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT } from '../authentication/authentication.service';
 
 @Injectable( /*{
   providedIn: 'root'
@@ -12,7 +12,7 @@ export class AnnouncementsClientService {
     private http: HttpClient ) { }
 
   public getAnnouncements() {
-    let context = AUTH_ENABLED_CONTEXT
+    let context = AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT
     return this.http.get<AnnouncementModel[]>( 'api/announcements', { context: context } )
       .pipe(
         tap( resp => resp.forEach( ann => ann.date = new Date( ann.date ) ) )

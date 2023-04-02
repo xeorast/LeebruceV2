@@ -1,8 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { Modal } from 'bootstrap';
 import { Subscription } from 'rxjs';
-import { NotAuthenticatedError } from '../api/authentication/authentication.service';
 import { AttachmentModel, MessageMetadataModel, MessageModel, MessagesClientService } from '../api/messages-client/messages-client.service';
 
 @Component( {
@@ -13,7 +11,6 @@ import { AttachmentModel, MessageMetadataModel, MessageModel, MessagesClientServ
 export class MessagesComponent implements OnInit {
 
   constructor(
-    private router: Router,
     private messagesService: MessagesClientService
   ) { }
 
@@ -41,13 +38,6 @@ export class MessagesComponent implements OnInit {
     this.modalObj = new Modal( modalElem, {} )
   }
 
-  async fetchErrorHandler( error: any ) {
-    if ( error instanceof NotAuthenticatedError ) {
-      let currentUrl = this.router.url
-      await this.router.navigate( ['/login'], { queryParams: { redirect: currentUrl } } );
-    }
-  }
-
   fetchMessages( page: number ) {
     this.currentPage = page
     this.messages = undefined
@@ -56,8 +46,7 @@ export class MessagesComponent implements OnInit {
         this.messages = res.elements
         this.totalPages = res.totalPages
         this.currentPage = res.currentPage
-      },
-      error: async error => await this.fetchErrorHandler( error )
+      }
     } )
   }
 
@@ -77,8 +66,7 @@ export class MessagesComponent implements OnInit {
         this.fetchingMessageId = undefined
         this.showMessage( res );
         message.isUnread = false
-      },
-      error: async error => await this.fetchErrorHandler( error )
+      }
     } )
   }
 
@@ -119,7 +107,6 @@ export class MessagesComponent implements OnInit {
       complete: () => this.markAttachmentDownloadFinish( attachment.id ),
       error: async error => {
         this.markAttachmentDownloadFinish( attachment.id )
-        await this.fetchErrorHandler( error );
       }
     } )
   }

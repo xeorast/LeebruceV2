@@ -1,7 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { NotAuthenticatedError } from '../api/authentication/authentication.service';
 import { ScheduleClientService, ScheduleDayModel, ScheduleEventModel } from '../api/schedule-client/schedule-client.service';
 import { ScheduleViewModel } from './schedule.view-model';
 
@@ -17,7 +15,6 @@ import { ScheduleViewModel } from './schedule.view-model';
 export class ScheduleComponent implements OnInit {
 
   constructor(
-    private router: Router,
     private scheduleService: ScheduleClientService ) {
     let now = new Date( Date.now() )
     this.model = <ScheduleViewModel>{
@@ -68,16 +65,8 @@ export class ScheduleComponent implements OnInit {
 
   fetchMonthAddToModel( date: Date, model: ScheduleViewModel, state: { fetchesRemaining: number } ) {
     return this.scheduleService.getScheduleForDate( date ).subscribe( {
-      next: res => ScheduleComponent.setResult( model, res, state ),
-      error: async error => await this.handleError( error )
+      next: res => ScheduleComponent.setResult( model, res, state )
     } )
-  }
-
-  async handleError( error: Error ) {
-    if ( error instanceof NotAuthenticatedError ) {
-      let currentUrl = this.router.url
-      await this.router.navigate( ['/login'], { queryParams: { redirect: currentUrl } } );
-    }
   }
 
   static setResult( model: ScheduleViewModel, res: ScheduleDayModel[], state: { fetchesRemaining: number } ) {
