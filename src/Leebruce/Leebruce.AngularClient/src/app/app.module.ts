@@ -16,6 +16,7 @@ import { TimetableClientModule } from './api/timetable-client/timetable-client.m
 import { MessagesClientModule } from './api/messages-client/messages-client.module';
 import { getFileSaver, FILESAVER } from './api/fileSaver';
 import { ScheduleClientModule } from './api/schedule-client/schedule-client.module';
+import { StatusClientModule } from './api/status-client/status-client.module';
 
 @NgModule( {
   declarations: [
@@ -32,7 +33,7 @@ import { ScheduleClientModule } from './api/schedule-client/schedule-client.modu
       { path: 'announcements', loadChildren: () => import( './announcements/announcements.module' ).then( m => m.AnnouncementsModule ) },
       { path: 'timetable', loadChildren: () => import( './timetable/timetable.module' ).then( m => m.TimetableModule ) },
       { path: 'messages', loadChildren: () => import( './messages/messages.module' ).then( m => m.MessagesModule ) },
-      { path: 'schedule', loadChildren: () => import('./schedule/schedule.module').then(m => m.ScheduleModule) },
+      { path: 'schedule', loadChildren: () => import( './schedule/schedule.module' ).then( m => m.ScheduleModule ) },
     ] ),
     NavMenuModule,
     AuthenticationModule,
@@ -43,6 +44,7 @@ import { ScheduleClientModule } from './api/schedule-client/schedule-client.modu
     TimetableClientModule,
     MessagesClientModule,
     ScheduleClientModule,
+    StatusClientModule,
   ],
   bootstrap: [AppComponent],
   providers: [
