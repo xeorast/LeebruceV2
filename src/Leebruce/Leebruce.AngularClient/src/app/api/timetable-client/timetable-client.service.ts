@@ -2,19 +2,18 @@ import { formatDate, Time } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, tap } from 'rxjs';
-import { AuthenticationService, NotAuthenticatedError } from '../authentication/authentication.service';
+import { AUTH_ENABLED_CONTEXT, NotAuthenticatedError } from '../authentication/authentication.service';
 import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
 
 @Injectable()
 export class TimetableClientService {
 
   constructor(
-    private http: HttpClient,
-    private auth: AuthenticationService ) { }
+    private http: HttpClient ) { }
 
   public getTimetable() {
-    let authHeader = `Bearer ${this.auth.token}`;
-    return this.http.get<TimetableDayModel[]>( 'api/timetable', { headers: { Authorization: authHeader } } )
+    let context = AUTH_ENABLED_CONTEXT
+    return this.http.get<TimetableDayModel[]>( 'api/timetable', { context: context } )
       .pipe(
         tap( resp => resp.forEach( day => day.date = new Date( day.date ) ) ),
         tap( resp => resp.forEach( day => this.convertLessonTimes( day ) ) ),
@@ -23,9 +22,9 @@ export class TimetableClientService {
   }
 
   public getTimetableForDate( date: Date ) {
-    let authHeader = `Bearer ${this.auth.token}`;
     let dateStr = formatDate( date, 'yyyy-MM-dd', 'en-US' )
-    return this.http.get<TimetableDayModel[]>( `api/timetable/${dateStr}`, { headers: { Authorization: authHeader } } )
+    let context = AUTH_ENABLED_CONTEXT
+    return this.http.get<TimetableDayModel[]>( `api/timetable/${dateStr}`, { context: context } )
       .pipe(
         tap( resp => resp.forEach( day => day.date = new Date( day.date ) ) ),
         tap( resp => resp.forEach( day => this.convertLessonTimes( day ) ) ),

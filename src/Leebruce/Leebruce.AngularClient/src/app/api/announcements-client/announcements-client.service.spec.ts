@@ -15,10 +15,10 @@ describe( 'AnnouncementsClientService', () => {
     TestBed.configureTestingModule( {
       imports: [
         HttpClientTestingModule,
+        AuthenticationModule,
         ServerErrorHandlingModule,
         HttpErrorMapperModule,
         AnnouncementsClientModule,
-        AuthenticationModule
       ]
     } );
     service = TestBed.inject( AnnouncementsClientService )

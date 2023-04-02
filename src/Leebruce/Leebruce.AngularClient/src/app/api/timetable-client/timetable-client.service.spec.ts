@@ -14,10 +14,10 @@ describe( 'TimetableClientService', () => {
     TestBed.configureTestingModule( {
       imports: [
         HttpClientTestingModule,
+        AuthenticationModule,
         ServerErrorHandlingModule,
         HttpErrorMapperModule,
         TimetableClientModule,
-        AuthenticationModule
       ]
     } );
     service = TestBed.inject( TimetableClientService );

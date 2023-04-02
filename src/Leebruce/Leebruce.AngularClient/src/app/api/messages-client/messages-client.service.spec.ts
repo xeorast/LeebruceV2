@@ -16,10 +16,10 @@ describe( 'MessagesClientService', () => {
     TestBed.configureTestingModule( {
       imports: [
         HttpClientTestingModule,
+        AuthenticationModule,
         ServerErrorHandlingModule,
         HttpErrorMapperModule,
         MessagesClientModule,
-        AuthenticationModule
       ],
       providers: [
         { provide: FILESAVER, useFactory: getFileSaver }

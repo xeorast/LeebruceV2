@@ -1,5 +1,6 @@
 import { NgModule } from '@angular/core';
 
+import { AuthenticationInterceptorProvider } from './authentication.interceptor';
 import { AuthenticationService } from './authentication.service';
 
 
@@ -9,6 +10,7 @@ import { AuthenticationService } from './authentication.service';
   imports: [],
   providers: [
     AuthenticationService,
+    AuthenticationInterceptorProvider,
   ]
 } )
 export class AuthenticationModule { }

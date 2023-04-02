@@ -1,7 +1,10 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpContext, HttpContextToken } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, map, tap, throwError } from 'rxjs';
 import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
+
+export const IS_AUTH_ENABLED = new HttpContextToken( () => false );
+export const AUTH_ENABLED_CONTEXT = new HttpContext().set( IS_AUTH_ENABLED, true )
 
 @Injectable()
 export class AuthenticationService {

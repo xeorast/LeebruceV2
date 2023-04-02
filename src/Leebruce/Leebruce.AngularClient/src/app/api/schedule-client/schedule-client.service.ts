@@ -2,19 +2,18 @@ import { formatDate } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, tap } from 'rxjs';
-import { AuthenticationService, NotAuthenticatedError } from '../authentication/authentication.service';
+import { AUTH_ENABLED_CONTEXT, NotAuthenticatedError } from '../authentication/authentication.service';
 import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
 
 @Injectable()
 export class ScheduleClientService {
 
   constructor(
-    private http: HttpClient,
-    private auth: AuthenticationService ) { }
+    private http: HttpClient ) { }
 
   public getSchedule() {
-    let authHeader = `Bearer ${this.auth.token}`;
-    return this.http.get<ScheduleDayModel[]>( 'api/schedule', { headers: { Authorization: authHeader } } )
+    let context = AUTH_ENABLED_CONTEXT
+    return this.http.get<ScheduleDayModel[]>( 'api/schedule', { context: context } )
       .pipe(
         tap( resp => resp.forEach( day => day.day = new Date( day.day ) ) ),
         tap( resp => resp.forEach( day => {
@@ -29,9 +28,9 @@ export class ScheduleClientService {
   }
 
   public getScheduleForDate( date: Date ) {
-    let authHeader = `Bearer ${this.auth.token}`;
+    let context = AUTH_ENABLED_CONTEXT
     let dateStr = formatDate( date, 'yyyy-MM-dd', 'en-US' )
-    return this.http.get<ScheduleDayModel[]>( `api/schedule/${dateStr}`, { headers: { Authorization: authHeader } } )
+    return this.http.get<ScheduleDayModel[]>( `api/schedule/${dateStr}`, { context: context } )
       .pipe(
         tap( resp => resp.forEach( day => day.day = new Date( day.day ) ) ),
         tap( resp => resp.forEach( day => {

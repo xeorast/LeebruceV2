@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { catchError, Observable, tap } from 'rxjs';
-import { AuthenticationService, NotAuthenticatedError } from '../authentication/authentication.service';
+import { AUTH_ENABLED_CONTEXT, NotAuthenticatedError } from '../authentication/authentication.service';
 import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
 
 @Injectable( /*{
@@ -10,12 +10,11 @@ import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
 export class AnnouncementsClientService {
 
   constructor(
-    private http: HttpClient,
-    private auth: AuthenticationService ) { }
+    private http: HttpClient ) { }
 
   public getAnnouncements() {
-    let authHeader = `Bearer ${this.auth.token}`;
-    return this.http.get<AnnouncementModel[]>( 'api/announcements', { headers: { Authorization: authHeader } } )
+    let context = AUTH_ENABLED_CONTEXT
+    return this.http.get<AnnouncementModel[]>( 'api/announcements', { context: context } )
       .pipe(
         tap( resp => resp.forEach( ann => ann.date = new Date( ann.date ) ) ),
         catchError( error => this.errorHandler( error ) )

@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Inject, Injectable } from '@angular/core';
 import { catchError, map, Observable, tap } from 'rxjs';
-import { AuthenticationService, NotAuthenticatedError } from '../authentication/authentication.service';
+import { AUTH_ENABLED_CONTEXT, NotAuthenticatedError } from '../authentication/authentication.service';
 import { CollectionPage } from '../collection-page';
 import { FILESAVER, FileSaver } from '../fileSaver';
 import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
@@ -11,12 +11,11 @@ export class MessagesClientService {
 
   constructor(
     private http: HttpClient,
-    private auth: AuthenticationService,
     @Inject( FILESAVER ) private fileSaver: FileSaver ) { }
 
   public getMessages( page = 1 ) {
-    let authHeader = `Bearer ${this.auth.token}`;
-    return this.http.get<CollectionPage<MessageMetadataModel>>( `api/messages?page=${page}`, { headers: { Authorization: authHeader } } )
+    let context = AUTH_ENABLED_CONTEXT
+    return this.http.get<CollectionPage<MessageMetadataModel>>( `api/messages?page=${page}`, { context: context } )
       .pipe(
         tap( resp => resp.elements.forEach( msg => msg.date = new Date( msg.date ) ) ),
         catchError( error => this.errorHandler( error ) )
@@ -24,8 +23,8 @@ export class MessagesClientService {
   }
 
   public getMessage( id: string ) {
-    let authHeader = `Bearer ${this.auth.token}`;
-    return this.http.get<MessageModel>( `api/messages/${id}`, { headers: { Authorization: authHeader } } )
+    let context = AUTH_ENABLED_CONTEXT
+    return this.http.get<MessageModel>( `api/messages/${id}`, { context: context } )
       .pipe(
         tap( resp => resp.date = new Date( resp.date ) ),
         catchError( error => this.errorHandler( error ) )
@@ -33,8 +32,8 @@ export class MessagesClientService {
   }
 
   public downloadAttachment( attachment: AttachmentModel ) {
-    let authHeader = `Bearer ${this.auth.token}`;
-    return this.http.get( `api/messages/attachments/${attachment.id}`, { headers: { Authorization: authHeader }, responseType: 'blob' } )
+    let context = AUTH_ENABLED_CONTEXT
+    return this.http.get( `api/messages/attachments/${attachment.id}`, { context: context, responseType: 'blob' } )
       .pipe(
         tap( blob => this.fileSaver( blob, attachment.fileName ) ),
         map( _resp => { } ),
