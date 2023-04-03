@@ -1,4 +1,5 @@
-﻿using Leebruce.Domain;
+﻿using Leebruce.Api.Extensions;
+using Leebruce.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,27 +20,17 @@ public class ScheduleController : ExtendedControllerBase
 	[HttpGet]
 	public async Task<ActionResult<ScheduleDay[]>> GetSchedule()
 	{
-		try
-		{
-			return await _ScheduleService.GetScheduleAsync( User );
-		}
-		catch ( NotAuthorizedException )
-		{
-			return Unauthorized( "Session has expired." );
-		}
+		return await _ScheduleService.GetScheduleAsync( User )
+			.WithMappedMaintenanceBreak( ServiceUnavailable )
+			.WithMappedUnauthorized( Unauthorized );
 	}
 
 	[HttpGet( "{date}" )]
 	public async Task<ActionResult<ScheduleDay[]>> GetSchedule( DateOnly date )
 	{
-		try
-		{
-			return await _ScheduleService.GetScheduleAsync( User, date );
-		}
-		catch ( NotAuthorizedException )
-		{
-			return Unauthorized( "Session has expired." );
-		}
+		return await _ScheduleService.GetScheduleAsync( User, date )
+			.WithMappedMaintenanceBreak( ServiceUnavailable )
+			.WithMappedUnauthorized( Unauthorized );
 	}
 
 

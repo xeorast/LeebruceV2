@@ -1,4 +1,5 @@
-﻿using Leebruce.Domain;
+﻿using Leebruce.Api.Extensions;
+using Leebruce.Domain;
 using Leebruce.Domain.Grades;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -21,27 +22,17 @@ public class GradesController : ExtendedControllerBase
 	[HttpGet]
 	public async Task<ActionResult<SubjectGradesModel[]>> GetGrades()
 	{
-		try
-		{
-			return await _gradesService.GetGradesAsync( User );
-		}
-		catch ( NotAuthorizedException )
-		{
-			return Unauthorized( "Session has expired." );
-		}
+		return await _gradesService.GetGradesAsync( User )
+			.WithMappedMaintenanceBreak( ServiceUnavailable )
+			.WithMappedUnauthorized( Unauthorized );
 	}
 
 	[HttpGet( "graph" )]
 	public async Task<ActionResult<GradesGraphRecordModel[]>> GetGraph()
 	{
-		try
-		{
-			return await _gradesService.GetGraphAsync( User );
-		}
-		catch ( NotAuthorizedException )
-		{
-			return Unauthorized( "Session has expired." );
-		}
+		return await _gradesService.GetGraphAsync( User )
+			.WithMappedMaintenanceBreak( ServiceUnavailable )
+			.WithMappedUnauthorized( Unauthorized );
 	}
 
 }

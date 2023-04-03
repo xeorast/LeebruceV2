@@ -1,4 +1,5 @@
-﻿using Leebruce.Domain;
+﻿using Leebruce.Api.Extensions;
+using Leebruce.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,13 +20,8 @@ public class AnnouncementsController : ExtendedControllerBase
 	[HttpGet]
 	public async Task<ActionResult<AnnouncementModel[]>> GetAnnouncements()
 	{
-		try
-		{
-			return await _annService.GetAnnouncementsAsync( User );
-		}
-		catch ( NotAuthorizedException )
-		{
-			return Unauthorized( "Session has expired." );
-		}
+		return await _annService.GetAnnouncementsAsync( User )
+			.WithMappedMaintenanceBreak( ServiceUnavailable )
+			.WithMappedUnauthorized( Unauthorized );
 	}
 }

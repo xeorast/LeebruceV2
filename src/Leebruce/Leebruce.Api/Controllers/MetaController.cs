@@ -1,4 +1,5 @@
-﻿using Leebruce.Domain;
+﻿using Leebruce.Api.Extensions;
+using Leebruce.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,27 +20,17 @@ public class MetaController : ExtendedControllerBase
 	[HttpGet( "updates-since-last-login" )]
 	public async Task<ActionResult<UpdatesSinceLoginModel>> GetUpdates()
 	{
-		try
-		{
-			return await _metaService.GetNotifications();
-		}
-		catch ( NotAuthorizedException )
-		{
-			return Unauthorized( "Session has expired." );
-		}
+		return await _metaService.GetNotifications()
+			.WithMappedMaintenanceBreak( ServiceUnavailable )
+			.WithMappedUnauthorized( Unauthorized );
 	}
 
 	[HttpGet( "username" )]
 	public async Task<ActionResult<string>> GetUsername()
 	{
-		try
-		{
-			return await _metaService.GetUsername();
-		}
-		catch ( NotAuthorizedException )
-		{
-			return Unauthorized( "Session has expired." );
-		}
+		return await _metaService.GetUsername()
+			.WithMappedMaintenanceBreak( ServiceUnavailable )
+			.WithMappedUnauthorized( Unauthorized );
 	}
 
 }

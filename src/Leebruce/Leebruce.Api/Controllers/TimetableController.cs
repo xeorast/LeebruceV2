@@ -1,4 +1,5 @@
-﻿using Leebruce.Domain.Timetable;
+﻿using Leebruce.Api.Extensions;
+using Leebruce.Domain.Timetable;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,27 +20,17 @@ public class TimetableController : ExtendedControllerBase
 	[HttpGet]
 	public async Task<ActionResult<TimetableDayModel[]>> GetCurrentWeek()
 	{
-		try
-		{
-			return await _timetableService.GetTimetableAsync( User );
-		}
-		catch ( NotAuthorizedException )
-		{
-			return Unauthorized( "Session has expired." );
-		}
+		return await _timetableService.GetTimetableAsync( User )
+			.WithMappedMaintenanceBreak( ServiceUnavailable )
+			.WithMappedUnauthorized( Unauthorized );
 	}
 
 	[HttpGet( "{date}" )]
 	public async Task<ActionResult<TimetableDayModel[]>> GetWeek( DateOnly date )
 	{
-		try
-		{
-			return await _timetableService.GetTimetableAsync( User, date );
-		}
-		catch ( NotAuthorizedException )
-		{
-			return Unauthorized( "Session has expired." );
-		}
+		return await _timetableService.GetTimetableAsync( User, date )
+			.WithMappedMaintenanceBreak( ServiceUnavailable )
+			.WithMappedUnauthorized( Unauthorized );
 	}
 
 }

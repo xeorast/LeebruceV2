@@ -1,4 +1,5 @@
-﻿using Leebruce.Domain;
+﻿using Leebruce.Api.Extensions;
+using Leebruce.Domain;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,27 +20,17 @@ public class MessagesController : ExtendedControllerBase
 	[HttpGet]
 	public async Task<ActionResult<CollectionPage<MessageMetadataModel>>> GetMessages( [FromQuery] int page = 1 )
 	{
-		try
-		{
-			return await _messagesService.GetMessagesAsync( User, page - 1 /*page is 1-based for users, but 0-based internally*/ );
-		}
-		catch ( NotAuthorizedException )
-		{
-			return Unauthorized( "Session has expired." );
-		}
+		return await _messagesService.GetMessagesAsync( User, page - 1 /*page is 1-based for users, but 0-based internally*/ )
+			.WithMappedMaintenanceBreak( ServiceUnavailable )
+			.WithMappedUnauthorized( Unauthorized );
 	}
 
 	[HttpGet( "{id}" )]
 	public async Task<ActionResult<MessageModel>> GetMessages( string id )
 	{
-		try
-		{
-			return await _messagesService.GetMessageAsync( User, id );
-		}
-		catch ( NotAuthorizedException )
-		{
-			return Unauthorized( "Session has expired." );
-		}
+		return await _messagesService.GetMessageAsync( User, id )
+			.WithMappedMaintenanceBreak( ServiceUnavailable )
+			.WithMappedUnauthorized( Unauthorized );
 	}
 
 	[HttpGet( "attachments/{id}" )]
@@ -50,6 +41,10 @@ public class MessagesController : ExtendedControllerBase
 			var file = await _messagesService.GetAttachmentAsync( User, id );
 
 			return File( file.Content, file.MediaType, file.FileName );
+		}
+		catch ( MaintenanceBreakException )
+		{
+			return ServiceUnavailable( "Can not contact Lb as it is undergoing maintenance." );
 		}
 		catch ( NotAuthorizedException )
 		{
