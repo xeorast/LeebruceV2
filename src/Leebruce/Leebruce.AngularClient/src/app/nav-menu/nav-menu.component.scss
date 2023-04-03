@@ -20,6 +20,13 @@ ul.nav {
     list-style: none;
     padding-left: 0;
     margin-bottom: 0;
+    width: 100%;
+}
+
+li>a {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline;
 }
 
 .top-row {
@@ -32,6 +39,14 @@ ul.nav {
 
     @media(prefers-color-scheme: light) {
         background-color: hsl(219, 100%, 22%);
+    }
+}
+
+.bi {
+    margin-right: 1.5ch;
+
+    &::before {
+        font-size: 1.2em;
     }
 }
 
