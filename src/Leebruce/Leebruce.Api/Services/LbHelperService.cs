@@ -10,6 +10,7 @@ public interface ILbHelperService
 	string GetUserName( string lbPage );
 	bool IsUnauthorized( string document );
 	UpdatesSinceLoginModel GetNotifications( string lbPage );
+	bool IsMaintenanceBreak( string document );
 }
 
 public partial class LbHelperService : ILbHelperService
@@ -18,6 +19,20 @@ public partial class LbHelperService : ILbHelperService
 	{
 		return document.Contains( "<h2 class=\"inside\">Brak dostępu</h2>" )
 			&& document.Contains( @"https:\/\/synergia.librus.pl\/loguj" );
+	}
+
+	public bool IsMaintenanceBreak( string document )
+	{
+		return document.Contains( """
+			                    <form class="form technical-break" action="" method="post" name="">
+			                        <h2 class="text-primary text-bolder">Przerwa techniczna</h2>
+			                        <p class="u-mv-32 u-pv-32 u-fs-16">
+			                            <i class="icon--technical-break"></i>
+			                        </p>
+			                        <p class="u-fs-16">
+			                                                    </p>
+			                    </form>
+			""" );
 	}
 
 	public string GetUserName( string lbPage )

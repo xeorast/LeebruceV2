@@ -39,6 +39,9 @@ public class LbSiteClient : ILbSiteClient
 		if ( _lbHelper.IsUnauthorized( document ) )
 			throw new NotAuthorizedException();
 
+		if ( _lbHelper.IsMaintenanceBreak( document ) )
+			throw new MaintenanceBreakException();
+
 		return document;
 	}
 
@@ -49,6 +52,9 @@ public class LbSiteClient : ILbSiteClient
 
 		if ( _lbHelper.IsUnauthorized( document ) )
 			throw new NotAuthorizedException();
+
+		if ( _lbHelper.IsMaintenanceBreak( document ) )
+			throw new MaintenanceBreakException();
 
 		return new( document, resp.Headers, resp.Content.Headers );
 	}
@@ -63,6 +69,9 @@ public class LbSiteClient : ILbSiteClient
 
 		if ( _lbHelper.IsUnauthorized( document ) )
 			throw new NotAuthorizedException();
+
+		if ( _lbHelper.IsMaintenanceBreak( document ) )
+			throw new MaintenanceBreakException();
 
 		return document;
 	}
