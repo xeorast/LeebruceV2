@@ -21,13 +21,13 @@ public partial class LbMetaService : ILbMetaService
 
 	public async Task<UpdatesSinceLoginModel> GetNotifications()
 	{
-		var doc = await _lbClient.GetContentAuthorized( "https://synergia.librus.pl/uczen/index" );
+		var doc = await _lbClient.GetContentAuthorized( "/uczen/index" );
 		return _lbHelper.GetNotifications( doc );
 	}
 
 	public async Task<string> GetUsername()
 	{
-		var doc = await _lbClient.GetContentAuthorized( "https://synergia.librus.pl/uczen/index" );
+		var doc = await _lbClient.GetContentAuthorized( "/uczen/index" );
 		return _lbHelper.GetUserName( doc );
 	}
 }

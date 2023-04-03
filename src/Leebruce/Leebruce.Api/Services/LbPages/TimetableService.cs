@@ -23,7 +23,7 @@ public partial class TimetableService : ITimetableService
 
 	public async Task<TimetableDayModel[]> GetTimetableAsync( ClaimsPrincipal principal )
 	{
-		var document = await _lbClient.GetContentAuthorized( "https://synergia.librus.pl/przegladaj_plan_lekcji" );
+		var document = await _lbClient.GetContentAuthorized( "/przegladaj_plan_lekcji" );
 
 		return ProcessResponse( document );
 	}
@@ -32,7 +32,7 @@ public partial class TimetableService : ITimetableService
 		Dictionary<string, string> data = new() { ["tydzien"] = GetWeek( date ) };
 		using FormUrlEncodedContent ctnt = new( data );
 
-		var document = await _lbClient.PostContentAuthorized( "https://synergia.librus.pl/przegladaj_plan_lekcji", ctnt );
+		var document = await _lbClient.PostContentAuthorized( "/przegladaj_plan_lekcji", ctnt );
 
 		return ProcessResponse( document );
 	}

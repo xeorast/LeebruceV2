@@ -38,7 +38,7 @@ public partial class ScheduleService : IScheduleService
 		};
 		using FormUrlEncodedContent ctnt = new( data );
 
-		var document = await _lbClient.PostContentAuthorized( "https://synergia.librus.pl/terminarz", ctnt );
+		var document = await _lbClient.PostContentAuthorized( "/terminarz", ctnt );
 
 		return ExtractDays( document ).ToArray();
 	}

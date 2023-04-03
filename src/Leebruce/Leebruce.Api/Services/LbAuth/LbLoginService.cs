@@ -1,4 +1,6 @@
 ﻿using Leebruce.Api.Models;
+using Leebruce.Api.Options;
+using Microsoft.Extensions.Options;
 using System.Net;
 
 namespace Leebruce.Api.Services.LbAuth;
@@ -14,12 +16,14 @@ public class LbLoginService : ILbLoginService, IDisposable
 	private readonly HttpClientHandler _httpHandler;
 	private readonly HttpClient _http;
 	private readonly JsonService _json;
+	private readonly LbConfigOptions _options;
 
-	public LbLoginService( JsonService json )
+	public LbLoginService( JsonService json, IOptions<LbConfigOptions> options )
 	{
 		_json = json;
 		_httpHandler = new() { AllowAutoRedirect = false, CookieContainer = new() };
 		_http = new( _httpHandler );
+		_options = options.Value;
 	}
 
 	public async Task<string> LoginAsync( string username, string password )
@@ -60,7 +64,7 @@ public class LbLoginService : ILbLoginService, IDisposable
 	/// <returns></returns>
 	private async Task PreCall()
 	{
-		using var resp = await _http.GetAsync( "https://api.librus.pl/OAuth/Authorization?client_id=46&response_type=code&scope=mydata" );
+		using var resp = await _http.GetAsync( $"{_options.ApiUrl}/OAuth/Authorization?client_id=46&response_type=code&scope=mydata" );
 	}
 
 	/// <summary>
@@ -79,7 +83,7 @@ public class LbLoginService : ILbLoginService, IDisposable
 		};
 		using FormUrlEncodedContent ctnt = new( data );
 
-		using var resp = await _http.PostAsync( "https://api.librus.pl/OAuth/Authorization?client_id=46", ctnt );
+		using var resp = await _http.PostAsync( $"{_options.ApiUrl}/OAuth/Authorization?client_id=46", ctnt );
 		var respData = await resp.Content.ReadFromJsonAsync<CredentialsResponse>();
 
 		if ( respData is { Errors.Length: > 0 } )
@@ -102,7 +106,7 @@ public class LbLoginService : ILbLoginService, IDisposable
 	/// <returns>uri containing token to verification</returns>
 	private async Task<Uri> PostGrant()
 	{
-		using var resp = await _http.PostAsync( "https://api.librus.pl/OAuth/Authorization/Grant?client_id=46", null );
+		using var resp = await _http.PostAsync( $"{_options.ApiUrl}/OAuth/Authorization/Grant?client_id=46", null );
 		return resp.Headers.Location ?? throw new LbLoginException( "Server did not return verification token." );
 	}
 

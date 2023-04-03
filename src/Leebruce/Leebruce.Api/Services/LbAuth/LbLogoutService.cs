@@ -18,7 +18,7 @@ public class LbLogoutService : ILbLogoutService
 
 	public async Task LogoutAsync( ClaimsPrincipal user )
 	{
-		using var resp = await _lbClient.GetAuthorized( "https://synergia.librus.pl/wyloguj" );
+		using var resp = await _lbClient.GetAuthorized( "/wyloguj" );
 	}
 
 }

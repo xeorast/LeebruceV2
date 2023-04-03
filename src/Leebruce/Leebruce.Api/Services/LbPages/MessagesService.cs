@@ -1,6 +1,8 @@
 ﻿using Leebruce.Api.Extensions;
 using Leebruce.Api.Models;
+using Leebruce.Api.Options;
 using Leebruce.Domain;
+using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
@@ -19,11 +21,13 @@ public partial class MessagesService : IMessagesService
 {
 	private readonly ILbSiteClient _lbClient;
 	private readonly ILiblinkService _liblinkService;
+	private readonly LbConfigOptions _options;
 
-	public MessagesService( ILbSiteClient lbClient, ILiblinkService liblinkService )
+	public MessagesService( ILbSiteClient lbClient, ILiblinkService liblinkService, IOptions<LbConfigOptions> options )
 	{
 		_lbClient = lbClient;
 		_liblinkService = liblinkService;
+		_options = options.Value;
 	}
 
 	#region messages list
@@ -37,7 +41,7 @@ public partial class MessagesService : IMessagesService
 			{ idPojemnikaCtnt, "idPojemnika" },
 		};
 
-		var document = await _lbClient.PostContentAuthorized( "https://synergia.librus.pl/wiadomosci", form );
+		var document = await _lbClient.PostContentAuthorized( "/wiadomosci", form );
 
 		string table = ExtractListTable( document );
 
@@ -140,7 +144,7 @@ public partial class MessagesService : IMessagesService
 	{
 		var link = StringExtensions.FromUrlBase64( id );
 
-		var document = await _lbClient.GetContentAuthorized( $"https://synergia.librus.pl/wiadomosci/{link}" );
+		var document = await _lbClient.GetContentAuthorized( $"/wiadomosci/{link}" );
 
 		return await ExtractMessageAsync( document );
 	}
@@ -242,7 +246,7 @@ public partial class MessagesService : IMessagesService
 
 		//var location = preResp.Headers.Location
 		//	?? throw new ProcessingException( "Failed to get attachment location." );
-		var (_, headers, _) = await _lbClient.GetContentAndHeadersAuthorized( $"https://synergia.librus.pl/wiadomosci/pobierz_zalacznik/{link}" );
+		var (_, headers, _) = await _lbClient.GetContentAndHeadersAuthorized( $"/wiadomosci/pobierz_zalacznik/{link}" );
 		var location = headers.Location
 			?? throw new ProcessingException( "Failed to get attachment location." );
 
@@ -307,7 +311,7 @@ public partial class MessagesService : IMessagesService
 		TokenCheckResponse checkResponse;
 		do
 		{
-			var checkResp = await _lbClient.PostAuthorized( "https://sandbox.librus.pl/index.php?action=CSCheckKey", ctnt );
+			var checkResp = await _lbClient.PostAuthorized( $"{_options.SandboxUrl}/index.php?action=CSCheckKey", ctnt );
 			checkResponse = await checkResp.Content.ReadFromJsonAsync<TokenCheckResponse>()
 				?? throw new ProcessingException( "Token check sent invalid response." );
 

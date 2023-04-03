@@ -22,7 +22,7 @@ public partial class AnnouncementsService : IAnnouncementsService
 
 	public async Task<AnnouncementModel[]> GetAnnouncementsAsync( ClaimsPrincipal principal )
 	{
-		var document = await _lbClient.GetContentAuthorized( "https://synergia.librus.pl/ogloszenia" );
+		var document = await _lbClient.GetContentAuthorized( "/ogloszenia" );
 
 		var list = ExtractList( document );
 		return ExtractItems( list )

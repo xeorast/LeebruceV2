@@ -24,7 +24,7 @@ public partial class GradesService : IGradesService
 
 	public async Task<SubjectGradesModel[]> GetGradesAsync( ClaimsPrincipal principal )
 	{
-		var document = await _lbClient.GetContentAuthorized( "https://synergia.librus.pl/przegladaj_oceny/uczen" );
+		var document = await _lbClient.GetContentAuthorized( "/przegladaj_oceny/uczen" );
 
 		var table = GradesTableRx().Match( document ).GetGroup( 1 )
 			?? throw new ProcessingException( "Failed to extract table from document." );
@@ -258,7 +258,7 @@ public partial class GradesService : IGradesService
 
 	public async Task<GradesGraphRecordModel[]> GetGraphAsync( ClaimsPrincipal principal )
 	{
-		var document = await _lbClient.GetContentAuthorized( "https://synergia.librus.pl/uczen/graph_ajax.php?type=wykres_sredniej&classId=74264&userId=1792335&_=1656850225307" );
+		var document = await _lbClient.GetContentAuthorized( "/uczen/graph_ajax.php?type=wykres_sredniej&classId=74264&userId=1792335&_=1656850225307" );
 
 		var graphMatches = GradeGraphRx().Matches( document );
 		List<GradesGraphRecordModel> graph = new( graphMatches.Count );

@@ -1,7 +1,9 @@
 ﻿using Leebruce.Api.Auth;
 using Leebruce.Api.Extensions;
 using Leebruce.Api.OpenApi;
+using Leebruce.Api.Options;
 using Leebruce.Domain.Converters;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Any;
 using Microsoft.OpenApi.Models;
 
@@ -42,6 +44,9 @@ public static class Startup
 			= AuthConstants.Token.Scheme;
 		} ).AddToken();
 
+		// options
+		_ = builder.Services.Configure<LbConfigOptions>( builder.Configuration.GetRequiredSection( "LbConfig" ) );
+
 		// services
 		_ = builder.Services.AddHttpContextAccessor();
 		_ = builder.Services.AddScoped<ILbUserService, LbUserService>();
@@ -65,6 +70,11 @@ public static class Startup
 			} );
 
 		_ = builder.Services.AddHttpClient( httpClientForAuthedCalls )
+			.ConfigureHttpClient( ( s, client ) =>
+			{
+				var o = s.GetRequiredService<IOptions<LbConfigOptions>>().Value;
+				client.BaseAddress = new( o.WebsiteUrl );
+			} )
 			.ConfigurePrimaryHttpMessageHandler( () =>
 			{
 				return new HttpClientHandler() { AllowAutoRedirect = false, UseCookies = false };
