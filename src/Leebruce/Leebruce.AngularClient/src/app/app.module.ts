@@ -35,6 +35,7 @@ import { GradesClientModule } from './api/grades-client/grades-client.module';
       { path: 'timetable', loadChildren: () => import( './timetable/timetable.module' ).then( m => m.TimetableModule ) },
       { path: 'messages', loadChildren: () => import( './messages/messages.module' ).then( m => m.MessagesModule ) },
       { path: 'schedule', loadChildren: () => import( './schedule/schedule.module' ).then( m => m.ScheduleModule ) },
+      { path: 'grades', loadChildren: () => import('./grades/grades.module').then(m => m.GradesModule) },
     ] ),
     NavMenuModule,
     AuthenticationModule,

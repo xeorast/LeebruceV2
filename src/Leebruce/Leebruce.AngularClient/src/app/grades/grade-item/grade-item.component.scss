@@ -1,0 +1,91 @@
+// hexagons
+$font-size: 2rem;
+$width: 100%;
+
+$root-three: 1.7320508075;
+$side: $width / 2;
+$longer-diagonal: 2 * $side;
+$height: $root-three * $side;
+$ratio: $longer-diagonal / $height;
+
+.hexagon-wrapper {
+    width: $longer-diagonal;
+    aspect-ratio: $ratio;
+    cursor: pointer;
+    filter: drop-shadow(0 0 3px var(--light-color));
+}
+
+.hexagon {
+    position: relative;
+    width: 100% * $side / $longer-diagonal;
+    height: 100%;
+    margin: auto;
+    color: white;
+    background: linear-gradient(-180deg, white, var(--hexagon-color, #fda3b2));
+    display: flex;
+    justify-content: center;
+    transition: 0.5s;
+    isolation: isolate;
+
+    @media(prefers-color-scheme:dark) {
+        filter: saturate(90%) brightness(80%) contrast(140%);
+    }
+}
+
+.hexagon::before,
+.hexagon::after {
+    content: "";
+    position: absolute;
+    background: inherit;
+    height: 100%;
+    width: 100%;
+    z-index: -1;
+    transform-origin: center;
+    border-radius: 0;
+    transition: 0.5s;
+}
+
+.hexagon::before {
+    transform: rotateZ(60deg);
+}
+
+.hexagon::after {
+    transform: rotateZ(-60deg);
+}
+
+.hexagon:hover,
+.hexagon:hover::before,
+.hexagon:hover::after {
+    border-radius: 50% / #{50% * $side / $height};
+    transition: 0.5s;
+}
+
+// hexagon-content
+.hexagon>:first-child {
+    margin: auto;
+    font-size: $font-size;
+    color: transparent;
+    // background: linear-gradient(45deg, #a58fe9, #e37682);
+    background-clip: text;
+    -webkit-background-clip: text;
+    background-color: var(--hexagon-color);
+    filter: drop-shadow(0px 0px 8px black) brightness(0.5);
+}
+
+.weight {
+    position: absolute;
+    transform: rotate(-60deg);
+    width: 100%;
+    height: 100%;
+    transform-origin: center;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+}
+
+.weight>* {
+    transform: translate(0, 10%) rotate(60deg) translate(0, 20%);
+    // transform: translate(-30%, 30%) rotate(60deg);
+    min-width: 3ch;
+    box-shadow: 0 0 6px -3px var(--dark-color);
+}

@@ -1,0 +1,125 @@
+$tile-radius: .75rem;
+
+.subject-tile {
+    height: 100%;
+    width: 100%;
+    position: relative;
+    display: grid;
+    border-radius: $tile-radius;
+    padding: $tile-radius;
+    text-shadow: 0 0 2px var(--dark-color);
+    box-shadow: 0 0 6px -4px var(--light-color);
+}
+
+@for $i from 0 through 36 {
+    $tile-saturation: 90%;
+    $tile-lightness: 78%;
+
+    .tile-#{$i} {
+        --tile-color: hsl(#{$i*10}, #{$tile-saturation}, #{$tile-lightness});
+        color: var(--tile-color);
+        background-color: hsla($i*10, $tile-saturation, $tile-lightness, 0.25);
+    }
+}
+
+.average {
+    margin-bottom: .5rem;
+    justify-self: center;
+}
+
+.name {
+    margin: 0;
+    color: inherit;
+    overflow: hidden;
+    overflow-wrap: break-word;
+}
+
+.details-arrow {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding-top: .1rem;
+    padding-bottom: .1rem;
+    background-color: var(--tile-color);
+    border-radius: $tile-radius 0 $tile-radius 0;
+
+    &>i {
+        display: inline-block;
+        transition: transform .2s;
+    }
+}
+
+button:hover+.details-arrow>i {
+    transform: translate(5px);
+}
+
+button:focus-visible+.details-arrow,
+.subject-tile:active {
+    outline: solid 2px white;
+}
+
+.progress-ring {
+    width: 6rem;
+    position: relative;
+}
+
+$circle-perimeter: 314.15;
+
+.progress-ring circle {
+    fill: none;
+    stroke-width: 8;
+    stroke-dasharray: $circle-perimeter;
+    stroke-linecap: round;
+
+    &.rail {
+        stroke: #424242;
+
+        @media(prefers-color-scheme:light) {
+            stroke: var(--light-color);
+        }
+    }
+
+    &.value {
+        stroke: currentColor;
+        stroke-dashoffset: calc($circle-perimeter * (1 - var(--progress-value)));
+        rotate: -90deg;
+        transform-origin: center;
+        animation: progress-ring 1s cubic-bezier(0, 0, 0.3, 1);
+        stroke-width: 4;
+        filter: drop-shadow(0px 0px 2px currentcolor);
+    }
+}
+
+.number {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    &>* {
+        color: inherit;
+    }
+}
+
+@keyframes progress-ring {
+    0% {
+        stroke-dashoffset: $circle-perimeter
+    }
+}
+
+button {
+    height: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+}
+
+button::after {
+    content: "";
+    position: absolute;
+    z-index: 1;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+}

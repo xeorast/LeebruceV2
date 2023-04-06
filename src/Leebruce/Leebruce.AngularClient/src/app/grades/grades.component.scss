@@ -1,0 +1,73 @@
+@use "sass:math";
+
+.subjects-display {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+    max-width: 1800px;
+
+    @media(min-width: 900px) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    @media(min-width: 1200px) {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+
+    @media(min-width: 1800px) {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+}
+
+.grades-modal-header {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+}
+
+$width: 85px;
+$gap: 15px;
+$per-row: 2;
+
+$root-three: 1.7320508075;
+$side: $width / 2;
+$longer-diagonal: 2 * $side;
+$height: $root-three * $side;
+$ratio: $longer-diagonal / $height;
+
+$column-gap: $gap * math.sin(60deg);
+$row-gap: $gap * math.cos(60deg);
+
+.hexagon-grid {
+    display: grid;
+    grid-template-columns: repeat($per-row, $longer-diagonal);
+    grid-auto-rows: $height / 2;
+    column-gap: $side + $column-gap;
+    row-gap: $row-gap / 2;
+    margin-bottom: $height / 2 + $row-gap / 2;
+    margin-right: ($longer-diagonal - $side) / 2 + $side + $column-gap / 2;
+}
+
+.hexagon-grid>* {
+    margin-bottom: -50px - $row-gap / 2;
+}
+
+@for $i from 0 through 20 {
+    @if $i % 2==1 {
+        .hexagon-grid>*:nth-child(n + #{$i * $per-row + 1}):nth-child(-n + #{($i+1) * $per-row}) {
+            transform: translate(($longer-diagonal - $side) / 2 + $side + $column-gap / 2, 0);
+        }
+    }
+}
+
+.grades-display {
+    display: grid;
+    grid-auto-flow: column;
+    grid-template-rows: auto auto;
+    justify-items: center;
+    gap: 0.5rem 1rem;
+
+    @media(max-width: 800px) {
+        grid-template-rows: repeat(4, auto);
+    }
+}

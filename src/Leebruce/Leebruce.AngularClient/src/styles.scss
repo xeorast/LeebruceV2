@@ -68,3 +68,15 @@ body {
     @extend .placeholder;
     background-color: unset;
 }
+
+.capitalise-first::first-letter {
+    text-transform: capitalize;
+}
+
+.text-inherit {
+    color: inherit;
+}
+
+.align-start {
+    text-align: start;
+}

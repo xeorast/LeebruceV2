@@ -1,0 +1,49 @@
+<div class="subjects-display">
+    <app-grades-subject-item
+        *ngFor="let subject of subjects"
+        [subject]="subject"
+        (click)="select(subject)">
+    </app-grades-subject-item>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="subjectGradesModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
+        style="--bs-modal-width: min-content;">
+        <div class="modal-content">
+            <!-- subject        x -->
+            <!-- date author      -->
+            <div class="modal-header grades-modal-header">
+                <h3 class="modal-title fs-5">{{selected?.subject}}</h3>
+                <button class="btn-close align-self-start" type="button"
+                    data-bs-dismiss="modal" aria-label="Close"></button>
+                <small class="text-muted">
+                    Average: {{selected?.average | number: "1.2-2"}}
+                    (Sum of weights: {{selected?.weightsSum | number: "1.0-2"}})
+                </small>
+            </div>
+            <!--   content   -->
+            <!--     ---     -->
+            <!-- attachments -->
+            <div class="modal-body">
+                <!-- <div class="mb-1" [innerHTML]="modalBody"></div> -->
+                <div class="grades-display">
+                    <h5>First term</h5>
+                    <div class="hexagon-grid">
+                        <app-grade-item
+                            *ngFor="let grade of selected?.gradesPart1"
+                            [grade]="grade">
+                        </app-grade-item>
+                    </div>
+                    <h5>Second term</h5>
+                    <div class="hexagon-grid">
+                        <app-grade-item
+                            *ngFor="let grade of selected?.gradesPart2"
+                            [grade]="grade">
+                        </app-grade-item>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

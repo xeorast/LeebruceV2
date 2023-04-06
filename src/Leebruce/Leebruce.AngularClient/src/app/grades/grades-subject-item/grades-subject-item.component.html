@@ -1,0 +1,34 @@
+<!--    O     -->
+<!-- subject  -->
+<!-- count  → -->
+
+<div *ngIf="subject"
+    class="subject-tile"
+    [ngClass]="[colorClass]">
+    <!-- /  ‾‾\ -->
+    <!-- |5.27| -->
+    <!-- \____/ -->
+    <div class="average">
+        <div *ngIf="subject.average"
+            class="progress-ring">
+            <svg viewBox="0 0 110 110" preserveAspectRatio="none"
+                [ngStyle]="{ '--progress-value': subject.average ? (subject.average - 1) / 5 : 0 }">
+                <circle class="rail" cx="55" cy="55" r="50"></circle>
+                <circle class="value" cx="55" cy="55" r="50"></circle>
+            </svg>
+            <div class="number">
+                <h2 class="m-0">{{subject.average | number: "1.1-2"}}</h2>
+            </div>
+        </div>
+    </div>
+    <!-- subject-name [warning-icon] -->
+    <h3 class="name">
+        {{subject.subject}}
+        <i *ngIf="!subject.isRepresentative" class="bi bi-exclamation-triangle"></i>
+    </h3>
+    <!-- n Grades -->
+    <small>{{subject.grades.length}} Grades</small>
+    <!-- → -->
+    <button></button>
+    <div class="btn details-arrow"><i class="bi bi-arrow-right"></i></div>
+</div>
