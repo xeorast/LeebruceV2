@@ -17,6 +17,7 @@ import { MessagesClientModule } from './api/messages-client/messages-client.modu
 import { getFileSaver, FILESAVER } from './api/fileSaver';
 import { ScheduleClientModule } from './api/schedule-client/schedule-client.module';
 import { StatusClientModule } from './api/status-client/status-client.module';
+import { GradesClientModule } from './api/grades-client/grades-client.module';
 
 @NgModule( {
   declarations: [
@@ -45,6 +46,7 @@ import { StatusClientModule } from './api/status-client/status-client.module';
     MessagesClientModule,
     ScheduleClientModule,
     StatusClientModule,
+    GradesClientModule,
   ],
   bootstrap: [AppComponent],
   providers: [
