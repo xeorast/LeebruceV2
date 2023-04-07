@@ -35,6 +35,10 @@ export class GradesComponent implements OnInit {
     let subjectsVm = data.subjects as unknown as SubjectGradesViewModel[]
     for ( const subject of subjectsVm ) {
       if ( !data.isByPercent ) {
+        let valuedGrades = subject.firstTermGrades.filter( g => g.value && g.value != 0 && g.weight && g.countToAverage )
+          .concat( subject.secondTermGrades.filter( g => g.value && g.value != 0 && g.weight && g.countToAverage ) )
+
+        subject.weightsSum = valuedGrades.reduce( ( sum: number, curr: GradeModel ) => sum + curr.weight!, 0 )
         subject.percent = subject.average ? ( subject.average - 1 ) * 100 / 5 : undefined
       }
     }
