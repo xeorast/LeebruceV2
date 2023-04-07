@@ -2,6 +2,10 @@
 
 namespace Leebruce.Domain;
 
+public record class GradesPageModel(
+	bool IsByPercent,
+	SubjectGradesModel[] Subjects );
+
 public record class SubjectGradesModel(
 	string Subject,
 	GradeModel[] Grades,

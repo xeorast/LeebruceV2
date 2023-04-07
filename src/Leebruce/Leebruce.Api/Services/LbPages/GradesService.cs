@@ -8,7 +8,7 @@ namespace Leebruce.Api.Services.LbPages;
 
 public interface IGradesService
 {
-	Task<SubjectGradesModel[]> GetGradesAsync( ClaimsPrincipal principal );
+	Task<GradesPageModel> GetGradesAsync( ClaimsPrincipal principal );
 	Task<GradesGraphRecordModel[]> GetGraphAsync( ClaimsPrincipal principal );
 }
 
@@ -22,17 +22,21 @@ public partial class GradesService : IGradesService
 		_lbClient = lbClient;
 	}
 
-	public async Task<SubjectGradesModel[]> GetGradesAsync( ClaimsPrincipal principal )
+	public async Task<GradesPageModel> GetGradesAsync( ClaimsPrincipal principal )
 	{
 		var document = await _lbClient.GetContentAuthorized( "/przegladaj_oceny/uczen" );
+
+		bool isByPercent = document.Contains( """<h3 class="center">Oceny punktowe</h3>""" );
 
 		var table = GradesTableRx().Match( document ).GetGroup( 1 )
 			?? throw new ProcessingException( "Failed to extract table from document." );
 
-		return ExtractSubjects( table, out var _ );//todo: return whether subjects list is complete
+		var grades = ExtractSubjects( table, isByPercent, out var _ );//todo: return whether subjects list is complete
+
+		return new( isByPercent, grades );
 	}
 
-	static SubjectGradesModel[] ExtractSubjects( string table, out bool isComplete )
+	static SubjectGradesModel[] ExtractSubjects( string table, bool isByPercent, out bool isComplete )
 	{
 		isComplete = true;
 		var matches = SubjectRx().Matches( table );
@@ -42,7 +46,7 @@ public partial class GradesService : IGradesService
 		{
 			try
 			{
-				subjects.Add( ProcessSubjectMatch( subjectMatch ) );
+				subjects.Add( ProcessSubjectMatch( subjectMatch, isByPercent ) );
 			}
 			catch ( ProcessingException )
 			{
@@ -53,7 +57,7 @@ public partial class GradesService : IGradesService
 
 		return subjects.ToArray();
 	}
-	static SubjectGradesModel ProcessSubjectMatch( Match subjectMatch )
+	static SubjectGradesModel ProcessSubjectMatch( Match subjectMatch, bool isByPercent )
 	{
 		// summary
 		var summary = subjectMatch.GetGroup( "summary" )
@@ -89,8 +93,9 @@ public partial class GradesService : IGradesService
 		var averageTotalStr = summaryMatch.GetGroup( "averageTotal" )
 			?? throw new( "Failed to extract total average field from grades summary." );
 
-		bool isRepresentative = isComplete && ValidateGrades( grades, averageTotalStr );
+		bool isRepresentative = isComplete && !isByPercent && ValidateGrades( grades, averageTotalStr );
 
+		
 		return new SubjectGradesModel( subjectName, grades, isRepresentative );
 	}
 	static bool ValidateGrades( GradeModel[] grades, string averageTotalStr )
@@ -160,6 +165,7 @@ public partial class GradesService : IGradesService
 
 		// grade
 		var gradeStr = gradeMatch.GetGroup( "grade" )
+			?? gradeMatch.GetGroup( "gradeAlt" )
 			?? throw ExceptionFor( "grade" );
 
 		int? grade = null;
@@ -172,12 +178,12 @@ public partial class GradesService : IGradesService
 				"+" => SpecialGrade.Plus,
 				"-" => SpecialGrade.Minus,
 				"np" => SpecialGrade.Unprepared,
-				_ => throw FormatExceptionFor( "Grade" ),
+				_ => SpecialGrade.Unknown,
+				//_ => throw FormatExceptionFor( "Grade" ),
 			};
 
 		// weight
-		var weightStr = gradeMatch.GetGroup( "weight" )
-			?? throw ExceptionFor( "weight" );
+		var weightStr = gradeMatch.GetGroup( "weight" );
 
 		int? weight;
 		if ( string.IsNullOrWhiteSpace( weightStr ) )
@@ -195,12 +201,12 @@ public partial class GradesService : IGradesService
 			throw FormatExceptionFor( "Date" );
 
 		// count
-		var countStr = gradeMatch.GetGroup( "count" )
-			?? throw ExceptionFor( "count" );
+		var countStr = gradeMatch.GetGroup( "count" );
 		var count = countStr switch
 		{
 			"aktywne" => true,
 			"nieaktywne" => false,
+			null => true,
 			_ => throw FormatExceptionFor( "Count to average" )
 		};
 
@@ -235,25 +241,30 @@ public partial class GradesService : IGradesService
 
 
 	// $1: content
-	[GeneratedRegex( @"<table class=""decorated stretch"">([\s\S]*)<\/table>", RegexOptions.None, regexTimeout )]
+	[GeneratedRegex( @"<table class=""decorated stretch""\s*>([\s\S]*)<\/table>", RegexOptions.None, regexTimeout )]
 	private static partial Regex GradesTableRx();
 	// $summary; $table
-	[GeneratedRegex( @"<tr class=""(line\d)"">\s*(?<summary><td class='center micro screen-only'><img src=""/images/tree_colapsed\.png"" id=""przedmioty_(\d*)_node[\s\S]*?)<\/tr><tr class=""\1""[^>]*id=""przedmioty_\2""[^>]*>\s*<td[^>]*><table class=""stretch"">(?<table>[\s\S]*?)<\/table><\/td><\/tr>", RegexOptions.None, regexTimeout )]
+	//[GeneratedRegex( @"<tr class=""(line\d)"">\s*(?<summary><td class='center micro screen-only'><img src=""/images/tree_colapsed\.png"" id=""przedmioty_(\d*)_node[\s\S]*?)<\/tr><tr class=""\1""[^>]*id=""przedmioty_\2""[^>]*>\s*<td[^>]*><table class=""stretch"">(?<table>[\s\S]*?)<\/table><\/td><\/tr>", RegexOptions.None, regexTimeout )]
+	[GeneratedRegex( """<tr class=['"]line\d['"]>\s*(?<summary><td class='center micro screen-only'>\s*<img src="\/images\/tree_colapsed\.png" id="przedmioty_([\w_]*)_node[\s\S]*?)<\/tr>\s*<tr class="line\d"[^>]*id="przedmioty_\1"[^>]*>\s*(?:<td>&nbsp;<\/td>\s*)?<td[^>]*>\s*<table class="stretch">(?<table>[\s\S]*?)<\/table>\s*<\/td>\s*<\/tr>""", RegexOptions.None, regexTimeout )]
 	private static partial Regex SubjectRx();
 	// $subject; $grades1; $average1; $suggestedTerm1; $term1; $grades2; $average2; $term2; $averageTotal; $suggestedTotal; $total
-	[GeneratedRegex( @"<td class='center micro screen-only'>[\s\S]*?<\/td>\s*<td\s*>(?<subject>[\s\S]*?)<\/td><td\s*>(?<grades1>[\s\S]*?)<\/td><td class=""right"">(?<average1>[\s\S]*?)<\/td>(?:<td class=""center""\s*>(?<suggestedTerm1>[\s\S]*?)<\/td>)?<td class=""center""\s*>(?<term1>[\s\S]*?)<\/td><td\s*>(?<grades2>[\s\S]*?)<\/td><td\s*class=""right"">(?<average2>[\s\S]*?)<\/td>(?:<td class=""center""\s*>(?<suggestedTerm2>[\s\S]*?)<\/td>)?<td class=""center""\s*>(?<term2>[\s\S]*?)<\/td><td\s*class=""right""\s*>(?<averageTotal>[\s\S]*?)<\/td><td class=""center""\s*>(?<suggestedTotal>[\s\S]*?)<\/td>(?:<td class=""center""\s*>(?<total>[\s\S]*?)<\/td>)?", RegexOptions.None, regexTimeout )]
+	//[GeneratedRegex( @"<td class='center micro screen-only'>[\s\S]*?<\/td>\s*<td\s*>(?<subject>[\s\S]*?)<\/td><td\s*>(?<grades1>[\s\S]*?)<\/td><td class=""right"">(?<average1>[\s\S]*?)<\/td>(?:<td class=""center""\s*>(?<suggestedTerm1>[\s\S]*?)<\/td>)?<td class=""center""\s*>(?<term1>[\s\S]*?)<\/td><td\s*>(?<grades2>[\s\S]*?)<\/td><td\s*class=""right"">(?<average2>[\s\S]*?)<\/td>(?:<td class=""center""\s*>(?<suggestedTerm2>[\s\S]*?)<\/td>)?<td class=""center""\s*>(?<term2>[\s\S]*?)<\/td><td\s*class=""right""\s*>(?<averageTotal>[\s\S]*?)<\/td><td class=""center""\s*>(?<suggestedTotal>[\s\S]*?)<\/td>(?:<td class=""center""\s*>(?<total>[\s\S]*?)<\/td>)?", RegexOptions.None, regexTimeout )]
+	[GeneratedRegex( """<td class='center micro screen-only'>[\s\S]*?<\/td>\s*<td\s*>(?<subject>[^<]*?)(?:<a[^>]*><[^>]*><\/a>)?<\/td><td\s*(?:class=""\s*)?>(?<grades1>[\s\S]*?)<\/td><td class="right">(?<average1>[\s\S]*?)<\/td>(?:<td class="center"\s*>(?<suggestedTerm1>[\s\S]*?)<\/td>)?<td\s*class="center"\s*>(?<term1>[\s\S]*?)<\/td><td\s*>(?<grades2>[\s\S]*?)<\/td><td\s*class="right">(?<average2>[\s\S]*?)<\/td>(?:<td\s*class="center"\s*>(?<suggestedTerm2>[\s\S]*?)<\/td>)?<td\s*class="center"\s*>(?<term2>[\s\S]*?)<\/td><td\s*class="right"\s*>(?<averageTotal>[\s\S]*?)<\/td><td\s*class="center"\s*>(?<suggestedTotal>[\s\S]*?)<\/td>(?:<td\s*class="center"\s*>(?<total>[\s\S]*?)<\/td>)?""", RegexOptions.None, regexTimeout )]
 	private static partial Regex SummaryRx();
 	// $comment; $link
-	[GeneratedRegex( @"<span[^>]*>\s*<a title=""[^""]*Komentarz: (?<comment>[^""]*)"" class=""ocena"" href=""\/przegladaj_oceny\/szczegoly\/(?<link>[^""]*)"" >[^<]*<\/a><\/span>", RegexOptions.None, regexTimeout )]
+	//[GeneratedRegex( @"<span[^>]*>\s*<a title=""[^""]*Komentarz: (?<comment>[^""]*)"" class=""ocena"" href=""\/przegladaj_oceny\/szczegoly\/(?<link>[^""]*)"" >[^<]*<\/a><\/span>", RegexOptions.None, regexTimeout )]
+	[GeneratedRegex( """<span[^>]*>\s*<a title="[^"]*Komentarz: (?<comment>[^"]*)" (?:class="ocena" )?href="\/przegladaj_oceny(?:_punktowe)?\/szczegoly\/(?<link>[^"]*)" >[^<]*<\/a><\/span>""", RegexOptions.None, regexTimeout )]
 	private static partial Regex SummaryGradesRx();
 	// row
 	[GeneratedRegex( @"<tr class=""line1 detail-grades""[\s\S]*?<\/tr>", RegexOptions.None, regexTimeout )]
 	private static partial Regex SubjectGradesRx();
 	// $color; $grade; $category; $date; $teacher; $count: "aktywne" - yes, "nieaktywne" - no; $weight; $resit; $addedBy
-	[GeneratedRegex( @"<tr class=""line1 detail-grades"" style=""background-color: #(?<color>\w*);""><td class=""center"">(?<grade>[^<\s]*)<\/td><td class=""center"">[\s\S]*?<\/td><td>(?<category>[\s\S]*?)<\/td><td class=""center"">(?<date>[\s\S]*?)<\/td><td\s*>(?<teacher>[\s\S]*?)<\/td><td class=""center"">[\s\S]*?""\/images\/(?<count>[\s\S]*?)\.png[^>]*><\/td><td class=""right""\s*>(?<weight>[^<]*?)<\/td><td class=""center""\s*>(?<resit>[\s\S]*?)<\/td><td\s*>(?<addedBy>[\s\S]*?)<\/td><\/tr>", RegexOptions.None, regexTimeout )]
+	//[GeneratedRegex( @"<tr class=""line1 detail-grades"" style=""background-color: #(?<color>\w*);""><td class=""center"">(?<grade>[^<\s]*)<\/td><td class=""center"">[\s\S]*?<\/td><td>(?<category>[\s\S]*?)<\/td><td class=""center"">(?<date>[\s\S]*?)<\/td><td\s*>(?<teacher>[\s\S]*?)<\/td><td class=""center"">[\s\S]*?""\/images\/(?<count>[\s\S]*?)\.png[^>]*><\/td><td class=""right""\s*>(?<weight>[^<]*?)<\/td><td class=""center""\s*>(?<resit>[\s\S]*?)<\/td><td\s*>(?<addedBy>[\s\S]*?)<\/td><\/tr>", RegexOptions.None, regexTimeout )]
+	//[GeneratedRegex( """<tr class="line1 detail-grades" style="background-color: #(?<color>\w*);"><td class="center"\s*>(?<grade>[^<\s]*)<\/td><td class="center"\s*>[\s\S]*?<\/td><td\s*(?:class=""\s*)?>(?<category>[\s\S]*?)<\/td><td class="center"\s*>(?<date>[\s\S]*?)<\/td><td\s*(?:class=""\s*)?>(?<teacher>[\s\S]*?)<\/td>(?:<td class="center">[\s\S]*?"\/images\/(?<count>[\s\S]*?)\.png[^>]*><\/td><td class="right"\s*>(?<weight>[^<]*?)<\/td><td class="center"\s*>(?<resit>[\s\S]*?)<\/td>)?<td\s*(?:class=""\s*)?>(?<addedBy>[\s\S]*?)<\/td><\/tr>""", RegexOptions.None, regexTimeout )]
+	[GeneratedRegex( """<tr class="line1 detail-grades" style="background-color: #(?<color>\w*);"><td class="center"\s*>(?:(?<grade>[^<\s]*)<\/td><td class="center"\s*>|<a[^>]*>(?<gradeAlt>[^<\s]*)<\/a>)([\s\S]*?)<\/td><td\s*(?:class=""\s*)?>(?<category>[\s\S]*?)<\/td><td class="center"\s*>(?<date>[\s\S]*?)<\/td><td\s*(?:class=""\s*)?>(?<teacher>[\s\S]*?)<\/td>(?:<td class="center">[\s\S]*?"\/images\/(?<count>[\s\S]*?)\.png[^>]*><\/td><td class="right"\s*>(?<weight>[^<]*?)<\/td><td class="center"\s*>(?<resit>[\s\S]*?)<\/td>)?<td\s*(?:class=""\s*)?>(?<addedBy>[\s\S]*?)<\/td><\/tr>""", RegexOptions.None, regexTimeout )]
 	private static partial Regex GradeInfoRx();
 	// $link
-	[GeneratedRegex( @"'\/komentarz_oceny\/1\/(?<link>[\s\S]*?)'", RegexOptions.None, regexTimeout )]
+	[GeneratedRegex( @"'\/komentarz_oceny\/\d\/(?<link>[\s\S]*?)'", RegexOptions.None, regexTimeout )]
 	private static partial Regex GradeIdRx();
 
 	public async Task<GradesGraphRecordModel[]> GetGraphAsync( ClaimsPrincipal principal )

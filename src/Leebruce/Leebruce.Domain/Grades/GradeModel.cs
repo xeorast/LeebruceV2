@@ -8,6 +8,7 @@ public enum SpecialGrade
 	Plus,
 	Minus,
 	Unprepared,
+	Unknown,
 }
 
 public record class GradeModel(

@@ -48,6 +48,8 @@ export class GradeItemComponent implements OnInit, AfterViewInit {
         return "+"
       case "Minus":
         return "-"
+      case "Unknown":
+        return "?"
       case undefined:
         return undefined
     }

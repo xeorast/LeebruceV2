@@ -11,15 +11,20 @@ export class GradesClientService {
 
   public getGrades() {
     let context = AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT
-    return this.http.get<SubjectGradesModel[]>( 'api/grades', { context: context } )
+    return this.http.get<GradesDataModel>( 'api/grades', { context: context } )
       .pipe(
-        tap( resp => resp.forEach(
+        tap( resp => resp.subjects.forEach(
           sub => sub.grades.forEach(
             grade => grade.date = new Date( grade.date )
           ) ) )
       );
   }
 
+}
+
+export interface GradesDataModel {
+  isByPercent: boolean
+  subjects: SubjectGradesModel[]
 }
 
 export interface SubjectGradesModel {

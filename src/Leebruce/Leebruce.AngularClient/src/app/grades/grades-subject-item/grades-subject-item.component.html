@@ -9,15 +9,16 @@
     <!-- |5.27| -->
     <!-- \____/ -->
     <div class="average">
-        <div *ngIf="subject.average"
+        <div *ngIf="subject.percent"
             class="progress-ring">
             <svg viewBox="0 0 110 110" preserveAspectRatio="none"
-                [ngStyle]="{ '--progress-value': subject.average ? (subject.average - 1) / 5 : 0 }">
+                [ngStyle]="{ '--progress-value': subject.percent / 100 }">
                 <circle class="rail" cx="55" cy="55" r="50"></circle>
                 <circle class="value" cx="55" cy="55" r="50"></circle>
             </svg>
             <div class="number">
-                <h2 class="m-0">{{subject.average | number: "1.1-2"}}</h2>
+                <h2 *ngIf="subject.average" class="m-0">{{subject.average | number: "1.1-2"}}</h2>
+                <h5 *ngIf="!subject.average" class="m-0">{{subject.percent | number: "1.1-2"}}%</h5>
             </div>
         </div>
     </div>

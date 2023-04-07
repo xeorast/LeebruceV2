@@ -20,7 +20,7 @@ public class GradesController : ExtendedControllerBase
 
 
 	[HttpGet]
-	public async Task<ActionResult<SubjectGradesModel[]>> GetGrades()
+	public async Task<ActionResult<GradesPageModel>> GetGrades()
 	{
 		return await _gradesService.GetGradesAsync( User )
 			.WithMappedMaintenanceBreak( ServiceUnavailable )
