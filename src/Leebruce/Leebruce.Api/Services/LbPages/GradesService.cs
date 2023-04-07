@@ -8,6 +8,8 @@ namespace Leebruce.Api.Services.LbPages;
 public interface IGradesService
 {
 	Task<GradesPageModel> GetGradesAsync( ClaimsPrincipal principal );
+	Task<GradesPageModel> GetNewGradesAsync( ClaimsPrincipal principal );
+	Task<GradesPageModel> GetGradesWeekSummaryAsync( ClaimsPrincipal principal );
 	Task<GradesGraphRecordModel[]> GetGraphAsync( ClaimsPrincipal principal );
 }
 
@@ -21,9 +23,31 @@ public partial class GradesService : IGradesService
 		_lbClient = lbClient;
 	}
 
-	public async Task<GradesPageModel> GetGradesAsync( ClaimsPrincipal principal )
+	public async Task<GradesPageModel> GetGradesAsync( ClaimsPrincipal principal ) 
+		=> await GetGradeWithPostBody( new Dictionary<string, string>()
 	{
-		var document = await _lbClient.GetContentAuthorized( "/przegladaj_oceny/uczen" );
+		["sortowanieOcen"] = "2",
+		["zmiany_logowanie_wszystkie"] = "1",
+	} );
+
+	public async Task<GradesPageModel> GetNewGradesAsync( ClaimsPrincipal principal )
+		=> await GetGradeWithPostBody( new Dictionary<string, string>()
+		{
+			["sortowanieOcen"] = "2",
+			["zmiany_logowanie"] = "1",
+		} );
+
+	public async Task<GradesPageModel> GetGradesWeekSummaryAsync( ClaimsPrincipal principal )
+		=> await GetGradeWithPostBody( new Dictionary<string, string>()
+		{
+			["sortowanieOcen"] = "2",
+			["zmiany_logowanie_tydzien"] = "1",
+		} );
+
+	public async Task<GradesPageModel> GetGradeWithPostBody( Dictionary<string, string> data  )
+	{
+		using FormUrlEncodedContent ctnt = new( data );
+		var document = await _lbClient.PostContentAuthorized( "/przegladaj_oceny/uczen", ctnt );
 
 		bool isByPercent = document.Contains( """<h3 class="center">Oceny punktowe</h3>""" );
 

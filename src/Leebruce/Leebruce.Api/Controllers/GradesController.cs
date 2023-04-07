@@ -17,11 +17,26 @@ public class GradesController : ExtendedControllerBase
 		_gradesService = gradesService;
 	}
 
-
 	[HttpGet]
 	public async Task<ActionResult<GradesPageModel>> GetGrades()
 	{
 		return await _gradesService.GetGradesAsync( User )
+			.WithMappedMaintenanceBreak( ServiceUnavailable )
+			.WithMappedUnauthorized( Unauthorized );
+	}
+
+	[HttpGet( "new" )]
+	public async Task<ActionResult<GradesPageModel>> GetNewGrades()
+	{
+		return await _gradesService.GetNewGradesAsync( User )
+			.WithMappedMaintenanceBreak( ServiceUnavailable )
+			.WithMappedUnauthorized( Unauthorized );
+	}
+
+	[HttpGet( "this-week" )]
+	public async Task<ActionResult<GradesPageModel>> GetGradesWeekSummary()
+	{
+		return await _gradesService.GetGradesWeekSummaryAsync( User )
 			.WithMappedMaintenanceBreak( ServiceUnavailable )
 			.WithMappedUnauthorized( Unauthorized );
 	}
