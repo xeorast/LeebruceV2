@@ -34,21 +34,8 @@ export class GradesComponent implements OnInit {
   mapResult( data: GradesDataModel ) {
     let subjectsVm = data.subjects as unknown as SubjectGradesViewModel[]
     for ( const subject of subjectsVm ) {
-      if ( data.isByPercent ) {
-        let gradesToSumByPoints = subject.grades.filter( g => g.value && g.value != 0 )
-        let pointsSum = gradesToSumByPoints.reduce( ( sum: number, curr: GradeModel ) => sum + curr.value!, 0 )
-        subject.percent = gradesToSumByPoints.length > 0 ? pointsSum / gradesToSumByPoints.length : 0
-        subject.average = null
-        subject.weightsSum = null
-      }
-      else {
-        let valuedGrades = subject.grades.filter( g => g.value && g.value != 0 && g.weight && g.countToAverage )
-        let weightsSum = valuedGrades.reduce( ( sum: number, curr: GradeModel ) => sum + curr.weight!, 0 )
-        let gradeSum = valuedGrades.reduce( ( sum: number, curr: GradeModel ) => sum + curr.weight! * curr.value!, 0 )
-
-        subject.average = weightsSum == 0 ? null : gradeSum / weightsSum
-        subject.percent = subject.average ? ( subject.average - 1 ) * 100 / 5 : null
-        subject.weightsSum = weightsSum
+      if ( !data.isByPercent ) {
+        subject.percent = subject.average ? ( subject.average - 1 ) * 100 / 5 : undefined
       }
 
       subject.gradesPart1 = subject.grades.slice( 0, 2 * Math.floor( subject.grades.length / 3 ) )

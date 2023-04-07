@@ -93,29 +93,13 @@ public partial class GradesService : IGradesService
 		var averageTotalStr = summaryMatch.GetGroup( "averageTotal" )
 			?? throw new( "Failed to extract total average field from grades summary." );
 
-		bool isRepresentative = isComplete && !isByPercent && ValidateGrades( grades, averageTotalStr );
+		bool isRepresentative = isComplete;
 
+		averageTotalStr = averageTotalStr?.Replace( '.', ',' );
+		var average = !isByPercent && double.TryParse( averageTotalStr, out var a ) ? (double?)a : null;
+		var percent = isByPercent && double.TryParse( averageTotalStr, out var p ) ? (double?)p : null;
 		
-		return new SubjectGradesModel( subjectName, grades, isRepresentative );
-	}
-	static bool ValidateGrades( GradeModel[] grades, string averageTotalStr )
-	{
-		static ProcessingException FormatExceptionFor( string field ) => new( $"{field} field extracted from grades summary was invalid." );
-
-		if ( averageTotalStr == "-" )
-			return false;
-
-		if ( !double.TryParse( averageTotalStr.Replace( '.', ',' ), out var averageTotal ) )
-			throw FormatExceptionFor( "Total average" );
-
-		var toAverage = grades
-			.Where( g => g.CountToAverage == true )
-			.Where( g => g.Value is not null and > 0 ) // filter zeros as they are not counted but keep the CountToAverage of grade they substitute
-			.Select( g => (g.Value!.Value, Weight: g.Weight!.Value) );
-
-		var averageTotalCalculated = (float)toAverage.Sum( g => g.Value * g.Weight ) / toAverage.Sum( g => g.Weight );
-
-		return Math.Round( averageTotalCalculated, 2 ) == averageTotal;
+		return new SubjectGradesModel( subjectName, grades, isRepresentative, average, percent );
 	}
 
 	static (string id, string? comment)[] ExtractGradesComments( string grades )

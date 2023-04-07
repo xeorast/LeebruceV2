@@ -6,7 +6,7 @@ export interface GradesViewModel {
     gradesPart1: GradeModel[]
     gradesPart2: GradeModel[]
     isRepresentative: boolean
-    average: number | null
-    percent: number | null
-    weightsSum: number | null
+    average?: number
+    percent?: number
+    weightsSum?: number
 }

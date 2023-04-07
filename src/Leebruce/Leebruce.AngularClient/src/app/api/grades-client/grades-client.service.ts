@@ -31,6 +31,8 @@ export interface SubjectGradesModel {
   subject: string
   grades: GradeModel[]
   isRepresentative: boolean
+  average: number | null
+  percent: number | null
 }
 
 export interface GradeModel {
@@ -46,4 +48,4 @@ export interface GradeModel {
   colorHex: string
 }
 
-export type SpecialGrade = "Plus" | "Minus" | "Unprepared"
+export type SpecialGrade = "Plus" | "Minus" | "Unprepared" | "Unknown"

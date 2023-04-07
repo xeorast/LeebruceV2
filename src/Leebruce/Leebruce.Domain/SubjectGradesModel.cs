@@ -9,4 +9,6 @@ public record class GradesPageModel(
 public record class SubjectGradesModel(
 	string Subject,
 	GradeModel[] Grades,
-	bool IsRepresentative );
+	bool IsRepresentative,
+	double? Average,
+	double? Percent );
