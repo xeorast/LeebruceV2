@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { GradesViewModel as GradesSubjectViewModel } from '../grades.view-model';
+import { SubjectGradesViewModel } from '../grades.view-model';
 
 @Component( {
   selector: 'app-grades-subject-item',
@@ -9,7 +9,7 @@ import { GradesViewModel as GradesSubjectViewModel } from '../grades.view-model'
 export class GradesSubjectItemComponent implements OnInit {
 
   @Input()
-  subject?: GradesSubjectViewModel
+  subject?: SubjectGradesViewModel
   colorClass?: string
 
   constructor() { }

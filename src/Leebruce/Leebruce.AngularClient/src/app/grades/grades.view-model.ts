@@ -1,6 +1,12 @@
 import { GradeModel } from "../api/grades-client/grades-client.service"
 
 export interface GradesViewModel {
+    subjects: SubjectGradesViewModel[]
+    firstTermNewGrades: { [subject: string]: GradeModel[] }
+    secondTermNewGrades: { [subject: string]: GradeModel[] }
+}
+
+export interface SubjectGradesViewModel {
     subject: string
     firstTermGrades: GradeModel[]
     secondTermGrades: GradeModel[]

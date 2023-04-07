@@ -1,6 +1,6 @@
 <div class="subjects-display">
     <app-grades-subject-item
-        *ngFor="let subject of subjects"
+        *ngFor="let subject of model?.subjects"
         [subject]="subject"
         (click)="select(subject)">
     </app-grades-subject-item>
@@ -9,7 +9,7 @@
 <!-- Modal -->
 <div class="modal fade" id="subjectGradesModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable"
-        style="--bs-modal-width: min-content;">
+        style="--bs-modal-width: max-content;">
         <div class="modal-content">
             <!-- subject        x -->
             <!-- date author      -->
@@ -17,7 +17,7 @@
                 <h3 class="modal-title fs-5">{{selected?.subject}}</h3>
                 <button class="btn-close align-self-start" type="button"
                     data-bs-dismiss="modal" aria-label="Close"></button>
-                <small class="text-muted">
+                <small class="align-self-baseline text-muted">
                     <span *ngIf="selected?.average">
                         Average: {{selected?.average | number: "1.2-2"}}
                     </span>
@@ -25,30 +25,41 @@
                         {{selected?.percent | number: "1.2-2"}}%
                     </span>
                     <span *ngIf="selected?.weightsSum">
-                        (Sum of weights: {{selected?.weightsSum | number: "1.0-2"}})
+                        (Sum&nbsp;of&nbsp;weights:&nbsp;{{selected?.weightsSum | number: "1.0-2"}})
                     </span>
+                </small>
+                <small class="text-muted form-check form-switch form-check-reverse m-0">
+                    <input id="flexSwitchCheckDefault"
+                        class="form-check-input"
+                        type="checkbox" role="switch"
+                        [attr.checked]="showOnlyNew ? '' : null"
+                        (click)="toggleShowOnlyNew()">
+                    <label class="form-check-label" for="flexSwitchCheckDefault">Show only new</label>
                 </small>
             </div>
             <!--   content   -->
-            <!--     ---     -->
-            <!-- attachments -->
             <div class="modal-body">
-                <!-- <div class="mb-1" [innerHTML]="modalBody"></div> -->
-                <div class="grades-display">
+                <div *ngIf="selected" class="grades-display">
                     <h5>First term</h5>
-                    <div class="hexagon-grid">
+                    <div *ngIf="firstTermGrades()?.length" class="hexagon-grid">
                         <app-grade-item
-                            *ngFor="let grade of selected?.firstTermGrades"
+                            *ngFor="let grade of firstTermGrades()"
                             [grade]="grade">
                         </app-grade-item>
                     </div>
+                    <p *ngIf="!firstTermGrades()?.length">
+                        No grades
+                    </p>
                     <h5>Second term</h5>
-                    <div class="hexagon-grid">
+                    <div *ngIf="secondTermGrades()?.length" class="hexagon-grid">
                         <app-grade-item
-                            *ngFor="let grade of selected?.secondTermGrades"
+                            *ngFor="let grade of secondTermGrades()"
                             [grade]="grade">
                         </app-grade-item>
                     </div>
+                    <p *ngIf="!secondTermGrades()?.length">
+                        No grades
+                    </p>
                 </div>
             </div>
         </div>

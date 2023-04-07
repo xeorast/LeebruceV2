@@ -13,16 +13,28 @@ export class GradesClientService {
     let context = AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT
     return this.http.get<GradesDataModel>( 'api/grades', { context: context } )
       .pipe(
-        tap( resp => resp.subjects.forEach(
-          sub => {
-            sub.firstTermGrades.forEach(
-              grade => grade.date = new Date( grade.date )
-            )
-            sub.secondTermGrades.forEach(
-              grade => grade.date = new Date( grade.date )
-            )
-          } ) )
+        tap( GradesClientService.convertDatesInResp )
       );
+  }
+
+  public getNewGrades() {
+    let context = AUTH_ENABLED_REDIRECT_TO_LOGIN_CONTEXT
+    return this.http.get<GradesDataModel>( 'api/grades/new', { context: context } )
+      .pipe(
+        tap( GradesClientService.convertDatesInResp )
+      );
+  }
+
+  static convertDatesInResp( resp: GradesDataModel ) {
+    resp.subjects.forEach(
+      sub => {
+        sub.firstTermGrades.forEach( GradesClientService.convertDatesInGrade )
+        sub.secondTermGrades.forEach( GradesClientService.convertDatesInGrade )
+      } )
+  }
+
+  static convertDatesInGrade( grade: GradeModel ) {
+    grade.date = new Date( grade.date )
   }
 
 }
