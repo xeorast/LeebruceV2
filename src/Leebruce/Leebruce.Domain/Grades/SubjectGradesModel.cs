@@ -1,10 +1,4 @@
-﻿using Leebruce.Domain.Grades;
-
-namespace Leebruce.Domain;
-
-public record class GradesPageModel(
-	bool IsByPercent,
-	SubjectGradesModel[] Subjects );
+﻿namespace Leebruce.Domain.Grades;
 
 public record class SubjectGradesModel(
 	string Subject,

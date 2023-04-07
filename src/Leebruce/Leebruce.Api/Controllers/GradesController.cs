@@ -1,5 +1,4 @@
 ﻿using Leebruce.Api.Extensions;
-using Leebruce.Domain;
 using Leebruce.Domain.Grades;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

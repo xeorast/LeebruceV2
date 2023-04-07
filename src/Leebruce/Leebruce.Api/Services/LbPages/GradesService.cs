@@ -1,5 +1,4 @@
 ﻿using Leebruce.Api.Extensions;
-using Leebruce.Domain;
 using Leebruce.Domain.Grades;
 using System.Security.Claims;
 using System.Text.RegularExpressions;

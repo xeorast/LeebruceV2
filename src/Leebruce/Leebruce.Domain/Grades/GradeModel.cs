@@ -2,14 +2,6 @@
 
 namespace Leebruce.Domain.Grades;
 
-[JsonConverter( typeof( JsonStringEnumConverter ) )]
-public enum SpecialGrade
-{
-	Plus,
-	Minus,
-	Unprepared,
-}
-
 public record class GradeModel(
 	int? Value,
 	SpecialGrade? SpecialValue,
