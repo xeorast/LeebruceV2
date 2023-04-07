@@ -25,41 +25,84 @@
     grid-template-rows: auto auto;
 }
 
-$width: 85px;
-$gap: 15px;
-$per-row: 2;
-
+// hexagons
 $root-three: 1.7320508075;
-$side: $width / 2;
-$longer-diagonal: 2 * $side;
-$height: $root-three * $side;
-$ratio: $longer-diagonal / $height;
 
-$column-gap: $gap * math.sin(60deg);
-$row-gap: $gap * math.cos(60deg);
+$width: 85px * ($root-three/2);
+$gap: 8px;
+$per-row: 3;
+$is-vertical: true;
+
+$longer-diagonal: $width;
+$side: $longer-diagonal / 2;
+$shorter-diagonal: $root-three * $side;
+$ratio: $longer-diagonal / $shorter-diagonal;
+
+$gap-x: $gap * math.sin(60deg);
+$gap-y: $gap * math.cos(60deg);
+
+@if $is-vertical {
+    $shorter-diagonal: $width;
+    $side: $shorter-diagonal / $root-three;
+    $longer-diagonal: 2 * $side;
+    $ratio: $shorter-diagonal / $longer-diagonal;
+
+    $gap-x: $gap * math.cos(60deg);
+    $gap-y: $gap * math.sin(60deg);
+}
+
+$triangle-height: $longer-diagonal / 2 - $side / 2;
 
 .hexagon-grid {
     display: grid;
-    grid-template-columns: repeat($per-row, $longer-diagonal);
-    grid-auto-rows: $height / 2;
-    column-gap: $side + $column-gap;
-    row-gap: $row-gap / 2;
-    margin-bottom: $height / 2 + $row-gap / 2;
-    margin-right: ($longer-diagonal - $side) / 2 + $side + $column-gap / 2;
+    grid-auto-rows: $triangle-height + $side;
+    column-gap: $gap;
+
+    @if $is-vertical {
+        grid-template-columns: repeat($per-row, $shorter-diagonal);
+        grid-auto-rows: $triangle-height + $side;
+        column-gap: $gap;
+        row-gap: $gap-y;
+        padding-bottom: $triangle-height;
+        padding-right: $shorter-diagonal / 2 + $gap-x;
+    }
+
+    @else {
+        grid-template-columns: repeat($per-row, $longer-diagonal);
+        grid-auto-rows: $shorter-diagonal / 2;
+        column-gap: $side + 2 * $gap-x;
+        row-gap: $gap-y;
+        padding-bottom: $shorter-diagonal / 2;
+        padding-right: $triangle-height + $side + $gap-x;
+    }
 }
 
 .hexagon-grid>* {
-    margin-bottom: -50px - $row-gap / 2;
+    @if $is-vertical {
+        margin-bottom: -$triangle-height;
+    }
+
+    @else {
+        margin-bottom: -$shorter-diagonal/2;
+    }
 }
 
 @for $i from 0 through 20 {
     @if $i % 2==1 {
         .hexagon-grid>*:nth-child(n + #{$i * $per-row + 1}):nth-child(-n + #{($i+1) * $per-row}) {
-            transform: translate(($longer-diagonal - $side) / 2 + $side + $column-gap / 2, 0);
+            @if $is-vertical {
+                transform: translateX($shorter-diagonal / 2 + $gap-x);
+            }
+
+            @else {
+                transform: translateX($longer-diagonal / 2 + $side / 2 + $gap-x);
+            }
+
         }
     }
 }
 
+// modal body
 .grades-display {
     display: grid;
     grid-auto-flow: column;

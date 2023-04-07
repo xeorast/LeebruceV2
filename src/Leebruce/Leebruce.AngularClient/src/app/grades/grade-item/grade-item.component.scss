@@ -1,27 +1,47 @@
 // hexagons
 $font-size: 2rem;
+$is-vertical: true;
 $width: 100%;
 
 $root-three: 1.7320508075;
-$side: $width / 2;
-$longer-diagonal: 2 * $side;
-$height: $root-three * $side;
-$ratio: $longer-diagonal / $height;
+$longer-diagonal: $width;
+$side: $longer-diagonal / 2;
+$shorter-diagonal: $root-three * $side;
+$ratio: $longer-diagonal / $shorter-diagonal;
+
+@if $is-vertical {
+    $shorter-diagonal: $width;
+    $side: $shorter-diagonal / $root-three;
+    $longer-diagonal: 2 * $side;
+    $ratio: $shorter-diagonal / $longer-diagonal;
+}
 
 .hexagon-wrapper {
-    width: $longer-diagonal;
+    width: $width;
     aspect-ratio: $ratio;
     cursor: pointer;
     filter: drop-shadow(0 0 3px var(--light-color));
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .hexagon {
     position: relative;
-    width: 100% * $side / $longer-diagonal;
-    height: 100%;
-    margin: auto;
+
+    @if $is-vertical {
+        height: 100% * $side / $longer-diagonal;
+        width: 100%;
+        background: linear-gradient(-90deg, white, var(--hexagon-color, #fda3b2));
+    }
+
+    @else {
+        width: 100% * $side / $longer-diagonal;
+        height: 100%;
+        background: linear-gradient(-180deg, white, var(--hexagon-color, #fda3b2));
+    }
+
     color: white;
-    background: linear-gradient(-180deg, white, var(--hexagon-color, #fda3b2));
     display: flex;
     justify-content: center;
     transition: 0.5s;
@@ -56,8 +76,13 @@ $ratio: $longer-diagonal / $height;
 .hexagon:hover,
 .hexagon:hover::before,
 .hexagon:hover::after {
-    border-radius: 50% / #{50% * $side / $height};
-    transition: 0.5s;
+    @if $is-vertical {
+        border-radius: #{50% * $side / $shorter-diagonal} / 50%;
+    }
+
+    @else {
+        border-radius: 50% / #{50% * $side / $shorter-diagonal};
+    }
 }
 
 // hexagon-content
@@ -74,18 +99,31 @@ $ratio: $longer-diagonal / $height;
 
 .weight {
     position: absolute;
-    transform: rotate(-60deg);
     width: 100%;
     height: 100%;
     transform-origin: center;
     display: flex;
-    justify-content: center;
     align-items: flex-end;
+
+    @if $is-vertical {
+        justify-content: flex-end;
+    }
+
+    @else {
+        transform: rotate(-60deg);
+        justify-content: center;
+    }
 }
 
 .weight>* {
-    transform: translate(0, 10%) rotate(60deg) translate(0, 20%);
-    // transform: translate(-30%, 30%) rotate(60deg);
+    @if $is-vertical {
+        transform: translate(20%, 30%);
+    }
+
+    @else {
+        transform: translate(0, 10%) rotate(60deg) translate(0, 20%);
+    }
+
     min-width: 3ch;
     box-shadow: 0 0 6px -3px var(--dark-color);
 }
