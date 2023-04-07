@@ -4,7 +4,6 @@ using Leebruce.Api.Options;
 using Leebruce.Domain;
 using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
-using System.Security.Claims;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -12,9 +11,9 @@ namespace Leebruce.Api.Services.LbPages;
 
 public interface IMessagesService
 {
-	Task<CollectionPage<MessageMetadataModel>> GetMessagesAsync( ClaimsPrincipal principal, int page = 0 );
-	Task<MessageModel> GetMessageAsync( ClaimsPrincipal principal, string id );
-	Task<FileDto> GetAttachmentAsync( ClaimsPrincipal principal, string id );
+	Task<CollectionPage<MessageMetadataModel>> GetMessagesAsync( int page = 0 );
+	Task<MessageModel> GetMessageAsync( string id );
+	Task<FileDto> GetAttachmentAsync( string id );
 }
 
 public partial class MessagesService : IMessagesService
@@ -31,7 +30,7 @@ public partial class MessagesService : IMessagesService
 	}
 
 	#region messages list
-	public async Task<CollectionPage<MessageMetadataModel>> GetMessagesAsync( ClaimsPrincipal principal, int page = 0 )
+	public async Task<CollectionPage<MessageMetadataModel>> GetMessagesAsync( int page = 0 )
 	{
 		using StringContent pageCtnt = new( page.ToString() );
 		using StringContent idPojemnikaCtnt = new( "105" );
@@ -140,7 +139,7 @@ public partial class MessagesService : IMessagesService
 	#endregion
 
 	#region single message
-	public async Task<MessageModel> GetMessageAsync( ClaimsPrincipal principal, string id )
+	public async Task<MessageModel> GetMessageAsync( string id )
 	{
 		var link = StringExtensions.FromUrlBase64( id );
 
@@ -234,7 +233,7 @@ public partial class MessagesService : IMessagesService
 	#endregion
 
 	#region attachments
-	public async Task<FileDto> GetAttachmentAsync( ClaimsPrincipal principal, string id )
+	public async Task<FileDto> GetAttachmentAsync( string id )
 	{
 		var link = StringExtensions.FromUrlBase64( id );
 

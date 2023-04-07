@@ -1,10 +1,8 @@
-﻿using System.Security.Claims;
-
-namespace Leebruce.Api.Services.LbAuth;
+﻿namespace Leebruce.Api.Services.LbAuth;
 
 public interface ILbLogoutService
 {
-	Task LogoutAsync( ClaimsPrincipal user );
+	Task LogoutAsync();
 }
 
 public class LbLogoutService : ILbLogoutService
@@ -16,7 +14,7 @@ public class LbLogoutService : ILbLogoutService
 		_lbClient = lbClient;
 	}
 
-	public async Task LogoutAsync( ClaimsPrincipal user )
+	public async Task LogoutAsync()
 	{
 		using var resp = await _lbClient.GetAuthorized( "/wyloguj" );
 	}

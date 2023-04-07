@@ -20,7 +20,7 @@ public class AnnouncementsController : ExtendedControllerBase
 	[HttpGet]
 	public async Task<ActionResult<AnnouncementModel[]>> GetAnnouncements()
 	{
-		return await _annService.GetAnnouncementsAsync( User )
+		return await _annService.GetAnnouncementsAsync()
 			.WithMappedMaintenanceBreak( ServiceUnavailable )
 			.WithMappedUnauthorized( Unauthorized );
 	}

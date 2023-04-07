@@ -2,7 +2,6 @@
 using Leebruce.Domain;
 using Leebruce.Domain.Schedule;
 using Leebruce.Domain.Schedule.EventDataTypes;
-using System.Security.Claims;
 using System.Text.RegularExpressions;
 using System.Web;
 
@@ -10,8 +9,8 @@ namespace Leebruce.Api.Services.LbPages;
 
 public interface IScheduleService
 {
-	Task<ScheduleDay[]> GetScheduleAsync( ClaimsPrincipal principal );
-	Task<ScheduleDay[]> GetScheduleAsync( ClaimsPrincipal principal, DateOnly date );
+	Task<ScheduleDay[]> GetScheduleAsync();
+	Task<ScheduleDay[]> GetScheduleAsync( DateOnly date );
 }
 
 public partial class ScheduleService : IScheduleService
@@ -26,10 +25,10 @@ public partial class ScheduleService : IScheduleService
 		_environment = environment;
 	}
 
-	public Task<ScheduleDay[]> GetScheduleAsync( ClaimsPrincipal principal )
-		=> GetScheduleAsync( principal, DateOnly.FromDateTime( DateTime.Now ) );
+	public Task<ScheduleDay[]> GetScheduleAsync()
+		=> GetScheduleAsync( DateOnly.FromDateTime( DateTime.Now ) );
 
-	public async Task<ScheduleDay[]> GetScheduleAsync( ClaimsPrincipal principal, DateOnly date )
+	public async Task<ScheduleDay[]> GetScheduleAsync( DateOnly date )
 	{
 		Dictionary<string, string> data = new()
 		{

@@ -1,14 +1,13 @@
 ﻿using Leebruce.Api.Extensions;
 using Leebruce.Domain.Timetable;
-using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 namespace Leebruce.Api.Services.LbPages;
 
 public interface ITimetableService
 {
-	Task<TimetableDayModel[]> GetTimetableAsync( ClaimsPrincipal principal );
-	Task<TimetableDayModel[]> GetTimetableAsync( ClaimsPrincipal principal, DateOnly date );
+	Task<TimetableDayModel[]> GetTimetableAsync();
+	Task<TimetableDayModel[]> GetTimetableAsync( DateOnly date );
 }
 
 public partial class TimetableService : ITimetableService
@@ -21,13 +20,13 @@ public partial class TimetableService : ITimetableService
 		_lbClient = lbClient;
 	}
 
-	public async Task<TimetableDayModel[]> GetTimetableAsync( ClaimsPrincipal principal )
+	public async Task<TimetableDayModel[]> GetTimetableAsync()
 	{
 		var document = await _lbClient.GetContentAuthorized( "/przegladaj_plan_lekcji" );
 
 		return ProcessResponse( document );
 	}
-	public async Task<TimetableDayModel[]> GetTimetableAsync( ClaimsPrincipal principal, DateOnly date )
+	public async Task<TimetableDayModel[]> GetTimetableAsync( DateOnly date )
 	{
 		Dictionary<string, string> data = new() { ["tydzien"] = GetWeek( date ) };
 		using FormUrlEncodedContent ctnt = new( data );

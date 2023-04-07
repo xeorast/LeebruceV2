@@ -20,7 +20,7 @@ public class MessagesController : ExtendedControllerBase
 	[HttpGet]
 	public async Task<ActionResult<CollectionPage<MessageMetadataModel>>> GetMessages( [FromQuery] int page = 1 )
 	{
-		return await _messagesService.GetMessagesAsync( User, page - 1 /*page is 1-based for users, but 0-based internally*/ )
+		return await _messagesService.GetMessagesAsync( page - 1 /*page is 1-based for users, but 0-based internally*/ )
 			.WithMappedMaintenanceBreak( ServiceUnavailable )
 			.WithMappedUnauthorized( Unauthorized );
 	}
@@ -28,7 +28,7 @@ public class MessagesController : ExtendedControllerBase
 	[HttpGet( "{id}" )]
 	public async Task<ActionResult<MessageModel>> GetMessages( string id )
 	{
-		return await _messagesService.GetMessageAsync( User, id )
+		return await _messagesService.GetMessageAsync( id )
 			.WithMappedMaintenanceBreak( ServiceUnavailable )
 			.WithMappedUnauthorized( Unauthorized );
 	}
@@ -38,7 +38,7 @@ public class MessagesController : ExtendedControllerBase
 	{
 		try
 		{
-			var file = await _messagesService.GetAttachmentAsync( User, id );
+			var file = await _messagesService.GetAttachmentAsync( id );
 
 			return File( file.Content, file.MediaType, file.FileName );
 		}

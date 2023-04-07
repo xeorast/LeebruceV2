@@ -1,16 +1,15 @@
 ﻿using Leebruce.Api.Extensions;
 using Leebruce.Domain.Grades;
-using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 namespace Leebruce.Api.Services.LbPages;
 
 public interface IGradesService
 {
-	Task<GradesPageModel> GetGradesAsync( ClaimsPrincipal principal );
-	Task<GradesPageModel> GetNewGradesAsync( ClaimsPrincipal principal );
-	Task<GradesPageModel> GetGradesWeekSummaryAsync( ClaimsPrincipal principal );
-	Task<GradesGraphRecordModel[]> GetGraphAsync( ClaimsPrincipal principal );
+	Task<GradesPageModel> GetGradesAsync();
+	Task<GradesPageModel> GetNewGradesAsync();
+	Task<GradesPageModel> GetGradesWeekSummaryAsync();
+	Task<GradesGraphRecordModel[]> GetGraphAsync();
 }
 
 public partial class GradesService : IGradesService
@@ -23,28 +22,28 @@ public partial class GradesService : IGradesService
 		_lbClient = lbClient;
 	}
 
-	public async Task<GradesPageModel> GetGradesAsync( ClaimsPrincipal principal ) 
+	public async Task<GradesPageModel> GetGradesAsync()
 		=> await GetGradeWithPostBody( new Dictionary<string, string>()
-	{
-		["sortowanieOcen"] = "2",
-		["zmiany_logowanie_wszystkie"] = "1",
-	} );
+		{
+			["sortowanieOcen"] = "2",
+			["zmiany_logowanie_wszystkie"] = "1",
+		} );
 
-	public async Task<GradesPageModel> GetNewGradesAsync( ClaimsPrincipal principal )
+	public async Task<GradesPageModel> GetNewGradesAsync()
 		=> await GetGradeWithPostBody( new Dictionary<string, string>()
 		{
 			["sortowanieOcen"] = "2",
 			["zmiany_logowanie"] = "1",
 		} );
 
-	public async Task<GradesPageModel> GetGradesWeekSummaryAsync( ClaimsPrincipal principal )
+	public async Task<GradesPageModel> GetGradesWeekSummaryAsync()
 		=> await GetGradeWithPostBody( new Dictionary<string, string>()
 		{
 			["sortowanieOcen"] = "2",
 			["zmiany_logowanie_tydzien"] = "1",
 		} );
 
-	public async Task<GradesPageModel> GetGradeWithPostBody( Dictionary<string, string> data  )
+	public async Task<GradesPageModel> GetGradeWithPostBody( Dictionary<string, string> data )
 	{
 		using FormUrlEncodedContent ctnt = new( data );
 		var document = await _lbClient.PostContentAuthorized( "/przegladaj_oceny/uczen", ctnt );
@@ -287,7 +286,7 @@ public partial class GradesService : IGradesService
 	[GeneratedRegex( """<td colspan="[^"]*" class="center">\s*Okres 2\s*<\/td>""", RegexOptions.None, regexTimeout )]
 	private static partial Regex GradeDetailsTermSplitRx();
 
-	public async Task<GradesGraphRecordModel[]> GetGraphAsync( ClaimsPrincipal principal )
+	public async Task<GradesGraphRecordModel[]> GetGraphAsync()
 	{
 		var document = await _lbClient.GetContentAuthorized( "/uczen/graph_ajax.php?type=wykres_sredniej&classId=74264&userId=1792335&_=1656850225307" );
 

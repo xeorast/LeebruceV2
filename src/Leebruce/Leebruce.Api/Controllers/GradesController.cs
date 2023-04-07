@@ -20,7 +20,7 @@ public class GradesController : ExtendedControllerBase
 	[HttpGet]
 	public async Task<ActionResult<GradesPageModel>> GetGrades()
 	{
-		return await _gradesService.GetGradesAsync( User )
+		return await _gradesService.GetGradesAsync()
 			.WithMappedMaintenanceBreak( ServiceUnavailable )
 			.WithMappedUnauthorized( Unauthorized );
 	}
@@ -28,7 +28,7 @@ public class GradesController : ExtendedControllerBase
 	[HttpGet( "new" )]
 	public async Task<ActionResult<GradesPageModel>> GetNewGrades()
 	{
-		return await _gradesService.GetNewGradesAsync( User )
+		return await _gradesService.GetNewGradesAsync()
 			.WithMappedMaintenanceBreak( ServiceUnavailable )
 			.WithMappedUnauthorized( Unauthorized );
 	}
@@ -36,7 +36,7 @@ public class GradesController : ExtendedControllerBase
 	[HttpGet( "this-week" )]
 	public async Task<ActionResult<GradesPageModel>> GetGradesWeekSummary()
 	{
-		return await _gradesService.GetGradesWeekSummaryAsync( User )
+		return await _gradesService.GetGradesWeekSummaryAsync()
 			.WithMappedMaintenanceBreak( ServiceUnavailable )
 			.WithMappedUnauthorized( Unauthorized );
 	}
@@ -44,7 +44,7 @@ public class GradesController : ExtendedControllerBase
 	[HttpGet( "graph" )]
 	public async Task<ActionResult<GradesGraphRecordModel[]>> GetGraph()
 	{
-		return await _gradesService.GetGraphAsync( User )
+		return await _gradesService.GetGraphAsync()
 			.WithMappedMaintenanceBreak( ServiceUnavailable )
 			.WithMappedUnauthorized( Unauthorized );
 	}

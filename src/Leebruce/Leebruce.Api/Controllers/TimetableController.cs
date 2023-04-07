@@ -20,7 +20,7 @@ public class TimetableController : ExtendedControllerBase
 	[HttpGet]
 	public async Task<ActionResult<TimetableDayModel[]>> GetCurrentWeek()
 	{
-		return await _timetableService.GetTimetableAsync( User )
+		return await _timetableService.GetTimetableAsync()
 			.WithMappedMaintenanceBreak( ServiceUnavailable )
 			.WithMappedUnauthorized( Unauthorized );
 	}
@@ -28,7 +28,7 @@ public class TimetableController : ExtendedControllerBase
 	[HttpGet( "{date}" )]
 	public async Task<ActionResult<TimetableDayModel[]>> GetWeek( DateOnly date )
 	{
-		return await _timetableService.GetTimetableAsync( User, date )
+		return await _timetableService.GetTimetableAsync( date )
 			.WithMappedMaintenanceBreak( ServiceUnavailable )
 			.WithMappedUnauthorized( Unauthorized );
 	}

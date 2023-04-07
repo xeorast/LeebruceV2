@@ -20,7 +20,7 @@ public class ScheduleController : ExtendedControllerBase
 	[HttpGet]
 	public async Task<ActionResult<ScheduleDay[]>> GetSchedule()
 	{
-		return await _ScheduleService.GetScheduleAsync( User )
+		return await _ScheduleService.GetScheduleAsync()
 			.WithMappedMaintenanceBreak( ServiceUnavailable )
 			.WithMappedUnauthorized( Unauthorized );
 	}
@@ -28,7 +28,7 @@ public class ScheduleController : ExtendedControllerBase
 	[HttpGet( "{date}" )]
 	public async Task<ActionResult<ScheduleDay[]>> GetSchedule( DateOnly date )
 	{
-		return await _ScheduleService.GetScheduleAsync( User, date )
+		return await _ScheduleService.GetScheduleAsync( date )
 			.WithMappedMaintenanceBreak( ServiceUnavailable )
 			.WithMappedUnauthorized( Unauthorized );
 	}

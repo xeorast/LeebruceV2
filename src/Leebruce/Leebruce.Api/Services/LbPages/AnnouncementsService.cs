@@ -1,13 +1,12 @@
 ﻿using Leebruce.Api.Extensions;
 using Leebruce.Domain;
-using System.Security.Claims;
 using System.Text.RegularExpressions;
 
 namespace Leebruce.Api.Services.LbPages;
 
 public interface IAnnouncementsService
 {
-	Task<AnnouncementModel[]> GetAnnouncementsAsync( ClaimsPrincipal principal );
+	Task<AnnouncementModel[]> GetAnnouncementsAsync();
 }
 
 public partial class AnnouncementsService : IAnnouncementsService
@@ -20,7 +19,7 @@ public partial class AnnouncementsService : IAnnouncementsService
 		_lbClient = lbClient;
 	}
 
-	public async Task<AnnouncementModel[]> GetAnnouncementsAsync( ClaimsPrincipal principal )
+	public async Task<AnnouncementModel[]> GetAnnouncementsAsync()
 	{
 		var document = await _lbClient.GetContentAuthorized( "/ogloszenia" );
 
