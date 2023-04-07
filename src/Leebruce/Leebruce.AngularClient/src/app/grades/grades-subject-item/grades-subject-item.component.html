@@ -28,7 +28,7 @@
         <i *ngIf="!subject.isRepresentative" class="bi bi-exclamation-triangle"></i>
     </h3>
     <!-- n Grades -->
-    <small>{{subject.grades.length}} Grades</small>
+    <small>{{subject.firstTermGrades.length + subject.secondTermGrades.length}} Grades</small>
     <!-- → -->
     <button></button>
     <div class="btn details-arrow"><i class="bi bi-arrow-right"></i></div>

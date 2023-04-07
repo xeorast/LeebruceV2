@@ -2,9 +2,8 @@ import { GradeModel } from "../api/grades-client/grades-client.service"
 
 export interface GradesViewModel {
     subject: string
-    grades: GradeModel[]
-    gradesPart1: GradeModel[]
-    gradesPart2: GradeModel[]
+    firstTermGrades: GradeModel[]
+    secondTermGrades: GradeModel[]
     isRepresentative: boolean
     average?: number
     percent?: number

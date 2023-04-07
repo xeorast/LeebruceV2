@@ -87,19 +87,25 @@ public partial class GradesService : IGradesService
 			?? throw new( "Failed to extract subject field from grades summary." );
 
 		// grades
-		var grades = ExtractGrades( detailsTable, comments, out var isComplete );
+		var splitTable = GradeDetailsTermSplitRx().Split( detailsTable );
+		var firstTermGrades = ExtractGrades( splitTable[0], comments, out var isComplete1 );
+
+		bool isComplete2 = true;
+		var secondTermGrades = splitTable.Length > 1
+			? ExtractGrades( splitTable[1], comments, out isComplete2 )
+			: Array.Empty<GradeModel>();
 
 		// validate
 		var averageTotalStr = summaryMatch.GetGroup( "averageTotal" )
 			?? throw new( "Failed to extract total average field from grades summary." );
 
-		bool isRepresentative = isComplete;
+		bool isRepresentative = isComplete1 && isComplete2;
 
 		averageTotalStr = averageTotalStr?.Replace( '.', ',' );
 		var average = !isByPercent && double.TryParse( averageTotalStr, out var a ) ? (double?)a : null;
 		var percent = isByPercent && double.TryParse( averageTotalStr, out var p ) ? (double?)p : null;
-		
-		return new SubjectGradesModel( subjectName, grades, isRepresentative, average, percent );
+
+		return new SubjectGradesModel( subjectName, firstTermGrades, secondTermGrades, isRepresentative, average, percent );
 	}
 
 	static (string id, string? comment)[] ExtractGradesComments( string grades )
@@ -250,6 +256,8 @@ public partial class GradesService : IGradesService
 	// $link
 	[GeneratedRegex( @"'\/komentarz_oceny\/\d\/(?<link>[\s\S]*?)'", RegexOptions.None, regexTimeout )]
 	private static partial Regex GradeIdRx();
+	[GeneratedRegex( """<td colspan="[^"]*" class="center">\s*Okres 2\s*<\/td>""", RegexOptions.None, regexTimeout )]
+	private static partial Regex GradeDetailsTermSplitRx();
 
 	public async Task<GradesGraphRecordModel[]> GetGraphAsync( ClaimsPrincipal principal )
 	{

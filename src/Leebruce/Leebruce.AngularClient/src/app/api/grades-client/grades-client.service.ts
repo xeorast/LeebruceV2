@@ -14,9 +14,14 @@ export class GradesClientService {
     return this.http.get<GradesDataModel>( 'api/grades', { context: context } )
       .pipe(
         tap( resp => resp.subjects.forEach(
-          sub => sub.grades.forEach(
-            grade => grade.date = new Date( grade.date )
-          ) ) )
+          sub => {
+            sub.firstTermGrades.forEach(
+              grade => grade.date = new Date( grade.date )
+            )
+            sub.secondTermGrades.forEach(
+              grade => grade.date = new Date( grade.date )
+            )
+          } ) )
       );
   }
 
@@ -29,7 +34,8 @@ export interface GradesDataModel {
 
 export interface SubjectGradesModel {
   subject: string
-  grades: GradeModel[]
+  firstTermGrades: GradeModel[]
+  secondTermGrades: GradeModel[]
   isRepresentative: boolean
   average: number | null
   percent: number | null

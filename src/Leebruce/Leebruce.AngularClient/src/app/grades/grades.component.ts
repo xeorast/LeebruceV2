@@ -37,11 +37,7 @@ export class GradesComponent implements OnInit {
       if ( !data.isByPercent ) {
         subject.percent = subject.average ? ( subject.average - 1 ) * 100 / 5 : undefined
       }
-
-      subject.gradesPart1 = subject.grades.slice( 0, 2 * Math.floor( subject.grades.length / 3 ) )
-      subject.gradesPart2 = subject.grades.slice( 2 * Math.floor( subject.grades.length / 3 ), subject.grades.length - 1 )
     }
-
 
     return subjectsVm.filter( s => s.percent )
   }
