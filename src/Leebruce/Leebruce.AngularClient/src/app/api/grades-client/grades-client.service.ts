@@ -44,6 +44,7 @@ export interface SubjectGradesModel {
 export interface GradeModel {
   value?: number
   specialValue?: SpecialGrade
+  verySpecialValue?: SpecialGrade
   countToAverage: boolean
   weight?: number
   category: string
@@ -54,4 +55,4 @@ export interface GradeModel {
   colorHex: string
 }
 
-export type SpecialGrade = "Plus" | "Minus" | "Unprepared" | "Unknown"
+export type SpecialGrade = "Plus" | "Minus" | "Unprepared"

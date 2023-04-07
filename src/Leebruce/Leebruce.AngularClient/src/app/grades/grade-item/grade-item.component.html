@@ -1,7 +1,7 @@
 <div class="hexagon-wrapper">
     <div class="hexagon"
         [ngStyle]="{'--hexagon-color': '#'+grade?.colorHex}">
-        <span>{{grade?.value??getShortSpecialValue(grade?.specialValue)}}</span>
+        <span>{{grade?.value ?? getShortSpecialValue(grade?.specialValue) ?? grade?.verySpecialValue}}</span>
         <div *ngIf="grade?.weight" class="weight">
             <div class="badge bg-info px-1 py-1 rounded-pill">
                 {{grade?.weight}}

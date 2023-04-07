@@ -8,12 +8,12 @@ public enum SpecialGrade
 	Plus,
 	Minus,
 	Unprepared,
-	Unknown,
 }
 
 public record class GradeModel(
 	int? Value,
 	SpecialGrade? SpecialValue,
+	string? VerySpecialValue,
 	bool CountToAverage,
 	int? Weight,
 	string Category,

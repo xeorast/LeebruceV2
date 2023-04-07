@@ -160,6 +160,7 @@ public partial class GradesService : IGradesService
 
 		int? grade = null;
 		SpecialGrade? specialGrade = null;
+		string? verySpecialGrade = null;
 		if ( int.TryParse( gradeStr, out var gradeNotNull ) )
 			grade = gradeNotNull;
 		else
@@ -168,9 +169,13 @@ public partial class GradesService : IGradesService
 				"+" => SpecialGrade.Plus,
 				"-" => SpecialGrade.Minus,
 				"np" => SpecialGrade.Unprepared,
-				_ => SpecialGrade.Unknown,
+				_ => null,
 				//_ => throw FormatExceptionFor( "Grade" ),
 			};
+		if ( specialGrade is null )
+		{
+			verySpecialGrade = gradeStr;
+		}
 
 		// weight
 		var weightStr = gradeMatch.GetGroup( "weight" );
@@ -226,7 +231,7 @@ public partial class GradesService : IGradesService
 		// comment
 		var comment = id is null ? null : comments[id];
 
-		return new GradeModel( grade, specialGrade, count, weight, category, comment, date, teacher, addedBy, color );
+		return new GradeModel( grade, specialGrade, verySpecialGrade, count, weight, category, comment, date, teacher, addedBy, color );
 	}
 
 
