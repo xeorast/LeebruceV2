@@ -1,6 +1,6 @@
-<!--    O     -->
-<!-- subject  -->
-<!-- count  → -->
+<!--    O   (n)-->
+<!-- subject   -->
+<!-- count  →  -->
 
 <div *ngIf="subject"
     class="subject-tile"
@@ -28,8 +28,11 @@
         <i *ngIf="!subject.isRepresentative" class="bi bi-exclamation-triangle"></i>
     </h3>
     <!-- n Grades -->
-    <small>{{subject.firstTermGrades.length + subject.secondTermGrades.length}} Grades</small>
+    <small>{{count}} Grades</small>
     <!-- → -->
     <button></button>
     <div class="btn details-arrow"><i class="bi bi-arrow-right"></i></div>
+
+    <!-- (3) -->
+    <div *ngIf="newCount" class="new-count badge rounded-pill text-bg-danger">{{newCount}}</div>
 </div>

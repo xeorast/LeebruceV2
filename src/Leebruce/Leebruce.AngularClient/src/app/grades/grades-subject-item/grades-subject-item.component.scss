@@ -107,6 +107,14 @@ $circle-perimeter: 314.15;
     }
 }
 
+.new-count {
+    position: absolute;
+    top: 0;
+    right: 0;
+    transform: translate(20%, -20%);
+    box-shadow: 0 0 6px -3px var(--dark-color);
+}
+
 button {
     height: 0;
     margin: 0;

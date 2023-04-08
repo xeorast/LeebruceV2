@@ -22,30 +22,49 @@ export class GradesComponent implements OnInit {
   private modalObj?: Modal
 
   ngOnInit(): void {
-    let model: Partial<GradesViewModel> = {}
-    let state = { fetchesRemaining: 2 }
+    let allModel: GradesDataModel | undefined = undefined
+    let newModel: GradesDataModel | undefined = undefined
 
     this.gradesService.getGrades().subscribe( res => {
-      model.subjects = GradesComponent.mapResult( res )
-      this.finishFetch( model, state )
+      this.finishFetch( allModel = res, newModel )
     } )
     this.gradesService.getNewGrades().subscribe( res => {
-      GradesComponent.mapNewToModel( res, model )
-      this.finishFetch( model, state )
+
+      this.finishFetch( allModel, newModel = res )
     } )
 
     let modalElem = document.getElementById( 'subjectGradesModal' )!
     this.modalObj = new Modal( modalElem, {} )
   }
 
-  finishFetch( model: Partial<GradesViewModel>, state: { fetchesRemaining: number } ) {
-    state.fetchesRemaining -= 1
-    if ( state.fetchesRemaining == 0 ) {
-      this.model = <GradesViewModel>model
+  finishFetch( allModel: GradesDataModel | undefined, newModel: GradesDataModel | undefined ) {
+    if ( !allModel || !newModel ) {
+      return
+    }
+
+    let subjects = GradesComponent.mapResultSubjects( allModel )
+
+    let firstTermNewGrades: { [subject: string]: GradeModel[] } = {}
+    let secondTermNewGrades: { [subject: string]: GradeModel[] } = {}
+    for ( const subject of newModel.subjects ) {
+      firstTermNewGrades[subject.subject] = subject.firstTermGrades
+      secondTermNewGrades[subject.subject] = subject.secondTermGrades
+    }
+
+    for ( const subject of subjects ) {
+      subject.newGrades = {
+        firstTerm: firstTermNewGrades[subject.subject],
+        secondTerm: secondTermNewGrades[subject.subject]
+      }
+    }
+
+    this.model = {
+      isByPercent: allModel.isByPercent,
+      subjects: subjects
     }
   }
 
-  static mapResult( data: GradesDataModel ) {
+  static mapResultSubjects( data: GradesDataModel ) {
     let subjectsVm = data.subjects as unknown as SubjectGradesViewModel[]
     for ( const subject of subjectsVm ) {
       if ( !data.isByPercent ) {
@@ -58,16 +77,6 @@ export class GradesComponent implements OnInit {
     }
 
     return subjectsVm.filter( s => s.percent )
-  }
-
-  static mapNewToModel( data: GradesDataModel, model: Partial<GradesViewModel> ) {
-    model.firstTermNewGrades = {}
-    model.secondTermNewGrades = {}
-    for ( const subject of data.subjects ) {
-      model.firstTermNewGrades[subject.subject] = subject.firstTermGrades
-      model.secondTermNewGrades[subject.subject] = subject.secondTermGrades
-    }
-
   }
 
   select( subject: SubjectGradesViewModel ) {
@@ -85,14 +94,14 @@ export class GradesComponent implements OnInit {
     if ( !this.selected )
       return undefined
     return this.showOnlyNew
-      ? this.model?.firstTermNewGrades?.[this.selected.subject]
+      ? this.selected.newGrades.secondTerm
       : this.selected.firstTermGrades
   }
   secondTermGrades() {
     if ( !this.selected )
       return undefined
     return this.showOnlyNew
-      ? this.model?.secondTermNewGrades?.[this.selected.subject]
+      ? this.selected.newGrades.secondTerm
       : this.selected.secondTermGrades
   }
 

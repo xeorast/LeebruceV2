@@ -10,6 +10,9 @@ export class GradesSubjectItemComponent implements OnInit {
 
   @Input()
   subject?: SubjectGradesViewModel
+  count?: number
+  newCount?: number
+
   colorClass?: string
 
   constructor() { }
@@ -17,6 +20,8 @@ export class GradesSubjectItemComponent implements OnInit {
   ngOnInit(): void {
     if ( this.subject ) {
       this.colorClass = `tile-${GradesSubjectItemComponent.getSubjectColor( this.subject.subject )}`
+      this.count = this.subject.firstTermGrades.length + this.subject.secondTermGrades.length
+      this.newCount = this.subject.newGrades.firstTerm.length + this.subject.newGrades.secondTerm.length
     }
   }
 
