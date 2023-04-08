@@ -12,13 +12,21 @@ $tile-radius: .75rem;
 }
 
 @for $i from 0 through 36 {
-    $tile-saturation: 90%;
-    $tile-lightness: 78%;
+    $hue: $i*10;
+    $saturation: 90%;
+    $lightness: 78%;
+    $bg-alpha: 0.25;
+    $light-mode-lightness: 68%;
 
     .tile-#{$i} {
-        --tile-color: hsl(#{$i*10}, #{$tile-saturation}, #{$tile-lightness});
+        --tile-color: hsl(#{$hue}, #{$saturation}, #{$lightness});
         color: var(--tile-color);
-        background-color: hsla($i*10, $tile-saturation, $tile-lightness, 0.25);
+        background-color: hsla($hue, $saturation, $lightness, $bg-alpha);
+
+        @media(prefers-color-scheme:light) {
+            --tile-color: hsl(#{$hue}, #{$saturation}, #{$light-mode-lightness});
+            background-color: hsla($hue, $saturation, $light-mode-lightness, $bg-alpha);
+        }
     }
 }
 
@@ -75,7 +83,7 @@ $circle-perimeter: 314.15;
         stroke: #424242;
 
         @media(prefers-color-scheme:light) {
-            stroke: var(--light-color);
+            stroke: #bbb;
         }
     }
 
