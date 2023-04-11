@@ -86,9 +86,9 @@ public static class Startup
 	{
 		if ( app.Environment.IsDevelopment() )
 		{
+		}
 			_ = app.UseSwagger();
 			_ = app.UseSwaggerUI();
-		}
 
 		_ = app.UseHttpsRedirection();
 
