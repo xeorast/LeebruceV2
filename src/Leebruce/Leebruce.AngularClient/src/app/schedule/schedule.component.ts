@@ -21,7 +21,7 @@ export class ScheduleComponent implements OnInit {
       today: now,
       shownMonth: new Date( now.getFullYear(), now.getMonth(), 1 ),
       shownPageDays: ScheduleComponent.generatePage( now.getMonth(), now.getFullYear() ),
-      selectedDate: now,
+      selectedDate: new Date( now.getFullYear(), now.getMonth(), now.getDate() ),
       daysMap: {},
       complete: false
     }
@@ -41,7 +41,7 @@ export class ScheduleComponent implements OnInit {
       today: new Date( Date.now() ),
       shownMonth: new Date( date.getFullYear(), date.getMonth(), 1 ),
       shownPageDays: ScheduleComponent.generatePage( date.getMonth(), date.getFullYear() ),
-      selectedDate: date,
+      selectedDate: new Date( date.getFullYear(), date.getMonth(), date.getDate() ),
       daysMap: {},
       complete: false
     }
