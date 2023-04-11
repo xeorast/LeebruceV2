@@ -31,7 +31,7 @@ public class AuthController : ExtendedControllerBase
 	{
 		try
 		{
-			await logoutService.LogoutAsync( User );
+			await logoutService.LogoutAsync();
 			return NoContent();
 		}
 		catch ( ArgumentException e )
