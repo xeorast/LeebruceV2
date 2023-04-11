@@ -94,7 +94,7 @@ export class GradesComponent implements OnInit {
     if ( !this.selected )
       return undefined
     return this.showOnlyNew
-      ? this.selected.newGrades.secondTerm
+      ? this.selected.newGrades.firstTerm
       : this.selected.firstTermGrades
   }
   secondTermGrades() {
