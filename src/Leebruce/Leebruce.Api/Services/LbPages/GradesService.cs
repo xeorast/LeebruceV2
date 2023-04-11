@@ -1,5 +1,6 @@
 ﻿using Leebruce.Api.Extensions;
 using Leebruce.Domain.Grades;
+using System.Globalization;
 using System.Text.RegularExpressions;
 
 namespace Leebruce.Api.Services.LbPages;
@@ -123,9 +124,8 @@ public partial class GradesService : IGradesService
 
 		bool isRepresentative = isComplete1 && isComplete2;
 
-		averageTotalStr = averageTotalStr?.Replace( '.', ',' );
-		var average = !isByPercent && double.TryParse( averageTotalStr, out var a ) ? (double?)a : null;
-		var percent = isByPercent && double.TryParse( averageTotalStr, out var p ) ? (double?)p : null;
+		var average = !isByPercent && double.TryParse( averageTotalStr, CultureInfo.InvariantCulture, out var a ) ? (double?)a : null;
+		var percent = isByPercent && double.TryParse( averageTotalStr, CultureInfo.InvariantCulture, out var p ) ? (double?)p : null;
 
 		return new SubjectGradesModel( subjectName, firstTermGrades, secondTermGrades, isRepresentative, average, percent );
 	}
@@ -304,13 +304,13 @@ public partial class GradesService : IGradesService
 			var perUserStr = barMatch.GetGroup( "perUser" )
 				?? throw new ProcessingException( "Failed to extract per-user average from document." );
 
-			if ( !float.TryParse( perUserStr.Replace( '.', ',' ), out var perUser ) )
+			if ( !float.TryParse( perUserStr, CultureInfo.InvariantCulture, out var perUser ) )
 				throw new ProcessingException( "Per-user average extracted from document was in invalid." );
 
 			var perLevelStr = barMatch.GetGroup( "perLevel" )
 				?? throw new ProcessingException( "Failed to extract per-level average from document." );
 
-			if ( !float.TryParse( perLevelStr.Replace( '.', ',' ), out var perLevel ) )
+			if ( !float.TryParse( perLevelStr, CultureInfo.InvariantCulture, out var perLevel ) )
 				throw new ProcessingException( "Per-level average extracted from document was in invalid." );
 
 			graph.Add( new( month, perUser, perLevel ) );
