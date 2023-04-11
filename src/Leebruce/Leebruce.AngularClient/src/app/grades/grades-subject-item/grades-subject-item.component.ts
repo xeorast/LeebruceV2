@@ -4,7 +4,10 @@ import { SubjectGradesViewModel } from '../grades.view-model';
 @Component( {
   selector: 'app-grades-subject-item',
   templateUrl: './grades-subject-item.component.html',
-  styleUrls: ['./grades-subject-item.component.scss']
+  styleUrls: [
+    './grades-subject-item.component.scss',
+    './grades-subject-item.component.colors.scss'
+  ]
 } )
 export class GradesSubjectItemComponent implements OnInit {
 

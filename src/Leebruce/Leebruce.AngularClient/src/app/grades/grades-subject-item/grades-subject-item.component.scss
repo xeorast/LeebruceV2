@@ -11,25 +11,6 @@ $tile-radius: .75rem;
     box-shadow: 0 0 6px -4px var(--light-color);
 }
 
-@for $i from 0 through 36 {
-    $hue: $i*10;
-    $saturation: 90%;
-    $lightness: 78%;
-    $bg-alpha: 0.25;
-    $light-mode-lightness: 68%;
-
-    .tile-#{$i} {
-        --tile-color: hsl(#{$hue}, #{$saturation}, #{$lightness});
-        color: var(--tile-color);
-        background-color: hsla($hue, $saturation, $lightness, $bg-alpha);
-
-        @media(prefers-color-scheme:light) {
-            --tile-color: hsl(#{$hue}, #{$saturation}, #{$light-mode-lightness});
-            background-color: hsla($hue, $saturation, $light-mode-lightness, $bg-alpha);
-        }
-    }
-}
-
 .average {
     margin-bottom: .5rem;
     justify-self: center;
