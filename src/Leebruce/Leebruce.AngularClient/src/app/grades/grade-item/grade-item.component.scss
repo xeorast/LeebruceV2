@@ -21,6 +21,7 @@ $ratio: $longer-diagonal / $shorter-diagonal;
     aspect-ratio: $ratio;
     cursor: pointer;
     filter: drop-shadow(0 0 3px var(--light-color));
+    -webkit-filter: drop-shadow(0 0 3px var(--light-color));
     display: flex;
     justify-content: center;
     align-items: center;
@@ -95,6 +96,7 @@ $ratio: $longer-diagonal / $shorter-diagonal;
     -webkit-background-clip: text;
     background-color: var(--hexagon-color);
     filter: drop-shadow(0px 0px 8px black) brightness(0.5);
+    -webkit-filter: drop-shadow(0px 0px 8px black) brightness(0.5);
 }
 
 .weight {
