@@ -47,9 +47,9 @@ export class AuthenticationInterceptor implements HttpInterceptor {
   }
 
   private redirectToLoginErrorHandler( error: HttpError ) {
-    if ( error instanceof NotAuthenticatedError ) {
-      let currentUrl = this.router.url
-      this.router.navigate( ['/login'], { queryParams: { redirect: currentUrl } } );
+    if ( error instanceof NotAuthenticatedError
+      && !this.router.url.startsWith( '/login' ) ) {
+      this.router.navigate( ['/login'], { queryParams: { redirect: this.router.url } } );
     }
     return NEVER
   }
