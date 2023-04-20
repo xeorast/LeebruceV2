@@ -11,29 +11,25 @@
         #username="ngModel"
         [(ngModel)]="form.username"
         required />
-    <!-- <div class="invalid-feedback">
-        Please choose a username.
-    </div>
-
-    <div class="validation input-validation"
-        *ngIf="username.invalid && (username.dirty || username.touched || f.submitted)">
-        <div *ngIf="username.errors?.['required']">Username is required.</div>
-    </div> -->
 
     <input class="form-control"
         type="password"
         name="password"
         placeholder="password"
+        #passwordInput
         #password="ngModel"
         [(ngModel)]="form.password"
         required />
 
-    <!-- <div class="validation input-validation"
-        *ngIf="password.invalid && (password.dirty || password.touched || f.submitted)">
-        <div *ngIf="password.errors?.['required']">Password is required.</div>
-    </div> -->
-
-    <button class="submit btn btn-primary py-1" type="submit">Login</button>
+    <button type="submit"
+        class="submit btn btn-primary py-1"
+        [disabled]="isProcessing">
+        <ng-container *ngIf="!isProcessing">Log in</ng-container>
+        <ng-container *ngIf="isProcessing">
+            <span class="spinner-border spinner-border-sm"></span>
+            Loging in...
+        </ng-container>
+    </button>
 
     <div class="validation error-box" *ngIf="isInvalidCredentials">Invalid username or password.</div>
 

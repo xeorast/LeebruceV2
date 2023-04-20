@@ -1,8 +1,7 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { AuthenticationService, InvalidCredentialsError, loginDto } from '../api/authentication/authentication.service';
-import { HttpValidationProblem } from '../api/problem-details';
 
 @Component( {
   selector: 'app-login',
@@ -10,11 +9,8 @@ import { HttpValidationProblem } from '../api/problem-details';
   styleUrls: ['./login.component.css']
 } )
 export class LoginComponent implements OnInit, OnDestroy {
-  redirect$?: Subscription
-  redirect: string | null = null;
-
-  isInvalidCredentials = false
-  previousCall$?: Subscription
+  @ViewChild( 'passwordInput' )
+  private passwordInput?: ElementRef
 
   form: loginDto = {
     username: '',
@@ -22,6 +18,12 @@ export class LoginComponent implements OnInit, OnDestroy {
   };
 
   wasSubmited = false
+  isProcessing = false
+  isInvalidCredentials = false
+
+  private redirect$?: Subscription
+  private redirect: string | null = null;
+  private previousCall$?: Subscription
 
   constructor(
     private route: ActivatedRoute,
@@ -45,20 +47,22 @@ export class LoginComponent implements OnInit, OnDestroy {
   onSubmit() {
     this.previousCall$?.unsubscribe()
     this.isInvalidCredentials = false
+    this.isProcessing = true
 
-    this.authService.logIn( { password: this.form.password, username: this.form.username } ).subscribe( {
-      complete: async () => await this.redirectBack(),
-      error: error => {
-        if ( error instanceof InvalidCredentialsError ) {
-          this.isInvalidCredentials = true
+    this.previousCall$ = this.authService.logIn( { password: this.form.password, username: this.form.username } )
+      .subscribe( {
+        complete: async () => {
+          this.isProcessing = false
+          await this.redirectBack()
+        },
+        error: error => {
+          this.isProcessing = false
+          if ( error instanceof InvalidCredentialsError ) {
+            this.isInvalidCredentials = true
+            this.passwordInput?.nativeElement.setCustomValidity( "Invalid username or password." );
+          }
         }
-        if ( error instanceof HttpValidationProblem ) {
-          //todo: temporary solution, show errors better
-          this.isInvalidCredentials = true
-        }
-
-      }
-    } )
+      } )
   }
 
 }
