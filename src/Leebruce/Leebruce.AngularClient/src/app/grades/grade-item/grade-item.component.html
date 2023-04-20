@@ -2,9 +2,21 @@
     <div class="hexagon"
         [ngStyle]="{'--hexagon-color': '#'+grade?.colorHex}">
         <span>{{grade?.value ?? getShortSpecialValue(grade?.specialValue) ?? grade?.verySpecialValue}}</span>
-        <div *ngIf="grade?.weight" class="weight">
-            <div class="badge bg-info px-1 py-1 rounded-pill">
-                {{grade?.weight}}
+        <div class="weight">
+            <div class="badge px-1 py-1 rounded-pill"
+                [ngClass]="{
+                    'bg-info': grade?.weight,
+                    'bg-secondary': !grade?.weight
+                }">
+                <ng-container *ngIf="grade?.weight && grade?.countToAverage">
+                    {{grade?.weight}}
+                </ng-container>
+                <ng-container *ngIf="grade?.weight && !grade?.countToAverage">
+                    ({{grade?.weight}})
+                </ng-container>
+                <ng-container *ngIf="!grade?.weight">
+                    0
+                </ng-container>
             </div>
         </div>
     </div>

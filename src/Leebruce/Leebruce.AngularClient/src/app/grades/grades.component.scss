@@ -108,6 +108,7 @@ $triangle-height: $longer-diagonal / 2 - $side / 2;
     display: grid;
     grid-auto-flow: column;
     grid-template-rows: auto auto;
+    grid-template-columns: 1fr 1fr;
     justify-items: center;
     gap: 0.5rem 1rem;
 
