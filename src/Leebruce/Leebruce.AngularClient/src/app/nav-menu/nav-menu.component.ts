@@ -1,6 +1,7 @@
 import { Component } from '@angular/core';
 import { Collapse } from 'bootstrap';
 import { StatusClientService, StatusModel, UpdatesModel } from '../api/status-client/status-client.service';
+import { AuthenticationService, loginStatus } from '../api/authentication/authentication.service';
 
 @Component( {
   selector: 'app-nav-menu',
@@ -11,10 +12,13 @@ export class NavMenuComponent {
   collapse?: Collapse
   updates: UpdatesModel | null = null
   hasUpdates: boolean = false
+  isLoggedIn = false
 
   constructor(
+    authService: AuthenticationService,
     statusService: StatusClientService ) {
     statusService.updatesSinceLastLogin.subscribe( { next: updates => this.onStatusChanged( updates ) } )
+    authService.loginStatus.subscribe( { next: status => this.onLoginStatusChange( status ) } )
   }
 
   ngOnInit() {
@@ -32,6 +36,10 @@ export class NavMenuComponent {
         || status.updates.newGrades
         || status.updates.newHomeworks
         || status.updates.newMessages ) > 0
+  }
+
+  private onLoginStatusChange( status: loginStatus ) {
+    this.isLoggedIn = status.status == "authenticated"
   }
 
   toggleNavMenu() {

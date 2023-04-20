@@ -1,6 +1,6 @@
 import { HttpClient, HttpContext, HttpContextToken } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { catchError, map, ReplaySubject, tap, throwError } from 'rxjs';
+import { catchError, map, of, ReplaySubject, tap, throwError } from 'rxjs';
 import { HttpError, HttpProblem, ProblemDetails } from '../problem-details';
 
 export const IS_AUTH_ENABLED = new HttpContextToken( () => false );
@@ -45,6 +45,21 @@ export class AuthenticationService {
         map( _token => { } ),
         catchError( this.errorHandler )
       );
+  }
+
+  public logOut() {
+    let context = AUTH_ENABLED_CONTEXT
+    return this.http.post( 'api/auth/logout', null, { context: context } )
+      .pipe(
+        tap( () => this.notifySessionEnded() ),
+        catchError( ( error: HttpError ) => {
+          if ( error instanceof NotAuthenticatedError ) {
+            this.notifySessionEnded()
+            return of()
+          }
+          throw error
+        } )
+      )
   }
 
   private setToken( token: string ) {

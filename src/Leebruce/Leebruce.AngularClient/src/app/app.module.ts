@@ -36,6 +36,7 @@ import { GradesClientModule } from './api/grades-client/grades-client.module';
       { path: 'messages', title: 'Messages | Leebruce', loadChildren: () => import( './messages/messages.module' ).then( m => m.MessagesModule ) },
       { path: 'schedule', title: 'Schedule | Leebruce', loadChildren: () => import( './schedule/schedule.module' ).then( m => m.ScheduleModule ) },
       { path: 'grades', title: 'Grades | Leebruce', loadChildren: () => import( './grades/grades.module' ).then( m => m.GradesModule ) },
+      { path: 'logout', title: 'Logging out... | Leebruce', loadChildren: () => import( './logout/logout.module' ).then( m => m.LogoutModule ) },
     ] ),
     NavMenuModule,
     AuthenticationModule,
