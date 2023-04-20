@@ -22,8 +22,9 @@ export class AuthenticationInterceptor implements HttpInterceptor {
     }
 
     let ret = next.handle( request )
-      .pipe( catchError( error => this.authErrorMapper( error ) ) )
-
+    if ( request.context.get( IS_AUTH_ENABLED ) == true ) {
+      ret = ret.pipe( catchError( error => this.authErrorMapper( error ) ) )
+    }
     if ( request.context.get( IS_REDIRECT_TO_LOGIN ) == true ) {
       ret = ret.pipe( catchError( error => this.redirectToLoginErrorHandler( error ) ) )
     }
