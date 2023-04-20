@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Collapse } from 'bootstrap';
-import { StatusClientService, UpdatesModel } from '../api/status-client/status-client.service';
+import { StatusClientService, StatusModel, UpdatesModel } from '../api/status-client/status-client.service';
 
 @Component( {
   selector: 'app-nav-menu',
@@ -23,15 +23,15 @@ export class NavMenuComponent {
 
   }
 
-  onStatusChanged( updates: UpdatesModel | "notLoggedIn" ) {
-    this.updates = updates == "notLoggedIn" ? null : updates
-    this.hasUpdates = updates != "notLoggedIn"
-      && ( updates.newAbsences
-        || updates.newAnnouncements
-        || updates.newEvents
-        || updates.newGrades
-        || updates.newHomeworks
-        || updates.newMessages ) > 0
+  onStatusChanged( status: StatusModel | "notLoggedIn" ) {
+    this.updates = status == "notLoggedIn" ? null : status.updates
+    this.hasUpdates = status != "notLoggedIn"
+      && ( status.updates.newAbsences
+        || status.updates.newAnnouncements
+        || status.updates.newEvents
+        || status.updates.newGrades
+        || status.updates.newHomeworks
+        || status.updates.newMessages ) > 0
   }
 
   toggleNavMenu() {
