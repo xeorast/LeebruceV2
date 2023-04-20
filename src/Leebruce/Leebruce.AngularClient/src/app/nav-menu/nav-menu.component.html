@@ -12,23 +12,14 @@
     <button
         class="navbar-toggler position-relative"
         (click)="toggleNavMenu()">
-        <!-- <span>toggle</span> -->
         <span class="navbar-toggler-icon"></span>
         <span *ngIf="hasUpdates"
             class="position-absolute top-0 start-100 translate-middle p-2 bg-danger border border-light rounded-circle">
             <span class="visually-hidden">New alerts</span>
         </span>
     </button>
-    <!-- <button type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-        class="navbar-toggler">
-        <span class="navbar-toggler-icon"></span>
-    </button> -->
 </div>
 
-<!-- <div
-    class="navbar-collapse"
-    [ngClass]="{show: !collapseNavMenu}"
-    (click)="toggleNavMenu()"> -->
 <div id="navbarSupportedContent"
     class="navbar-collapse collapse"
     (click)="hideNavMenu()">

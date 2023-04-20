@@ -54,10 +54,6 @@ a {
     font-weight: inherit;
 }
 
-.navbar-toggler {
-    padding: .5rem;
-}
-
 ul.nav {
     list-style: none;
     padding-left: 0;
@@ -97,12 +93,6 @@ ul.nav {
     &::before {
         font-size: 1.2em;
     }
-}
-
-@media(max-width: 600px) {
-    /* .navbar-collapse:not(.show) {
-        display: none;
-    } */
 }
 
 @media(min-width: 600px) {

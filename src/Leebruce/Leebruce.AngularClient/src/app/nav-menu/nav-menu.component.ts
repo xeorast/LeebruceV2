@@ -8,7 +8,6 @@ import { StatusClientService, UpdatesModel } from '../api/status-client/status-c
   styleUrls: ['./nav-menu.component.scss']
 } )
 export class NavMenuComponent {
-  collapseNavMenu = true;
   collapse?: Collapse
   updates: UpdatesModel | null = null
   hasUpdates: boolean = false
@@ -36,7 +35,6 @@ export class NavMenuComponent {
   }
 
   toggleNavMenu() {
-    // this.collapseNavMenu = !this.collapseNavMenu;
     this.collapse?.toggle()
   }
   hideNavMenu() {
