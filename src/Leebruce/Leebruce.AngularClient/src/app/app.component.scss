@@ -1,3 +1,6 @@
+$collapse-threshold: 600px;
+$collapse-threshold-for-min: 600.02px;
+
 .page {
     display: grid;
     grid-template-areas:
@@ -38,7 +41,7 @@
     }
 }
 
-@media (max-width: 600px) {
+@media (max-width: $collapse-threshold) {
     .page {
         grid-template-areas:
             "sidebar"
@@ -49,7 +52,7 @@
     }
 }
 
-@media (min-width: 600px) {
+@media (min-width: $collapse-threshold-for-min) {
     .sidebar {
         width: 250px;
     }
