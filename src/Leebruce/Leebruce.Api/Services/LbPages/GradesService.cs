@@ -203,7 +203,7 @@ public partial class GradesService : IGradesService
 		var weightStr = gradeMatch.GetGroup( "weight" );
 
 		int? weight;
-		if ( string.IsNullOrWhiteSpace( weightStr ) )
+		if ( string.IsNullOrWhiteSpace( weightStr ) || weightStr is "-" )
 			weight = null;
 		else if ( int.TryParse( weightStr, out var weightNotNull ) )
 			weight = weightNotNull;
