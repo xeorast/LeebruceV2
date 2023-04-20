@@ -2,6 +2,7 @@
 <!-- subject   -->
 <!-- count  →  -->
 
+<!-- ACTUAL CONTENT -->
 <div *ngIf="subject"
     class="subject-tile"
     [ngClass]="[colorClass]">
@@ -31,6 +32,40 @@
     <small>{{count}} Grades</small>
     <!-- → -->
     <button></button>
+    <div class="btn details-arrow"><i class="bi bi-arrow-right"></i></div>
+
+    <!-- (3) -->
+    <div *ngIf="newCount" class="new-count badge rounded-pill text-bg-danger">{{newCount}}</div>
+</div>
+
+<!-- PLACEHOLDER -->
+<div *ngIf="!subject"
+    class="subject-tile"
+    [ngClass]="[colorClass]">
+    <!-- /  ‾‾\ -->
+    <!-- |5.27| -->
+    <!-- \____/ -->
+    <div class="average">
+        <div class="progress-ring">
+            <svg viewBox="0 0 110 110" preserveAspectRatio="none"
+                style="--progress-value: 0">
+                <circle class="rail" cx="55" cy="55" r="50"></circle>
+                <circle class="value" cx="55" cy="55" r="50"></circle>
+            </svg>
+            <div class="number">
+                <h2 class="placeholder m-0" style="width: 3ch;"></h2>
+            </div>
+        </div>
+    </div>
+    <!-- subject-name [warning-icon] -->
+    <h3 class="name">
+        <span class="placeholder col-7"></span>
+    </h3>
+    <!-- n Grades -->
+    <small>
+        <span class="placeholder col-3"></span>
+    </small>
+    <!-- → -->
     <div class="btn details-arrow"><i class="bi bi-arrow-right"></i></div>
 
     <!-- (3) -->

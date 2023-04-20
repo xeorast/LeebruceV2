@@ -1,9 +1,19 @@
 <div class="subjects-display">
+    <!-- ACTUAL CONTENT -->
     <app-grades-subject-item
         *ngFor="let subject of model?.subjects"
         [subject]="subject"
         (click)="select(subject)">
     </app-grades-subject-item>
+
+    <!-- PLACEHOLDER -->
+    <ng-container *ngIf="!model">
+        <app-grades-subject-item
+            class="placeholder-glow"
+            *ngFor="let item of [].constructor(7); let index = index;"
+            [subject]="undefined">
+        </app-grades-subject-item>
+    </ng-container>
 </div>
 
 <!-- Modal -->

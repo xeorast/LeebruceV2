@@ -26,9 +26,20 @@ export class GradesSubjectItemComponent implements OnInit {
       this.count = this.subject.firstTermGrades.length + this.subject.secondTermGrades.length
       this.newCount = this.subject.newGrades.firstTerm.length + this.subject.newGrades.secondTerm.length
     }
+    this.colorClass ??= `tile-${GradesSubjectItemComponent.getRandomItem( GradesSubjectItemComponent.tileNumbers )}`
   }
 
   static tileNumbers = [0, 1, 2, 3, 4, 6, 8, 10, 14, 16, 18, 20, 22, 24, 26, 28, 32]
+  static getRandomInt( min: number, max: number ) {
+    min = Math.ceil( min );
+    max = Math.floor( max );
+    return Math.floor( Math.random() * ( max - min ) + min );
+  }
+
+  static getRandomItem( arr: any[] ) {
+    return arr[GradesSubjectItemComponent.getRandomInt( 0, arr.length )]
+  }
+
   static getKnownColor( subject: string ) {
     switch ( subject ) {
       case "Język angielski":
