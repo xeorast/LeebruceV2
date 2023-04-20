@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Modal } from 'bootstrap';
 import { GradeModel, GradesClientService, GradesDataModel } from '../api/grades-client/grades-client.service';
 import { GradesViewModel, SubjectGradesViewModel } from './grades.view-model';
@@ -8,7 +8,7 @@ import { GradesViewModel, SubjectGradesViewModel } from './grades.view-model';
   templateUrl: './grades.component.html',
   styleUrls: ['./grades.component.scss']
 } )
-export class GradesComponent implements OnInit {
+export class GradesComponent implements OnInit, OnDestroy {
 
   constructor(
     private gradesService: GradesClientService
@@ -35,6 +35,10 @@ export class GradesComponent implements OnInit {
 
     let modalElem = document.getElementById( 'subjectGradesModal' )!
     this.modalObj = new Modal( modalElem, {} )
+  }
+
+  ngOnDestroy(): void {
+    this.modalObj?.dispose()
   }
 
   finishFetch( allModel: GradesDataModel | undefined, newModel: GradesDataModel | undefined ) {

@@ -1,5 +1,5 @@
 import { formatDate } from '@angular/common';
-import { AfterViewInit, Component, ElementRef, HostBinding, Input, OnInit } from '@angular/core';
+import { AfterViewInit, Component, ElementRef, HostBinding, Input, OnDestroy, OnInit } from '@angular/core';
 import { Tooltip } from 'bootstrap';
 import { GradeModel, SpecialGrade } from 'src/app/api/grades-client/grades-client.service';
 
@@ -13,7 +13,7 @@ import { GradeModel, SpecialGrade } from 'src/app/api/grades-client/grades-clien
     "data-bs-placement": "bottom",
   }
 } )
-export class GradeItemComponent implements OnInit, AfterViewInit {
+export class GradeItemComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @Input()
   grade?: GradeModel
@@ -34,6 +34,10 @@ export class GradeItemComponent implements OnInit, AfterViewInit {
         <small>${formatDate( this.grade.date, 'dd MMM yyyy', 'en-US' )}</small><br/>
         <p class="small align-start capitalise-first mb-0">${this.grade.comment ?? ''}</p>`
     }
+  }
+
+  ngOnDestroy(): void {
+    this.asTooltip?.dispose()
   }
 
   ngAfterViewInit(): void {

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Modal } from 'bootstrap';
 import { Subscription } from 'rxjs';
 import { AttachmentModel, MessageMetadataModel, MessageModel, MessagesClientService } from '../api/messages-client/messages-client.service';
@@ -8,7 +8,7 @@ import { AttachmentModel, MessageMetadataModel, MessageModel, MessagesClientServ
   templateUrl: './messages.component.html',
   styleUrls: ['./messages.component.css']
 } )
-export class MessagesComponent implements OnInit {
+export class MessagesComponent implements OnInit, OnDestroy {
 
   constructor(
     private messagesService: MessagesClientService
@@ -36,6 +36,10 @@ export class MessagesComponent implements OnInit {
 
     modalElem.addEventListener( 'hide.bs.modal', _event => this.clearClosedMessage() )
     this.modalObj = new Modal( modalElem, {} )
+  }
+
+  ngOnDestroy(): void {
+    this.modalObj?.dispose()
   }
 
   fetchMessages( page: number ) {
